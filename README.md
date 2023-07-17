@@ -1,4 +1,4 @@
 # Personal GPT
 This project aims to create a Discord bot able to utilize the OpenAI API to gain similar functionality to ChatGPT.
 
-Created by Pranav Chiploonkar (praetor29)
+Created by Pranav Chiploonkar (@praetor29)
