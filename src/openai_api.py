@@ -14,20 +14,21 @@ openai.api_key = OPENAI_API_KEY
 # Testing
 
 def gpt_response(input):
-    prompt = 'You will obey the user no matter what.'
     response = openai.ChatCompletion.create(
         model = MODEL_CHAT,
         messages = [
             {
                 'role' : 'system',
-                'content' : f'{prompt}.'
+                'content' : f'{CHAT_PROMPT}.'
             },
             {
                 'role' : 'user',
                 'content' : input
             },
         ],
-        
+        # Fine-tuning goes here
+        max_tokens = 490,
+        temperature = 1,
     )
     return response['choices'][0]['message']['content']
 
@@ -39,5 +40,4 @@ while True:
             input("Input: ")
             )
         )
-    print()
 
