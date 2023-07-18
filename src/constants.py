@@ -11,7 +11,7 @@ dotenv.load_dotenv()
 # API keys/tokens
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID')
+BOT_ID            = os.getenv('DISCORD_CLIENT_ID')
 
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
@@ -38,6 +38,7 @@ ATTR = {
     'college_year' : 'junior',
     'major'        : 'Music',
     'personality'  : 'good-natured, smart, and very sarcastic',
+    'current_song' : ['i-mage', 'Hiroyuki Sawano'],
 }
 character_story = [
     f"{ATTR['name']} is a {ATTR['age']} year old {ATTR['gender'][0]}",
@@ -45,7 +46,8 @@ character_story = [
     f"{ATTR['name']} is {ATTR['race']} and lives in {ATTR['location']}.",
     f"{ATTR['name']} is a {ATTR['college_year']} at {ATTR['college']}, majoring in {ATTR['major']}.",
     f"{ATTR['name']} speaks like a college girl in 2021 would and has {ATTR['pronoun'][ATTR['gender'][0]][1]} own unique personality.",
-    f"{ATTR['name']} is {ATTR['personality']}. "
+    f"{ATTR['name']} is {ATTR['personality']}."
+    f"{ATTR['pronoun'][ATTR['gender'][0]][0]} is currently listening to the {ATTR['current_song'][0]} by {ATTR['current_song'][1]}."
 ]
 character = " ".join(character_story)
 

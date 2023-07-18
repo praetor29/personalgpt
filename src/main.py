@@ -10,6 +10,7 @@
 # Import functions and constants
 from constants import *
 from utility import clear
+import utility
 import cognition
 import discord
 
@@ -34,7 +35,7 @@ async def on_ready():
         status   = discord.Status.idle,
         activity = discord.Activity(
         type     = discord.ActivityType.listening,
-        name     = 'i-mage',
+        name     = ATTR['current_song'][0],
         )
     )
     clear()
@@ -50,8 +51,11 @@ async def on_message(message):
     if message.author == bot.user:
         return
     
+    # Reply if mentioned
     if bot.user in message.mentions:
-        await message.reply("Hello World")
+        user_message = utility.bot_mention_strip(message.content)
+        bot_message = cognition.chat_response(user_message)
+        await message.reply(bot_message)
 
 
 '''
