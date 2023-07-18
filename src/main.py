@@ -2,26 +2,63 @@
 +------------------------------------------------------------------+
 | Title      : Personal GPT                                        |
 | Author     : Pranav Chiploonkar (@praetor29)                     |
-| Date       : 17 July 2023                                        |
 +------------------------------------------------------------------+
 | Description: This program runs the core loop of the discord bot. |
 +------------------------------------------------------------------+
 '''
 
-'''
-Agenda:
-
-1. Implement chat memory capabilities (per server DB). Must constantly embed to grow DB.
-2. Implement 'short term memory' = (relevant info from embed) + (5 recent texts - depending on tokens)
-3. Implement functions [like weather](https://platform.openai.com/docs/guides/gpt/function-calling)
-4. Implement slash commands that allow changing prompts? Maybe create thread where ping not needed.
-5. Encrypt text before storage for privacy policy.
-
-'''
-
 # Import functions and constants
 from constants import *
-from utility import *
+from utility import clear
+import utility
+import cognition
+import discord
 
-print("Hello")
+'''
+Declare intents
+'''
+intents = discord.Intents.default()
+intents.message_content = True
 
+'''
+Initialize discord bot
+'''
+bot = discord.Client(intents=intents)
+
+'''
+Confirm login
+Change status and activity
+'''
+@bot.event
+async def on_ready():
+    await bot.change_presence(
+        status   = discord.Status.idle,
+        activity = discord.Activity(
+        type     = discord.ActivityType.listening,
+        name     = ATTR['current_song'][0],
+        )
+    )
+    clear()
+    print(f'Successfully logged in as @{bot.user}.')
+    print()
+
+'''
+Reply to pings.
+'''
+@bot.event
+async def on_message(message):
+    # Ignore self messages
+    if message.author == bot.user:
+        return
+    
+    # Reply if mentioned
+    if bot.user in message.mentions:
+        user_message = utility.bot_mention_strip(message.content)
+        bot_message = cognition.chat_response(user_message)
+        await message.reply(bot_message)
+
+
+'''
+Run the bot
+'''
+bot.run(DISCORD_BOT_TOKEN)
