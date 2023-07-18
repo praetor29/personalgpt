@@ -10,8 +10,11 @@
 
 # Import functions and constants
 from constants import *
-from utility import *
+from utility import clear
+import cognition
 
-print("Hello")
+
+
+
 
 

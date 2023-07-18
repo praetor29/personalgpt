@@ -6,14 +6,10 @@
 
 import openai
 from constants import *
-from utility import *
 
 openai.api_key = OPENAI_API_KEY
 
-
-# Testing
-
-def gpt_response(input):
+def chat_response(input):
     response = openai.ChatCompletion.create(
         model = MODEL_CHAT,
         messages = [
@@ -27,17 +23,17 @@ def gpt_response(input):
             },
         ],
         # Fine-tuning goes here
-        max_tokens = 490,
+        max_tokens = CHAT_TOKEN_MAX,
         temperature = 1,
+        stream = True
     )
-    return response['choices'][0]['message']['content']
+    
+    stream = []
+    for chunk in response:
+        try:
+            stream.append(chunk['choices'][0]['delta']['content'])
+        except:
+            KeyError
 
-clear()
-
-while True:
-    print('GPT: '+
-        gpt_response(
-            input("Input: ")
-            )
-        )
-
+    assembled = ''.join(stream)
+    return assembled

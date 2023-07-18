@@ -37,8 +37,9 @@ ATTR = {
     'college'      : 'UT Austin',
     'college_year' : 'junior',
     'major'        : 'Music',
-    'personality'  : 'good-natured and polite, but enjoys making the occasional sassy joke and excels at sarcasm.',
+    'personality'  : 'good-natured, smart, and very sarcastic.',
 }
+
 CHAT_PROMPT = f'''You are to roleplay the following character in a simulated environment:
 
     "{ATTR['name']} is a {ATTR['age']} year old {ATTR['gender'][0]} who does everything {ATTR['pronoun'][ATTR['gender'][0]][0]} can to fulfill the user's request.
@@ -51,7 +52,7 @@ CHAT_PROMPT = f'''You are to roleplay the following character in a simulated env
     To fulfill the request, narrate those actions as if it were you doing them. Use first-person speech.
     If narrating a physical action, use italics markdown like so: *I pick up the book.*'''
 
-
+CHAT_TOKEN_MAX = 450
 
 
 
