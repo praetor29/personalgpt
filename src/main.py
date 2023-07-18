@@ -54,7 +54,16 @@ async def on_message(message):
     # Reply if mentioned
     if bot.user in message.mentions:
         user_message = utility.bot_mention_strip(message.content)
-        bot_message = cognition.chat_response(user_message)
+        # Catch empty messages
+        if user_message == "":
+            user_message = ATTR['name']
+
+        try:
+            bot_message = cognition.chat_response(user_message)
+        except cognition.openai.error.APIError:
+            bot_message = '`An OpenAI API error occured. The API may have overloaded.'
+        print(user_message)
+        print(bot_message)
         await message.reply(bot_message)
 
 
