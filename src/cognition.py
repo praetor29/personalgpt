@@ -15,7 +15,7 @@ def chat_response(input):
         messages = [
             {
                 'role' : 'system',
-                'content' : f'{CHAT_PROMPT}.'
+                'content' : f'{PROMPT_CHAT}'
             },
             {
                 'role' : 'user',
