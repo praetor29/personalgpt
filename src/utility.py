@@ -7,6 +7,7 @@
 import os
 from constants import *
 import datetime
+from pytz import timezone
 
 def clear():
     '''
@@ -22,11 +23,9 @@ def bot_mention_strip(message):
     message_clean = message.removeprefix(mention).strip()
     return message_clean
 
-def date():
+def current_date():
     '''
-    Fetches current date and time.
+    Fetches current US/Central date and time in M, D, Y, H:M:S
     '''
-    value = str(datetime.datetime.now())
+    value = datetime.datetime.now(timezone('US/Central')).strftime("%A, %B %d, %Y, %I:%M %p")
     return value
-
-print(BOT_ID)

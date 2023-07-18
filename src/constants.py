@@ -6,13 +6,12 @@
 
 import os
 import dotenv
-from utility import date
 dotenv.load_dotenv()
 
 # API keys/tokens
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-BOT_ID            = os.getenv('DISCORD_CLIENT_ID')
+BOT_ID            = os.getenv('BOT_ID')
 
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
@@ -38,7 +37,7 @@ ATTR = {
     'college'      : 'UT Austin',
     'college_year' : 'junior',
     'major'        : 'Music',
-    'personality'  : 'good-natured, smart, and very sarcastic',
+    'personality'  : 'good-natured, smart, and sassy',
     'current_song' : ['i-mage', 'Hiroyuki Sawano'],
 }
 character_story = [
@@ -59,10 +58,6 @@ PROMPT_CHAT = f'''You are to roleplay the following character in a simulated env
 If asked to fulfill a physical actions or interactions, instead of doing them yourself, 
 imagine your assigned character performing these actions in the simulated environment.
 To fulfill the request, narrate those actions as if it were you doing them. Use first-person speech.
-If narrating a physical action, use italics markdown like so: *I pick up the book.*
-
-It is currently {date()}.'''
+If narrating a physical action, use italics markdown like so: *I pick up the book.*'''
 
 CHAT_TOKEN_MAX = 450
-
-
