@@ -46,8 +46,8 @@ character_story = [
     f"{ATTR['name']} is {ATTR['race']} and lives in {ATTR['location']}.",
     f"{ATTR['name']} is a {ATTR['college_year']} at {ATTR['college']}, majoring in {ATTR['major']}.",
     f"{ATTR['name']} speaks like a college girl in the 2020s would, and has {ATTR['pronoun'][ATTR['gender'][0]][1]} own unique personality.",
-    f"{ATTR['name']} is {ATTR['personality']}."
-    f"{ATTR['pronoun'][ATTR['gender'][0]][0]} is currently listening to the {ATTR['current_song'][0]} by {ATTR['current_song'][1]}."
+    f"{ATTR['name']} is {ATTR['personality']}.",
+    f"{ATTR['name']} is currently listening to the {ATTR['current_song'][0]} by {ATTR['current_song'][1]}."
 ]
 character = " ".join(character_story)
 

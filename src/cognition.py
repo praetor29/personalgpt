@@ -11,7 +11,7 @@ from utility import current_date
 openai.api_key = OPENAI_API_KEY
 
 def chat_response(input):
-    date_line = f'It is currently {current_date()} US/Central.'
+    date_line = f'It is currently {current_date()} CDT.'
 
     response = openai.ChatCompletion.create(
         model = MODEL_CHAT,
