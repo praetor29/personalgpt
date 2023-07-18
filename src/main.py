@@ -60,10 +60,8 @@ async def on_message(message):
 
         try:
             bot_message = cognition.chat_response(user_message)
-        except cognition.openai.error.APIError:
-            bot_message = '`An OpenAI API error occured. The API may have overloaded.'
-        print(user_message)
-        print(bot_message)
+        except cognition.openai.error.OpenAIError:
+            bot_message = '`An OpenAI API error occured.`\n`Please contact` <@704328610567159918> `if the problem persists.` '
         await message.reply(bot_message)
 
 
