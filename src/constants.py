@@ -62,4 +62,8 @@ imagine your assigned character performing these actions in the simulated enviro
 To fulfill the request, narrate those actions as if it were you doing them. Use first-person speech.
 If narrating a physical action, use italics markdown like so: *I pick up the book.*'''
 
+# Tokens
+LONG_MEM_MAX   = 1000
+SHORT_MEM_MAX  = 2000
 CHAT_TOKEN_MAX = 450
+
