@@ -54,6 +54,7 @@ async def on_message(message):
     # Reply if mentioned
     if bot.user in message.mentions:
         user_message = utility.bot_mention_strip(message.content)
+
         # Catch empty messages
         if user_message == "":
             user_message = ATTR['name']
@@ -61,7 +62,12 @@ async def on_message(message):
         try:
             bot_message = cognition.chat_response(user_message)
         except cognition.openai.error.OpenAIError:
-            bot_message = '`An OpenAI API error occured.`\n`Please contact` <@704328610567159918> `if the problem persists.` '
+            bot_message = ERROR_OPENAI
+        
+        # Catch empty messages
+        if bot_message == "":
+            bot_message = ERROR_OPENAI
+
         await message.reply(bot_message)
 
 

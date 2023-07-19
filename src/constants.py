@@ -18,8 +18,10 @@ MODEL_EMBED     = 'text-embedding-ada-002'
 MODEL_SUMMARIZE = 'text-curie-001'
 MODEL_CHAT      = 'gpt-3.5-turbo'
 
-# Prompts
+# Error Messages
+ERROR_OPENAI    = '`An OpenAI API error occured.`\n`Please contact` <@704328610567159918> `if the problem persists.`'
 
+# Prompts
 '''
 MODEL_CHAT
 Has an attributes dictionary for character creation.
