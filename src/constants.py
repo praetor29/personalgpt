@@ -18,8 +18,10 @@ MODEL_EMBED     = 'text-embedding-ada-002'
 MODEL_SUMMARIZE = 'text-curie-001'
 MODEL_CHAT      = 'gpt-3.5-turbo'
 
-# Prompts
+# Error Messages
+ERROR_OPENAI    = '`An OpenAI API error occured.`\n`Please contact` <@704328610567159918> `if the problem persists.`'
 
+# Prompts
 '''
 MODEL_CHAT
 Has an attributes dictionary for character creation.
@@ -46,8 +48,8 @@ character_story = [
     f"{ATTR['name']} is {ATTR['race']} and lives in {ATTR['location']}.",
     f"{ATTR['name']} is a {ATTR['college_year']} at {ATTR['college']}, majoring in {ATTR['major']}.",
     f"{ATTR['name']} speaks like a college girl in the 2020s would, and has {ATTR['pronoun'][ATTR['gender'][0]][1]} own unique personality.",
-    f"{ATTR['name']} is {ATTR['personality']}."
-    f"{ATTR['pronoun'][ATTR['gender'][0]][0]} is currently listening to the {ATTR['current_song'][0]} by {ATTR['current_song'][1]}."
+    f"{ATTR['name']} is {ATTR['personality']}.",
+    f"{ATTR['name']} is currently listening to the {ATTR['current_song'][0]} by {ATTR['current_song'][1]}."
 ]
 character = " ".join(character_story)
 
@@ -60,4 +62,8 @@ imagine your assigned character performing these actions in the simulated enviro
 To fulfill the request, narrate those actions as if it were you doing them. Use first-person speech.
 If narrating a physical action, use italics markdown like so: *I pick up the book.*'''
 
-CHAT_TOKEN_MAX = 450
+# Tokens
+LONG_MEM_MAX   = 900
+SHORT_MEM_MAX  = 1900
+CHAT_TOKEN_MAX = 400
+

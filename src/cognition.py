@@ -6,12 +6,15 @@
 
 import openai
 from constants import *
-from utility import current_date
+from utility import current_date, tokenizer
 
 openai.api_key = OPENAI_API_KEY
 
-def chat_response(input):
-    date_line = f'It is currently {current_date()} US/Central.'
+def chat_response(input: str) -> str:
+    '''
+    Sends the chat prompt + user_message to the API
+    '''
+    date_line = f'It is currently {current_date()} CDT.'
 
     response = openai.ChatCompletion.create(
         model = MODEL_CHAT,
@@ -40,3 +43,7 @@ def chat_response(input):
 
     assembled = ''.join(stream)
     return assembled
+
+'''
+Allow per paragraph streaming (multiple messages)
+'''
