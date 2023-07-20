@@ -63,7 +63,7 @@ To fulfill the request, narrate those actions as if it were you doing them. Use 
 If narrating a physical action, use italics markdown like so: *I pick up the book.*'''
 
 # Tokens
-LONG_MEM_MAX   = 1000
-SHORT_MEM_MAX  = 2000
-CHAT_TOKEN_MAX = 450
+LONG_MEM_MAX   = 900
+SHORT_MEM_MAX  = 1900
+CHAT_TOKEN_MAX = 400
 

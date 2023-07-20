@@ -49,10 +49,10 @@ class Queue:
         '''Returns a list of messages in queue.'''
         messages = []
         for metadata in self.queue:
-            timestamp = metadata['timestamp'][-8:]
+            tokens = self.total_tokens
             author    = metadata['author']
             message   = metadata['message']
-            messages.append(f'{timestamp} | {author}: {message}')
+            messages.append(f'{tokens} | {author}: {message}')
         return messages
 
 class ShortTermMemory:
