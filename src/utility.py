@@ -59,3 +59,28 @@ def tokenizer(input: str, model) -> int:
                     tokens += tokens_per_name
         tokens += 3
         return tokens
+    
+def splitter(input: str) -> list:
+    '''
+    Splits a string into a list of strings
+    of 2000 characters max without breaking words.
+    '''
+    words = input.split(' ')
+    capsule = []
+    packet = ''
+
+    for word in words:
+        if len(packet + word + ' ') > 2000:
+            # Add packet
+            capsule.append(packet)
+            # Create new packet
+            packet = word + ' '
+        else:
+            # Add words to packet
+            packet += word + ' '
+
+    # Add the last message if not empty
+    if packet:
+        capsule.append(packet)
+
+    return capsule

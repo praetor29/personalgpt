@@ -5,23 +5,27 @@
 '''
 
 import openai
-from constants import *
-from utility import current_date, tokenizer
+import asyncio
+import concurrent.futures
+import constants
+from utility import current_date
 
-openai.api_key = OPENAI_API_KEY
+openai.api_key = constants.OPENAI_API_KEY
+pool = concurrent.futures.ThreadPoolExecutor()
 
-def chat_response(input: str) -> str:
+
+def chat_link(input: str) -> str:
     '''
-    Sends the chat prompt + user_message to the API
+    Communicates with the API on a separate thread.
     '''
-    date_line = f'It is currently {current_date()} CDT.'
+    date_line = f'{current_date()} CDT.'
 
-    response = openai.ChatCompletion.create(
-        model = MODEL_CHAT,
+    downlink = openai.ChatCompletion.create(
+        model = constants.MODEL_CHAT,
         messages = [
             {
                 'role' : 'system',
-                'content' : f'{PROMPT_CHAT}\n{date_line}',
+                'content' : f'{constants.PROMPT_CHAT}\n{date_line}',
             },
             {
                 'role' : 'user',
@@ -29,21 +33,26 @@ def chat_response(input: str) -> str:
             },
         ],
         # Fine-tuning goes here
-        max_tokens = CHAT_TOKEN_MAX,
+        max_tokens = constants.CHAT_TOKEN_MAX,
         temperature = 1,
-        stream = True
     )
     
-    stream = []
-    for chunk in response:
-        try:
-            stream.append(chunk['choices'][0]['delta']['content'])
-        except:
-            KeyError
+    try:
+        response = downlink['choices'][0]['message']['content']
+    except (KeyError, openai.error.OpenAIError):
+        response = constants.ERROR_OPENAI
+    return response
 
-    assembled = ''.join(stream)
-    return assembled
+async def chat_response(input: str) -> str:
+    '''
+    Sends the chat prompt + user_message to the API.
+    '''
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(pool, chat_link, input)
+    return response
+
+
 
 '''
-Allow per paragraph streaming (multiple messages)
+Allow per paragraph streaming (multiple messages)!
 '''

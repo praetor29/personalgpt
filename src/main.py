@@ -8,7 +8,7 @@
 '''
 
 # Import functions and constants
-from constants import *
+import constants
 from utility import clear
 import utility
 import cognition
@@ -33,10 +33,10 @@ Change status and activity
 @bot.event
 async def on_ready():
     await bot.change_presence(
-        status   = discord.Status.online,
+        status   = discord.Status.idle,
         activity = discord.Activity(
         type     = discord.ActivityType.listening,
-        name     = ATTR['current_song'][0],
+        name     = constants.SONG,
         )
     )
     clear()
@@ -44,32 +44,15 @@ async def on_ready():
     print()
 
 '''
-Initialize ShortTermMemory class
-'''
-ShortTermMemory = memory.ShortTermMemory()
-
-'''
 Bot functioning
 '''
 @bot.event
 async def on_message(message):   
 
-    # ShortTermMemory
-    ShortTermMemory.update_memory(
-        channel_id     = message.channel.id,
-        author         = message.author,
-        author_id      = message.author.id,
-        chat_message   = message.clean_content
-    )
-    
-    # Print queue
-    channel_queue = ShortTermMemory.short_mem.get(message.channel.id)
-    if channel_queue:
-        messages = channel_queue.get_messages()
-        
-        clear()
-        for item in messages:
-            print(item)
+    # channel_id     = message.channel.id,
+    # author         = message.author,
+    # author_id      = message.author.id,
+    # chat_message   = message.clean_content
     
     # Ignore own messages
     if message.author == bot.user:
@@ -77,25 +60,26 @@ async def on_message(message):
 
     # Reply if mentioned
     if bot.user in message.mentions:
-        user_message = message.content.removeprefix(f'<@{BOT_ID}>').strip()
+        # Strip prefix
+        bot_prefix   = f'<@{constants.BOT_ID}>'
+        user_message = message.content.removeprefix(bot_prefix).strip()
 
         # Catch empty messages
         if not user_message:
-            user_message = ATTR['name']
+            user_message = bot.user.name
 
         try:
-            bot_message = cognition.chat_response(user_message)
+            gpt_response = await cognition.chat_response(user_message)
         except cognition.openai.error.OpenAIError:
-            bot_message = ERROR_OPENAI
-        
-        # Catch empty messages
-        if not bot_message:
-            bot_message = ERROR_OPENAI
-        
-        await message.reply(bot_message)
+            gpt_response = constants.ERROR_OPENAI
 
+        print(gpt_response)
+        
+        payload = utility.splitter(gpt_response)
+        for packet in payload:
+            await message.reply(packet)
 
 '''
 Run the bot
 '''
-bot.run(DISCORD_BOT_TOKEN)
+bot.run(constants.DISCORD_BOT_TOKEN)
