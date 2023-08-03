@@ -36,7 +36,7 @@ async def on_ready():
         status   = discord.Status.online,
         activity = discord.Activity(
         type     = discord.ActivityType.listening,
-        name     = ATTR['current_song'][0],
+        name     = 'THE SIXTH LIE「ラストページ」',
         )
     )
     clear()
@@ -81,7 +81,7 @@ async def on_message(message):
 
         # Catch empty messages
         if not user_message:
-            user_message = ATTR['name']
+            user_message = bot.user.name
 
         try:
             bot_message = cognition.chat_response(user_message)
