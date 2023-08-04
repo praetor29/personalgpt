@@ -46,22 +46,21 @@ async def on_ready():
 '''
 Bot functioning
 '''
+
+# Initialize ShortTermMemory
+ShortTermMemory = memory.ShortTermMemory()
+
 @bot.event
 async def on_message(message):   
 
-    # channel_id     = message.channel.id,
-    # author         = message.author,
-    # author_id      = message.author.id,
-    # chat_message   = message.clean_content
-    
-    # Ignore own messages
-    if message.author == bot.user:
-        return
-
-    # Reply if mentioned
+    '''Response loop when mentioned.'''
     if bot.user in message.mentions:
+        # Ignore own messages
+        if message.author == bot.user:
+            return
+        
         # Strip prefix
-        bot_prefix   = f'<@{constants.BOT_ID}>'
+        bot_prefix   = f'<@{bot.user.id}>'
         user_message = message.content.removeprefix(bot_prefix).strip()
 
         # Catch empty messages
@@ -72,12 +71,37 @@ async def on_message(message):
             gpt_response = await cognition.chat_response(user_message)
         except cognition.openai.error.OpenAIError:
             gpt_response = constants.ERROR_OPENAI
-
-        print(gpt_response)
-        
+               
         payload = utility.splitter(gpt_response)
         for packet in payload:
             await message.reply(packet)
+
+    '''Updating ShortTermMemory.'''
+    if message.author != bot.user:
+        # Pushes user package
+        package_user = {
+            'channel.id' :  message.channel.id,
+            'author'     : (message.author.id, message.author.name),
+            'message'    :  message.clean_content,
+        }
+        await ShortTermMemory.add(package=package_user)
+    
+    # Pushes bot package
+    if bot.user in message.mentions:
+        # Ignore own messages
+        if message.author == bot.user:
+            return
+        
+        package_bot  = {
+            'channel.id' :  message.channel.id,
+            'author'     : (bot.user.id, bot.user.name),
+            'message'    :  gpt_response,
+        }
+        await ShortTermMemory.add(package=package_bot)
+
+    buffer = await ShortTermMemory.read(id=message.channel.id)
+    clear()
+    print(buffer)
 
 '''
 Run the bot

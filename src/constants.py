@@ -11,7 +11,6 @@ dotenv.load_dotenv()
 # API keys/tokens
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-BOT_ID            = os.getenv('BOT_ID')
 
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
@@ -28,10 +27,9 @@ SONG = 'Sk8er Boi (Avril Lavigne)'
 
 chat_prompt_path = os.path.join('cogs', 'prompt.txt')
 with open(chat_prompt_path, 'r', encoding='utf-8') as chat_prompt:
-    PROMPT_CHAT = ''.join(chat_prompt.readlines())
+    PROMPT_CHAT = ''.join(chat_prompt.readlines()).format(SONG=SONG)
 
 # Tokens
 LONG_MEM_MAX   = 900
 SHORT_MEM_MAX  = 1900
 CHAT_TOKEN_MAX = 450
-
