@@ -5,45 +5,66 @@
 '''
 
 import openai
-from constants import *
-from utility import current_date, tokenizer
+import asyncio
+import concurrent.futures
+import constants
+import utility
 
-openai.api_key = OPENAI_API_KEY
+openai.api_key = constants.OPENAI_API_KEY
+pool = concurrent.futures.ThreadPoolExecutor()
 
-def chat_response(input: str) -> str:
+
+def chat_link(input: str, short_history: list) -> str:
     '''
-    Sends the chat prompt + user_message to the API
+    Communicates with the API on a separate thread.
     '''
-    date_line = f'It is currently {current_date()} CDT.'
-
-    response = openai.ChatCompletion.create(
-        model = MODEL_CHAT,
-        messages = [
+    # day/date/time context.
+    date_line = f'It is currently {utility.current_date()} {constants.TIMEZONE}.'
+    
+    # Initializes uplink
+    uplink = [
             {
-                'role' : 'system',
-                'content' : f'{PROMPT_CHAT}\n{date_line}',
+                'role'    : 'system',
+                'content' : constants.PROMPT_CHAT,
             },
             {
-                'role' : 'user',
-                'content' : input
+                'role'    : 'system',
+                'content' : date_line,
             },
-        ],
-        # Fine-tuning goes here
-        max_tokens = CHAT_TOKEN_MAX,
+    ]
+    # Extends uplink with short history
+    uplink.extend(short_history)
+    # Finalizes uplink with user input
+    uplink.append(
+        {
+            'role'    : 'user',
+            'content' : input,
+        }
+    )
+
+    downlink = openai.ChatCompletion.create(
+        model = constants.MODEL_CHAT,
+        messages = uplink,
+
+        # Fine-tuning:
+        max_tokens = constants.CHAT_TOKEN_MAX,
         temperature = 1,
-        stream = True
     )
     
-    stream = []
-    for chunk in response:
-        try:
-            stream.append(chunk['choices'][0]['delta']['content'])
-        except:
-            KeyError
+    try:
+        response = downlink['choices'][0]['message']['content']
+    except (KeyError, openai.error.OpenAIError):
+        response = constants.ERROR_OPENAI
+    return response
 
-    assembled = ''.join(stream)
-    return assembled
+async def chat_response(input: str, short_history: list) -> str:
+    '''
+    Sends the chat prompt + user_message to the API.
+    '''
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(pool, chat_link, input, short_history)
+    return response
 
 '''
-Allow per paragraph streaming (multiple messages)
+Allow per paragraph streaming (multiple messages)!
 '''

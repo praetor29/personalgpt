@@ -3,72 +3,97 @@
  This file handles memory and context management.
 +------------------------------------------------+
 '''
-
-from constants import *
+import constants
+import asyncio
 import utility
+from ext.fifolock import FifoLock, Read, Write
 
-class Queue:
-    '''
-    Message queueing technology.
-    '''
-    def __init__(self, max_tokens: int):
-        '''Initialize queue'''
-        self.queue = []
-        self.total_tokens = 0
-        self.max_tokens = max_tokens
+class ShortTermMemory():
+    def __init__(self, maxsize=50) -> None:
+        '''Initialize ShortTermMemory.'''
+        # Create a channel library
+        self.library = {}
+        # Create attributes
+        self.maxsize = maxsize
+        self.lock  = FifoLock()
+    
+    '''Queue Manipulation Methods'''
 
-    def enqueue(self, chat_message: str, author: str, author_id: int):
-        '''Add to queue.'''
+    async def add(self, package: dict):
+        '''Adds channel-specific package to ShortTermMemory.'''
+        # Remove and allocate channel.id from package
+        id = package.pop('channel.id')
+        # Create new entry if channel.id not in library
+        async with self.lock(Write):
+            if id and id not in self.library:
+                self.library[id] = asyncio.Queue(maxsize=self.maxsize)
+        # Enter package into specific channel.id
+        await self.library[id].put(package)
+        # Trim queue if required
+        await self.trim(id)
+    
+    async def trim(self, id):
+        '''Trims queue to SHORT_MEM_MAX.'''
+        async with self.lock(Write):
+            # Fetch channel specific data
+            buffer_raw = self.get_raw(id) # raw packages (list)
+            buffer     = self.format_snapshot(buffer_raw) # formatted snapshot list (for tokenizer)
+            queue  = self.library[id] # actual queue
+            # Run tokenizer
+            tokens = utility.tokenizer(input=buffer,
+                                       model=constants.MODEL_CHAT)
+            
+            # Trim end of queue
+            while tokens > constants.SHORT_MEM_MAX and not self.library[id].empty():
+                await queue.get()       # Removes oldest message
+                trimmed = [] # List to pass to tokenizer
+                trimmed.append(buffer.pop(0)) # Removes oldest message in snapshot
+                tokens -= utility.tokenizer(input=trimmed,
+                                            model=constants.MODEL_CHAT, )
 
-        # Calculate message tokens
-        tokens = utility.tokenizer(chat_message, None)
-
-        # Dequeue until new message fits
-        while (self.total_tokens + tokens) > self.max_tokens:
-            self.dequeue()
-        
-        metadata = {
-                'tokens'    : tokens,
-                'timestamp' : utility.current_date(),
-                'author'    : author,
-                'author_id' : author_id,
-                'message'   : chat_message,
-        }
-
-        self.queue.append(metadata)
-        self.total_tokens += tokens
-
-    def dequeue(self) -> dict:
-        '''Push out of queue.'''
-        if self.queue:
-            metadata = self.queue.pop(0)
-            self.total_tokens -= metadata['tokens']
-            return metadata
-
-    def get_messages(self) -> list:
-        '''Returns a list of messages in queue.'''
-        messages = []
-        for metadata in self.queue:
-            tokens = self.total_tokens
-            author    = metadata['author']
-            message   = metadata['message']
-            messages.append(f'{tokens} | {author}: {message}')
-        return messages
-
-class ShortTermMemory:
-    '''
-    Handles short term memory per channel.
-    '''
-    def __init__(self):
-        '''Initialize short-term memory dictionary.'''
-        self.short_mem = {}
-
-    def update_memory(self, channel_id: int, author: str, author_id: int, chat_message: str):
-        '''Update the short-term memory for a given channel.'''
-        
-        # If channel entry not exist
-        if channel_id not in self.short_mem:
-            self.short_mem[channel_id] = Queue(SHORT_MEM_MAX)
-        
-        # Enqueue
-        self.short_mem[channel_id].enqueue(chat_message, author, author_id)
+    async def read(self, id) -> list:
+        '''Returns contents of ShortTermMemory in role segregation.'''       
+        async with self.lock(Read):
+             buffer_raw = self.get_raw(id) # Get raw packages
+             snapshot   = self.format_snapshot(buffer_raw)
+             return snapshot
+    
+    '''Data Processing Methods'''
+    def get_raw(self, id) -> list:
+        '''Retrieves list of raw packages from queue.'''
+        # If not exists, return blank []
+        if id not in self.library:
+            return []
+        else:
+            # Return list of packages
+            return list(self.library[id]._queue)
+    
+    def format_snapshot(self, buffer_raw) -> list:
+        '''Formats the raw snapshot to OpenAI format.'''
+        snapshot = []
+        for message in buffer_raw:
+            # Fetch attributes
+            timestamp = message.get('timestamp')
+            name      = message.get('author').get('name')
+            text      = message.get('message') 
+            # Designate role
+            author_id = message.get('author').get('id')
+            if str(author_id) == str(constants.DISCORD_BOT_ID):
+                role  = 'assistant'
+            else:
+                role  = 'user'
+            # Format
+            snapshot.append(
+                {
+                'role'    : 'system',
+                'content' : f'{timestamp} | {name}:',
+                }
+            )
+            snapshot.append(
+                {
+                'role'    : role,
+                'content' : text,
+                }
+            )
+        # Return conversation list
+        return snapshot

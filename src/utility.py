@@ -5,7 +5,7 @@
 '''
 
 import os
-from constants import *
+import constants
 import datetime
 from pytz import timezone
 import tiktoken
@@ -16,12 +16,12 @@ def clear() -> None:
 
 def current_date() -> str:
     '''
-    Fetches current US/Central date and time in M, D, Y, H:M:S
+    Fetches current US/Central date and time in M, D, Y, H:M
     '''
     value = datetime.datetime.now(timezone('US/Central')).strftime("%A, %B %d, %Y, %I:%M %p")
     return value
 
-def tokenizer(input: str, model) -> int:
+def tokenizer(input, model) -> int:
     '''
     Calculates number of tokens in the input.
     '''
@@ -59,3 +59,28 @@ def tokenizer(input: str, model) -> int:
                     tokens += tokens_per_name
         tokens += 3
         return tokens
+    
+def splitter(input: str) -> list:
+    '''
+    Splits a string into a list of strings
+    of 2000 characters max without breaking words.
+    '''
+    words = input.split(' ')
+    capsule = []
+    packet = ''
+
+    for word in words:
+        if len(packet + word + ' ') > constants.DISCORD_CHAR_MAX:
+            # Add packet
+            capsule.append(packet)
+            # Create new packet
+            packet = word + ' '
+        else:
+            # Add words to packet
+            packet += word + ' '
+
+    # Add the last message if not empty
+    if packet:
+        capsule.append(packet)
+
+    return capsule

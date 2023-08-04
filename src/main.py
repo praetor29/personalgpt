@@ -8,7 +8,7 @@
 '''
 
 # Import functions and constants
-from constants import *
+import constants
 from utility import clear
 import utility
 import cognition
@@ -33,10 +33,10 @@ Change status and activity
 @bot.event
 async def on_ready():
     await bot.change_presence(
-        status   = discord.Status.online,
+        status   = discord.Status.idle,
         activity = discord.Activity(
         type     = discord.ActivityType.listening,
-        name     = 'THE SIXTH LIE「ラストページ」',
+        name     = constants.SONG,
         )
     )
     clear()
@@ -44,58 +44,74 @@ async def on_ready():
     print()
 
 '''
-Initialize ShortTermMemory class
-'''
-ShortTermMemory = memory.ShortTermMemory()
-
-'''
 Bot functioning
 '''
+
+# Initialize ShortTermMemory
+ShortTermMemory = memory.ShortTermMemory()
+
 @bot.event
 async def on_message(message):   
 
-    # ShortTermMemory
-    ShortTermMemory.update_memory(
-        channel_id     = message.channel.id,
-        author         = message.author,
-        author_id      = message.author.id,
-        chat_message   = message.clean_content
-    )
-    
-    # Print queue
-    channel_queue = ShortTermMemory.short_mem.get(message.channel.id)
-    if channel_queue:
-        messages = channel_queue.get_messages()
-        
-        clear()
-        for item in messages:
-            print(item)
-    
-    # Ignore own messages
-    if message.author == bot.user:
-        return
-
-    # Reply if mentioned
+    '''Response loop when mentioned.'''
     if bot.user in message.mentions:
-        user_message = message.content.removeprefix(f'<@{BOT_ID}>').strip()
+        # Ignore own messages
+        if message.author == bot.user:
+            return
+        
+        # Strip prefix
+        bot_prefix   = f'<@{bot.user.id}>'
+        user_message = message.content.removeprefix(bot_prefix).strip()
 
         # Catch empty messages
         if not user_message:
             user_message = bot.user.name
 
         try:
-            bot_message = cognition.chat_response(user_message)
+            short_history = await ShortTermMemory.read(id=message.channel.id)
+            clear()
+            print(short_history)
+            gpt_response  = await cognition.chat_response(input=user_message,
+                                                          short_history=short_history)
         except cognition.openai.error.OpenAIError:
-            bot_message = ERROR_OPENAI
-        
-        # Catch empty messages
-        if not bot_message:
-            bot_message = ERROR_OPENAI
-        
-        await message.reply(bot_message)
+            gpt_response = constants.ERROR_OPENAI
+               
+        payload = utility.splitter(gpt_response)
+        for packet in payload:
+            await message.reply(packet)
 
+    '''Updating ShortTermMemory.'''
+    if message.author != bot.user:
+        # Pushes user package
+        package_user = {
+            'channel.id' : message.channel.id,
+            'timestamp'  : utility.current_date(),
+            'author'     : {
+                'id'     : message.author.id,
+                'name'   : message.author.name
+                            },
+            'message'    : message.clean_content,
+        }
+        await ShortTermMemory.add(package=package_user)
+    
+    # Pushes bot package
+    if bot.user in message.mentions:
+        # Ignore own messages
+        if message.author == bot.user:
+            return
+        
+        package_bot  = {
+            'channel.id' : message.channel.id,
+            'timestamp'  : utility.current_date(),
+            'author'     : {
+                'id'     : bot.user.id,
+                'name'   : bot.user.name
+                            },
+            'message'    : gpt_response,
+        }
+        await ShortTermMemory.add(package=package_bot)
 
 '''
 Run the bot
 '''
-bot.run(DISCORD_BOT_TOKEN)
+bot.run(constants.DISCORD_BOT_TOKEN)
