@@ -33,6 +33,6 @@ with open(chat_prompt_path, 'r', encoding='utf-8') as chat_prompt:
 
 # Tokens
 LONG_MEM_MAX     = 900
-SHORT_MEM_MAX    = 1900
+SHORT_MEM_MAX    = 2000
 CHAT_TOKEN_MAX   = 450
 DISCORD_CHAR_MAX = 2000

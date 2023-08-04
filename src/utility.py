@@ -21,7 +21,7 @@ def current_date() -> str:
     value = datetime.datetime.now(timezone('US/Central')).strftime("%A, %B %d, %Y, %I:%M %p")
     return value
 
-def tokenizer(input: str, model) -> int:
+def tokenizer(input, model) -> int:
     '''
     Calculates number of tokens in the input.
     '''

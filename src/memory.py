@@ -17,6 +17,8 @@ class ShortTermMemory():
         self.maxsize = maxsize
         self.lock  = FifoLock()
     
+    '''Queue Manipulation Methods'''
+
     async def add(self, package: dict):
         '''Adds channel-specific package to ShortTermMemory.'''
         # Remove and allocate channel.id from package
@@ -29,59 +31,69 @@ class ShortTermMemory():
         await self.library[id].put(package)
         # Trim queue if required
         await self.trim(id)
-
-
+    
     async def trim(self, id):
         '''Trims queue to SHORT_MEM_MAX.'''
         async with self.lock(Write):
             # Fetch channel specific data
-            buffer = await self.read(id) # formatted snapshot (for tokenizer)
+            buffer_raw = self.get_raw(id) # raw packages (list)
+            buffer     = self.format_snapshot(buffer_raw) # formatted snapshot list (for tokenizer)
             queue  = self.library[id] # actual queue
             # Run tokenizer
             tokens = utility.tokenizer(input=buffer,
                                        model=constants.MODEL_CHAT)
             
             # Trim end of queue
-            while tokens > constants.CHAT_TOKEN_MAX and not self.library[id].empty():
+            while tokens > constants.SHORT_MEM_MAX and not self.library[id].empty():
                 await queue.get()       # Removes oldest message
-                trimmed = buffer.pop(0) # Removes oldest message in snapshot
+                trimmed = [] # List to pass to tokenizer
+                trimmed.append(buffer.pop(0)) # Removes oldest message in snapshot
                 tokens -= utility.tokenizer(input=trimmed,
                                             model=constants.MODEL_CHAT, )
 
     async def read(self, id) -> list:
         '''Returns contents of ShortTermMemory in role segregation.'''       
         async with self.lock(Read):
-            # If not exists, return blank []
-            if id not in self.library:
-                return ''
+             buffer_raw = self.get_raw(id) # Get raw packages
+             snapshot   = self.format_snapshot(buffer_raw)
+             return snapshot
+    
+    '''Data Processing Methods'''
+    def get_raw(self, id) -> list:
+        '''Retrieves list of raw packages from queue.'''
+        # If not exists, return blank []
+        if id not in self.library:
+            return []
+        else:
+            # Return list of packages
+            return list(self.library[id]._queue)
+    
+    def format_snapshot(self, buffer_raw) -> list:
+        '''Formats the raw snapshot to OpenAI format.'''
+        snapshot = []
+        for message in buffer_raw:
+            # Fetch attributes
+            timestamp = message.get('timestamp')
+            name      = message.get('author').get('name')
+            text      = message.get('message') 
+            # Designate role
+            author_id = message.get('author').get('id')
+            if str(author_id) == str(constants.DISCORD_BOT_ID):
+                role  = 'assistant'
             else:
-                # Return list of packages
-                buffer_raw = list(self.library[id]._queue)
-                # Clean up and format packages
-                snapshot = []
-                for message in buffer_raw:
-                    # Fetch attributes
-                    timestamp = message.get('timestamp')
-                    name      = message.get('author').get('name')
-                    text      = message.get('message') 
-                    # Designate role
-                    author_id = message.get('author').get('id')
-                    if str(author_id) == str(constants.DISCORD_BOT_ID):
-                        role  = 'assistant'
-                    else:
-                        role  = 'user'
-                    # Format
-                    snapshot.append(
-                        {
-                        'role'    : 'system',
-                        'content' : f'{timestamp} | {name}:',
-                        }
-                    )
-                    snapshot.append(
-                        {
-                        'role'    : role,
-                        'content' : text,
-                        }
-                    )
-                # Return conversation list
-                return snapshot
+                role  = 'user'
+            # Format
+            snapshot.append(
+                {
+                'role'    : 'system',
+                'content' : f'{timestamp} | {name}:',
+                }
+            )
+            snapshot.append(
+                {
+                'role'    : role,
+                'content' : text,
+                }
+            )
+        # Return conversation list
+        return snapshot
