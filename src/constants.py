@@ -11,6 +11,7 @@ dotenv.load_dotenv()
 # API keys/tokens
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY')
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+DISCORD_BOT_ID    = os.getenv('DISCORD_BOT_ID')
 
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
@@ -23,13 +24,15 @@ ERROR_OPENAI    = '`An OpenAI API error occured.`\n`Please contact` <@7043286105
 '''Prompts'''
 
 # Model Chat
-SONG = 'Sk8er Boi (Avril Lavigne)'
+SONG     = 'Can You Hear The Music (Ludwig Göransson)'
+TIMEZONE = 'CDT'
 
 chat_prompt_path = os.path.join('cogs', 'prompt.txt')
 with open(chat_prompt_path, 'r', encoding='utf-8') as chat_prompt:
-    PROMPT_CHAT = ''.join(chat_prompt.readlines()).format(SONG=SONG)
+    PROMPT_CHAT = chat_prompt.read().format(SONG=SONG)
 
 # Tokens
-LONG_MEM_MAX   = 900
-SHORT_MEM_MAX  = 1900
-CHAT_TOKEN_MAX = 450
+LONG_MEM_MAX     = 900
+SHORT_MEM_MAX    = 1900
+CHAT_TOKEN_MAX   = 450
+DISCORD_CHAR_MAX = 2000

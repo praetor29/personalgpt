@@ -5,7 +5,7 @@
 '''
 
 import os
-from constants import *
+import constants
 import datetime
 from pytz import timezone
 import tiktoken
@@ -16,7 +16,7 @@ def clear() -> None:
 
 def current_date() -> str:
     '''
-    Fetches current US/Central date and time in M, D, Y, H:M:S
+    Fetches current US/Central date and time in M, D, Y, H:M
     '''
     value = datetime.datetime.now(timezone('US/Central')).strftime("%A, %B %d, %Y, %I:%M %p")
     return value
@@ -70,7 +70,7 @@ def splitter(input: str) -> list:
     packet = ''
 
     for word in words:
-        if len(packet + word + ' ') > 2000:
+        if len(packet + word + ' ') > constants.DISCORD_CHAR_MAX:
             # Add packet
             capsule.append(packet)
             # Create new packet

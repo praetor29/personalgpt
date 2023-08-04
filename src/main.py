@@ -68,7 +68,11 @@ async def on_message(message):
             user_message = bot.user.name
 
         try:
-            gpt_response = await cognition.chat_response(user_message)
+            short_history = await ShortTermMemory.read(id=message.channel.id)
+            clear()
+            print(short_history)
+            gpt_response  = await cognition.chat_response(input=user_message,
+                                                          short_history=short_history)
         except cognition.openai.error.OpenAIError:
             gpt_response = constants.ERROR_OPENAI
                
@@ -80,9 +84,13 @@ async def on_message(message):
     if message.author != bot.user:
         # Pushes user package
         package_user = {
-            'channel.id' :  message.channel.id,
-            'author'     : (message.author.id, message.author.name),
-            'message'    :  message.clean_content,
+            'channel.id' : message.channel.id,
+            'timestamp'  : utility.current_date(),
+            'author'     : {
+                'id'     : message.author.id,
+                'name'   : message.author.name
+                            },
+            'message'    : message.clean_content,
         }
         await ShortTermMemory.add(package=package_user)
     
@@ -93,15 +101,15 @@ async def on_message(message):
             return
         
         package_bot  = {
-            'channel.id' :  message.channel.id,
-            'author'     : (bot.user.id, bot.user.name),
-            'message'    :  gpt_response,
+            'channel.id' : message.channel.id,
+            'timestamp'  : utility.current_date(),
+            'author'     : {
+                'id'     : bot.user.id,
+                'name'   : bot.user.name
+                            },
+            'message'    : gpt_response,
         }
         await ShortTermMemory.add(package=package_bot)
-
-    buffer = await ShortTermMemory.read(id=message.channel.id)
-    clear()
-    print(buffer)
 
 '''
 Run the bot

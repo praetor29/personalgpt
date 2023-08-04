@@ -8,31 +8,45 @@ import openai
 import asyncio
 import concurrent.futures
 import constants
-from utility import current_date
+import utility
 
 openai.api_key = constants.OPENAI_API_KEY
 pool = concurrent.futures.ThreadPoolExecutor()
 
 
-def chat_link(input: str) -> str:
+def chat_link(input: str, short_history: list) -> str:
     '''
     Communicates with the API on a separate thread.
     '''
-    date_line = f'{current_date()} CDT.'
+    # day/date/time context.
+    date_line = f'It is currently {utility.current_date()} {constants.TIMEZONE}.'
+    
+    # Initializes uplink
+    uplink = [
+            {
+                'role'    : 'system',
+                'content' : constants.PROMPT_CHAT,
+            },
+            {
+                'role'    : 'system',
+                'content' : date_line,
+            },
+    ]
+    # Extends uplink with short history
+    uplink.extend(short_history)
+    # Finalizes uplink with user input
+    uplink.append(
+        {
+            'role'    : 'user',
+            'content' : input,
+        }
+    )
 
     downlink = openai.ChatCompletion.create(
         model = constants.MODEL_CHAT,
-        messages = [
-            {
-                'role' : 'system',
-                'content' : f'{constants.PROMPT_CHAT}\n{date_line}',
-            },
-            {
-                'role' : 'user',
-                'content' : input
-            },
-        ],
-        # Fine-tuning goes here
+        messages = uplink,
+
+        # Fine-tuning:
         max_tokens = constants.CHAT_TOKEN_MAX,
         temperature = 1,
     )
@@ -43,15 +57,13 @@ def chat_link(input: str) -> str:
         response = constants.ERROR_OPENAI
     return response
 
-async def chat_response(input: str) -> str:
+async def chat_response(input: str, short_history: list) -> str:
     '''
     Sends the chat prompt + user_message to the API.
     '''
     loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(pool, chat_link, input)
+    response = await loop.run_in_executor(pool, chat_link, input, short_history)
     return response
-
-
 
 '''
 Allow per paragraph streaming (multiple messages)!
