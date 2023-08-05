@@ -42,6 +42,8 @@ def chat_link(input: str, short_history: list) -> str:
         }
     )
 
+    # print(uplink) # Debugging
+
     downlink = openai.ChatCompletion.create(
         model = constants.MODEL_CHAT,
         messages = uplink,

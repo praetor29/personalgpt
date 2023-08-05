@@ -9,7 +9,6 @@
 
 # Import functions and constants
 import constants
-from utility import clear
 import utility
 import cognition
 import discord
@@ -39,9 +38,7 @@ async def on_ready():
         name     = constants.SONG,
         )
     )
-    clear()
     print(f'Successfully logged in as {bot.user}.')
-    print()
 
 '''
 Bot functioning
@@ -69,8 +66,6 @@ async def on_message(message):
 
         try:
             short_history = await ShortTermMemory.read(id=message.channel.id)
-            clear()
-            print(short_history)
             gpt_response  = await cognition.chat_response(input=user_message,
                                                           short_history=short_history)
         except cognition.openai.error.OpenAIError:
@@ -78,7 +73,10 @@ async def on_message(message):
                
         payload = utility.splitter(gpt_response)
         for packet in payload:
-            await message.reply(packet)
+            try:
+                await message.reply(packet)
+            except discord.errors.HTTPException:
+                await message.reply(constants.ERROR_OPENAI)
 
     '''Updating ShortTermMemory.'''
     if message.author != bot.user:
@@ -110,6 +108,10 @@ async def on_message(message):
             'message'    : gpt_response,
         }
         await ShortTermMemory.add(package=package_bot)
+    
+    # print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
+
+
 
 '''
 Run the bot
