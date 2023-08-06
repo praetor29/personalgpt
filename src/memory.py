@@ -9,7 +9,7 @@ import utility
 from ext.fifolock import FifoLock, Read, Write
 
 class ShortTermMemory():
-    def __init__(self, maxsize=50) -> None:
+    def __init__(self, maxsize=0) -> None:
         '''Initialize ShortTermMemory.'''
         # Create a channel library
         self.library = {}

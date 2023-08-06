@@ -43,7 +43,6 @@ async def on_ready():
 '''
 Bot functioning
 '''
-
 # Initialize ShortTermMemory
 ShortTermMemory = memory.ShortTermMemory()
 
@@ -63,20 +62,22 @@ async def on_message(message):
         # Catch empty messages
         if not user_message:
             user_message = bot.user.name
-
-        try:
-            short_history = await ShortTermMemory.read(id=message.channel.id)
-            gpt_response  = await cognition.chat_response(input=user_message,
-                                                          short_history=short_history)
-        except cognition.openai.error.OpenAIError:
-            gpt_response = constants.ERROR_OPENAI
-               
-        payload = utility.splitter(gpt_response)
-        for packet in payload:
+        
+        gpt_response  = ''
+        short_history = await ShortTermMemory.read(id=message.channel.id)
+        primary       = True # Is it the primary message?
+        async for packet in cognition.chat_link(input=user_message,
+                                                    short_history=short_history):
             try:
-                await message.reply(packet)
-            except discord.errors.HTTPException:
-                await message.reply(constants.ERROR_OPENAI)
+                if primary:
+                    await message.reply(packet) # Send packet as a reply
+                    primary = False
+                else:
+                    await message.channel.send(packet) # Send as regular message
+
+                gpt_response += packet # Append to full message
+            except discord.errors.HTTPException as error:
+                await message.reply(str(error))
 
     '''Updating ShortTermMemory.'''
     if message.author != bot.user:
@@ -86,7 +87,7 @@ async def on_message(message):
             'timestamp'  : utility.current_date(),
             'author'     : {
                 'id'     : message.author.id,
-                'name'   : message.author.name
+                'name'   : message.author.display_name,
                             },
             'message'    : message.clean_content,
         }
