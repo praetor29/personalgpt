@@ -6,8 +6,7 @@
 
 import os
 import constants
-import datetime
-from pytz import timezone
+from datetime import datetime, timezone
 import tiktoken
 
 def clear() -> None:
@@ -16,9 +15,9 @@ def clear() -> None:
 
 def current_date() -> str:
     '''
-    Fetches current US/Central date and time in M, D, Y, H:M
+    Fetches current UTC date and time in M, D, Y, H:M
     '''
-    value = datetime.datetime.now(timezone('US/Central')).strftime("%A, %B %d, %Y, %I:%M %p")
+    value = datetime.now(timezone.utc).strftime("%A, %B %d, %Y, %I:%M %p")
     return value
 
 def tokenizer(input, model) -> int:

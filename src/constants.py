@@ -25,7 +25,7 @@ ERROR_OPENAI    = '`An OpenAI API error occured.`\n`Please contact` <@7043286105
 
 # Model Chat
 SONG     = 'Can You Hear The Music (Ludwig Göransson)'
-TIMEZONE = 'CDT'
+TIMEZONE = 'UTC'
 
 chat_prompt_path = os.path.join('cogs', 'prompt.txt')
 with open(chat_prompt_path, 'r', encoding='utf-8') as chat_prompt:
@@ -33,6 +33,6 @@ with open(chat_prompt_path, 'r', encoding='utf-8') as chat_prompt:
 
 # Tokens
 LONG_MEM_MAX     = 900
-SHORT_MEM_MAX    = 2000
+SHORT_MEM_MAX    = 2500
 CHAT_TOKEN_MAX   = 450
-DISCORD_CHAR_MAX = 2000
+DISCORD_CHAR_MAX = 1500

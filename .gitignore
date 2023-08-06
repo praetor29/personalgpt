@@ -1,6 +1,6 @@
 # Custom
 scratchpad/
-cogs/
+scratchpad.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -5,18 +5,14 @@
 '''
 
 import openai
-import asyncio
-import concurrent.futures
 import constants
 import utility
 
 openai.api_key = constants.OPENAI_API_KEY
-pool = concurrent.futures.ThreadPoolExecutor()
 
-
-def chat_link(input: str, short_history: list) -> str:
+async def chat_link(input: str, short_history: list) -> str:
     '''
-    Communicates with the API on a separate thread.
+    Communicates with the API asynchronously, and yields max char responses.
     '''
     # day/date/time context.
     date_line = f'It is currently {utility.current_date()} {constants.TIMEZONE}.'
@@ -42,29 +38,31 @@ def chat_link(input: str, short_history: list) -> str:
         }
     )
 
-    downlink = openai.ChatCompletion.create(
-        model = constants.MODEL_CHAT,
-        messages = uplink,
-
-        # Fine-tuning:
+    downlink = await openai.ChatCompletion.acreate(
+        model      = constants.MODEL_CHAT,
+        messages   = uplink,
+        stream     = True,
+         # Fine-tuning:
         max_tokens = constants.CHAT_TOKEN_MAX,
         temperature = 1,
     )
     
+    buffer = ''
     try:
-        response = downlink['choices'][0]['message']['content']
-    except (KeyError, openai.error.OpenAIError):
-        response = constants.ERROR_OPENAI
-    return response
-
-async def chat_response(input: str, short_history: list) -> str:
-    '''
-    Sends the chat prompt + user_message to the API.
-    '''
-    loop = asyncio.get_event_loop()
-    response = await loop.run_in_executor(pool, chat_link, input, short_history)
-    return response
-
-'''
-Allow per paragraph streaming (multiple messages)!
-'''
+        async for chunk in downlink:
+            buffer += chunk['choices'][0]['delta']['content']
+            # Yield at max characters
+            while len(buffer) >= constants.DISCORD_CHAR_MAX:
+                # Find the nearest whole paragraph to CHAR_MAX
+                slice = buffer.rfind('\n\n', 0, constants.DISCORD_CHAR_MAX)
+                # If no paragraph break found
+                if slice == -1:
+                    slice = constants.DISCORD_CHAR_MAX
+                yield buffer[:slice]
+                buffer = buffer[slice:]
+        if buffer:
+            yield buffer
+    except KeyError:
+        yield buffer
+    except openai.error.OpenAIError:
+        yield constants.ERROR_OPENAI

@@ -9,7 +9,6 @@
 
 # Import functions and constants
 import constants
-from utility import clear
 import utility
 import cognition
 import discord
@@ -39,14 +38,11 @@ async def on_ready():
         name     = constants.SONG,
         )
     )
-    clear()
     print(f'Successfully logged in as {bot.user}.')
-    print()
 
 '''
 Bot functioning
 '''
-
 # Initialize ShortTermMemory
 ShortTermMemory = memory.ShortTermMemory()
 
@@ -66,19 +62,22 @@ async def on_message(message):
         # Catch empty messages
         if not user_message:
             user_message = bot.user.name
+        
+        gpt_response  = ''
+        short_history = await ShortTermMemory.read(id=message.channel.id)
+        primary       = True # Is it the primary message?
+        async for packet in cognition.chat_link(input=user_message,
+                                                    short_history=short_history):
+            try:
+                if primary:
+                    await message.reply(packet) # Send packet as a reply
+                    primary = False
+                else:
+                    await message.channel.send(packet) # Send as regular message
 
-        try:
-            short_history = await ShortTermMemory.read(id=message.channel.id)
-            clear()
-            print(short_history)
-            gpt_response  = await cognition.chat_response(input=user_message,
-                                                          short_history=short_history)
-        except cognition.openai.error.OpenAIError:
-            gpt_response = constants.ERROR_OPENAI
-               
-        payload = utility.splitter(gpt_response)
-        for packet in payload:
-            await message.reply(packet)
+                gpt_response += packet # Append to full message
+            except discord.errors.HTTPException as error:
+                await message.reply(str(error))
 
     '''Updating ShortTermMemory.'''
     if message.author != bot.user:
@@ -88,7 +87,7 @@ async def on_message(message):
             'timestamp'  : utility.current_date(),
             'author'     : {
                 'id'     : message.author.id,
-                'name'   : message.author.name
+                'name'   : message.author.display_name,
                             },
             'message'    : message.clean_content,
         }
@@ -110,6 +109,10 @@ async def on_message(message):
             'message'    : gpt_response,
         }
         await ShortTermMemory.add(package=package_bot)
+    
+    # print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
+
+
 
 '''
 Run the bot
