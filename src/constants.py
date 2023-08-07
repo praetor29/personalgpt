@@ -19,7 +19,7 @@ MODEL_SUMMARIZE = 'text-curie-001'
 MODEL_CHAT      = 'gpt-3.5-turbo'
 
 # Error Messages
-ERROR_OPENAI    = '`An OpenAI API error occured.`\n`Please contact` <@704328610567159918> `if the problem persists.`'
+ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persists.`'
 
 '''Prompts'''
 

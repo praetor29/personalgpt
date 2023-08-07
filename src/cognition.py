@@ -7,6 +7,7 @@
 import openai
 import constants
 import utility
+from errors.handler import handle_exception
 
 openai.api_key = constants.OPENAI_API_KEY
 
@@ -37,15 +38,19 @@ async def chat_link(input: str, short_history: list) -> str:
             'content' : input,
         }
     )
-
-    downlink = await openai.ChatCompletion.acreate(
-        model      = constants.MODEL_CHAT,
-        messages   = uplink,
-        stream     = True,
-         # Fine-tuning:
-        max_tokens = constants.CHAT_TOKEN_MAX,
-        temperature = 1,
-    )
+    
+    # OpenAI API Request
+    try:
+        downlink = await openai.ChatCompletion.acreate(
+            model      = constants.MODEL_CHAT,
+            messages   = uplink,
+            stream     = True,
+            # Fine-tuning:
+            max_tokens = constants.CHAT_TOKEN_MAX,
+            temperature = 1,
+        )
+    except Exception as exception:
+        yield (f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")
     
     buffer = ''
     try:
@@ -64,5 +69,5 @@ async def chat_link(input: str, short_history: list) -> str:
             yield buffer
     except KeyError:
         yield buffer
-    except openai.error.OpenAIError:
-        yield constants.ERROR_OPENAI
+    except Exception as exception:
+        yield (f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")

@@ -13,6 +13,8 @@ import utility
 import cognition
 import discord
 import memory
+import sys
+from errors.handler import handle_exception
 
 '''
 Declare intents
@@ -76,8 +78,15 @@ async def on_message(message):
                     await message.channel.send(packet) # Send as regular message
 
                 gpt_response += packet # Append to full message
-            except discord.errors.HTTPException as error:
-                await message.reply(str(error))
+            except Exception as exception:
+                try:
+                    await message.channel.send(
+                        f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+                except Exception as ex:
+                    title = f"## Unexpected `Error`\n"
+                    no_md = f"```md\n{discord.utils.escape_markdown(user_message)}\n```\n"
+                    error = f"```vbnet\n{handle_exception(ex)}\n```"
+                    await message.author.send(f"{title}{no_md}{error}")
 
     '''Updating ShortTermMemory.'''
     if message.author != bot.user:
@@ -117,4 +126,11 @@ async def on_message(message):
 '''
 Run the bot
 '''
-bot.run(constants.DISCORD_BOT_TOKEN)
+try:
+    utility.clear()
+    bot.run(constants.DISCORD_BOT_TOKEN)
+except Exception as exception:
+    print(
+        f">> INITIALIZATION ERROR <<\n{handle_exception(exception)}"
+    )
+    sys.exit()
