@@ -47,7 +47,7 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
         },
     ])
     utility.clear()
-    print(uplink)
+
     # OpenAI API Request
     try:
         downlink = await openai.ChatCompletion.acreate(
