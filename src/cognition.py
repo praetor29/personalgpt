@@ -11,9 +11,13 @@ from errors.handler import handle_exception
 
 openai.api_key = constants.OPENAI_API_KEY
 
-async def chat_link(input: str, short_history: list) -> str:
+async def chat_link(user_message: str, system_message: str, short_history: list) -> str:
     '''
     Communicates with the API asynchronously, and yields max char responses.
+
+    user_message   = cleaned message.content
+    system_message = timestamp | message.author.display_name:
+    short_history  = snapshot of ShortTermMemory channel-specific queue
     '''
     # day/date/time context.
     date_line = f'It is currently {utility.current_date()} {constants.TIMEZONE}.'
@@ -32,13 +36,18 @@ async def chat_link(input: str, short_history: list) -> str:
     # Extends uplink with short history
     uplink.extend(short_history)
     # Finalizes uplink with user input
-    uplink.append(
+    uplink.extend([
+        {
+            'role'    : 'system',
+            'content' : system_message,
+        },
         {
             'role'    : 'user',
-            'content' : input,
-        }
-    )
-    
+            'content' : user_message,
+        },
+    ])
+    utility.clear()
+    print(uplink)
     # OpenAI API Request
     try:
         downlink = await openai.ChatCompletion.acreate(
