@@ -9,17 +9,22 @@ import asyncio
 import utility
 import aiosqlite
 import json
+import sys
 from ext.fifolock import FifoLock, Read, Write
 from errors.handler import handle_exception
 
 class ShortTermMemory():
-    def __init__(self, maxsize=0) -> None:
+    def __init__(self, LTM: object, maxsize=0) -> None:
         '''Initialize ShortTermMemory.'''
         # Create a channel library
         self.library = {}
+        # Create an intermediate cache
+        self.cache   = {}
         # Create attributes
         self.maxsize = maxsize
-        self.lock  = FifoLock()
+        self.lock    = FifoLock()
+        # Passthrough LongTermMemory instance
+        self.LTM     = LTM
     
     '''Queue Manipulation Methods'''
 
@@ -37,23 +42,65 @@ class ShortTermMemory():
         await self.trim(id)
     
     async def trim(self, id):
-        '''Trims queue to SHORT_MEM_MAX.'''
+        '''
+        Handles complex Queue Trimming.
+        Triggers when 
+        '''
         async with self.lock(Write):
             # Fetch channel specific data
             buffer_raw = self.get_raw(id) # raw packages (list)
             buffer     = self.format_snapshot(buffer_raw) # formatted snapshot list (for tokenizer)
-            queue  = self.library.get(id) # actual queue
-            # Run tokenizer
-            tokens = utility.tokenizer(input=buffer,
-                                       model=constants.MODEL_CHAT)
+            queue      = self.library.get(id) # actual queue
+
+            # Run tokenizer and set upper/lower thresholds
+            tokens = utility.tokenizer(input=buffer, model=constants.MODEL_CHAT)
+            upper = constants.SHORT_MEM_MAX * constants.UPPER_THRESHOLD
+            lower   = constants.SHORT_MEM_MAX * constants.LOWER_THRESHOLD
+            if tokens > upper:
+                target = lower
+            else:
+                target = upper
+
+            # Sets FlushCache flag
+            FlushCache = False
             
-            # Trim end of queue
-            while tokens > constants.SHORT_MEM_MAX and not self.library.get(id).empty():
-                await queue.get()       # Removes oldest message
-                trimmed = [] # List to pass to tokenizer
+            '''Trimming Loop'''
+            while tokens > target and not self.library.get(id).empty():
+                # Initialize channel entry in cache
+                if id not in self.cache:
+                    self.cache[id] = []
+                # Append oldest message to buffer and pop from queue
+                self.cache[id].append(
+                    await queue.get()
+                    )
+                FlushCache = True
+                print(">>> Trimming <<<")
+
+                # Tokenizer Check
+                trimmed = []
                 trimmed.append(buffer.pop(0)) # Removes oldest message in snapshot
                 tokens -= utility.tokenizer(input=trimmed,
-                                            model=constants.MODEL_CHAT, )
+                                            model=constants.MODEL_CHAT)
+        # Flush cache if required
+        if FlushCache:
+            await self.flush_cache(id)
+    
+    async def flush_cache(self, id):
+        '''
+        Flushes contents of cache to LongTermMemory.
+        '''
+        async with self.lock(Write):
+            if id in self.cache:
+                try:
+                    for message in self.cache[id]:
+                        print(message, '\n')
+                        await self.LTM.store(id, message)
+                except Exception as exception:
+                    print(f'Failed to flush cache.\n{handle_exception(exception)}')
+                    print(f'Voiding {len(self.cache[id])} messages.')
+            # Clean up
+            if id in self.cache:
+                del self.cache[id]
 
     async def read(self, id) -> list:
         '''Returns contents of ShortTermMemory with role segregation.'''       
@@ -103,37 +150,43 @@ class ShortTermMemory():
         return snapshot
 
 class LongTermMemory():
-    async def __init__(self, db_path: str):
+    def __init__(self, db_path: str):
         '''Initialize LongTermMemory.'''
         self.db_path = db_path
 
-        # Initialize memory table in SQLite database
-        async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.cursor()
+    async def initialize_db(self):
+        '''Initialize memory table in SQLite database.'''
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                cursor = await db.cursor()
 
-            await cursor.execute(
-                """
-                    CREATE TABLE IF NOT EXISTS memory (
-                        key INTEGER PRIMARY KEY,
-                        id INTEGER,
-                        timestamp DATETIME,
-                        name TEXT,
-                        text TEXT,
-                        vector TEXT
-                        )
-                """)
+                await cursor.execute(
+                    """
+                        CREATE TABLE IF NOT EXISTS memory (
+                            key INTEGER PRIMARY KEY,
+                            id INTEGER,
+                            timestamp DATETIME,
+                            name TEXT,
+                            text TEXT,
+                            vector TEXT
+                            )
+                    """)
+        except Exception as exception:
+            print(f'Failed to initialize {constants.MEMORY_DB_PATH}.\n{handle_exception(exception)}')
+            print('Calling sys.exit()')
+            sys.exit()
 
-    async def store(self, message: dict):
-        '''Store message as vector embedding in SQLite database.'''
+    async def store(self, id, message: dict):
+        '''
+        Store message as vector embedding in SQLite database.
+        '''
         try:
             # Retrieve message metadata
-            id        = message.get('channel.id')
             timestamp = utility.sql_date( # Convert to SQL format
                         message.get('timestamp')
                         )
             name      = message.get('author').get('name')
             text      = message.get('message') 
-
             # Convert message content into a vector
             vector      = await cognition.embed(text)
             vector_json = json.dumps(vector) # Serialize into json string
@@ -149,6 +202,7 @@ class LongTermMemory():
                     """,
                     (id, timestamp, name, text, vector_json)
                 )
+                await db.commit() # Commit entry
         except Exception as exception:
             print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
 

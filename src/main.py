@@ -33,6 +33,29 @@ Change status and activity
 '''
 @bot.event
 async def on_ready():
+    '''
+    Memory Management
+    '''
+    # Initialize LongTermMemory
+    print('>> Initializing LongTermMemory...')
+    global LongTermMemory
+    LongTermMemory  = memory.LongTermMemory(db_path=constants.MEMORY_DB_PATH)
+    print(f">> Initializing '{constants.MEMORY_DB_PATH}' SQLite database...")
+    await LongTermMemory.initialize_db() # Create memory.db and table (if not exist)
+
+    # Initialize ShortTermMemory
+    print('>> Initializing ShortTermMemory...')
+    global ShortTermMemory
+    ShortTermMemory = memory.ShortTermMemory(LTM=LongTermMemory)
+    
+    '''
+    Database Management
+    '''
+    # Stuff
+    print('>> Cleaning up database...')
+    
+    # Enable rich presence
+    print('>> Setting up bot presence...')
     await bot.change_presence(
         status   = discord.Status.idle,
         activity = discord.Activity(
@@ -40,14 +63,15 @@ async def on_ready():
         name     = constants.SONG,
         )
     )
-    print(f'Successfully logged in as {bot.user}.')
+    # Login message
+    login = f'Successfully logged in as {bot.user}.'
+    print('\n+-' + '-' * len(login) + '-+'  )
+    print(f'| {login} |')
+    print(  '+-' + '-' * len(login) + '-+\n')
 
 '''
 Bot functioning
 '''
-# Initialize ShortTermMemory
-ShortTermMemory = memory.ShortTermMemory()
-
 @bot.event
 async def on_message(message):   
 

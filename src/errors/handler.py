@@ -20,6 +20,12 @@ from discord.errors import (
     HTTPException,
     LoginFailure,
 )
+from aiosqlite import(
+    OperationalError,
+    DatabaseError,
+    ProgrammingError,
+    NotSupportedError,
+)
 
 # Import error messages
 with open(os.path.join('errors', 'messages.json'), 'r') as file:
@@ -52,5 +58,13 @@ def handle_exception(exception: Exception) -> str:
         return messages["discord"]["HTTPException"]
     elif isinstance(exception, LoginFailure):
         return messages["discord"]["LoginFailure"]
+    elif isinstance(exception, OperationalError):
+        return messages["aiosqlite"]["OperationalError"]
+    elif isinstance(exception, DatabaseError):
+        return messages["aiosqlite"]["DatabaseError"]
+    elif isinstance(exception, ProgrammingError):
+        return messages["aiosqlite"]["ProgrammingError"]
+    elif isinstance(exception, NotSupportedError):
+        return messages["aiosqlite"]["NotSupportedError"]
     else:
         return f"Unhandled exception type: {type(exception).__name__}"
