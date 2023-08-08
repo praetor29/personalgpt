@@ -46,7 +46,6 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
             'content' : user_message,
         },
     ])
-    utility.clear()
 
     # OpenAI API Request
     try:
@@ -59,7 +58,7 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
             temperature = 1,
         )
     except Exception as exception:
-        yield (f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+        yield (f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
     
     buffer = ''
     try:
@@ -79,4 +78,4 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
     except KeyError:
         yield buffer
     except Exception as exception:
-        yield (f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+        yield (f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")

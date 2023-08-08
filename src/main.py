@@ -86,7 +86,7 @@ async def on_message(message):
             except Exception as exception:
                 try:
                     await message.channel.send(
-                        f"# `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+                        f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
                 except Exception as ex:
                     title = f"## Unexpected `Error`\n"
                     no_md = f"```md\n{discord.utils.escape_markdown(user_message)}\n```\n"
