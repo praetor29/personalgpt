@@ -4,9 +4,13 @@
 +------------------------------------------------+
 '''
 import constants
+import cognition
 import asyncio
 import utility
+import aiosqlite
+import json
 from ext.fifolock import FifoLock, Read, Write
+from errors.handler import handle_exception
 
 class ShortTermMemory():
     def __init__(self, maxsize=0) -> None:
@@ -38,13 +42,13 @@ class ShortTermMemory():
             # Fetch channel specific data
             buffer_raw = self.get_raw(id) # raw packages (list)
             buffer     = self.format_snapshot(buffer_raw) # formatted snapshot list (for tokenizer)
-            queue  = self.library[id] # actual queue
+            queue  = self.library.get(id) # actual queue
             # Run tokenizer
             tokens = utility.tokenizer(input=buffer,
                                        model=constants.MODEL_CHAT)
             
             # Trim end of queue
-            while tokens > constants.SHORT_MEM_MAX and not self.library[id].empty():
+            while tokens > constants.SHORT_MEM_MAX and not self.library.get(id).empty():
                 await queue.get()       # Removes oldest message
                 trimmed = [] # List to pass to tokenizer
                 trimmed.append(buffer.pop(0)) # Removes oldest message in snapshot
@@ -52,7 +56,7 @@ class ShortTermMemory():
                                             model=constants.MODEL_CHAT, )
 
     async def read(self, id) -> list:
-        '''Returns contents of ShortTermMemory in role segregation.'''       
+        '''Returns contents of ShortTermMemory with role segregation.'''       
         async with self.lock(Read):
              buffer_raw = self.get_raw(id) # Get raw packages
              snapshot   = self.format_snapshot(buffer_raw)
@@ -66,7 +70,7 @@ class ShortTermMemory():
             return []
         else:
             # Return list of packages
-            return list(self.library[id]._queue)
+            return list(self.library.get(id)._queue)
     
     def format_snapshot(self, buffer_raw) -> list:
         '''Formats the raw snapshot to OpenAI format.'''
@@ -97,3 +101,58 @@ class ShortTermMemory():
             )
         # Return conversation list
         return snapshot
+
+class LongTermMemory():
+    async def __init__(self, db_path: str):
+        '''Initialize LongTermMemory.'''
+        self.db_path = db_path
+
+        # Initialize memory table in SQLite database
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.cursor()
+
+            await cursor.execute(
+                """
+                    CREATE TABLE IF NOT EXISTS memory (
+                        key INTEGER PRIMARY KEY,
+                        id INTEGER,
+                        timestamp DATETIME,
+                        name TEXT,
+                        text TEXT,
+                        vector TEXT
+                        )
+                """)
+
+    async def store(self, message: dict):
+        '''Store message as vector embedding in SQLite database.'''
+        try:
+            # Retrieve message metadata
+            id        = message.get('channel.id')
+            timestamp = utility.sql_date( # Convert to SQL format
+                        message.get('timestamp')
+                        )
+            name      = message.get('author').get('name')
+            text      = message.get('message') 
+
+            # Convert message content into a vector
+            vector      = await cognition.embed(text)
+            vector_json = json.dumps(vector) # Serialize into json string
+
+            # Connect to SQLite database
+            async with aiosqlite.connect(self.db_path) as db:
+                cursor = await db.cursor()
+
+                await cursor.execute(
+                    """
+                        INSERT INTO memory (id, timestamp, name, text, vector)
+                        VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (id, timestamp, name, text, vector_json)
+                )
+        except Exception as exception:
+            print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
+
+'''
+Vector similarity: disallow identical entries
+[0.80, 1.0)
+'''

@@ -79,3 +79,23 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
         yield buffer
     except Exception as exception:
         yield (f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+
+async def embed(message: str) -> list:
+    '''
+    Convert message into a 1536 dimensional vector.
+    Uses the OpenAI Embeddings API.
+    '''
+    try:
+        # API Call
+        response = await openai.Embedding.acreate(
+                    input = message,
+                    model = constants.MODEL_EMBED,
+                )
+        # Retrieving embedding
+        vector = response["data"][0]["embedding"]
+        return vector
+    
+    # If embedding fails (? Rethink this logic)
+    except Exception as exception:
+        print(f'cognition.embed() failure. Returning [].\n{handle_exception(exception)}')
+        return []
