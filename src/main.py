@@ -57,10 +57,10 @@ async def on_ready():
     # Enable rich presence
     print('>> Setting up bot presence...')
     await bot.change_presence(
-        status   = discord.Status.idle,
+        status   = constants.STATUS,
         activity = discord.Activity(
-        type     = discord.ActivityType.listening,
-        name     = constants.SONG,
+        type     = constants.ACTIVITY_TYPE,
+        name     = constants.ACTIVITY_NAME,
         )
     )
     # Login message
@@ -147,8 +147,8 @@ async def on_message(message):
         }
         await ShortTermMemory.add(package=package_bot)
 
-    utility.clear()
-    print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
+    # utility.clear()
+    # print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
 
 
 

@@ -92,7 +92,6 @@ class ShortTermMemory():
             if id in self.cache:
                 try:
                     for message in self.cache[id]:
-                        print(message, '\n')
                         await self.LTM.store(id, message)
                 except Exception as exception:
                     print(f'Failed to flush cache.\n{handle_exception(exception)}')

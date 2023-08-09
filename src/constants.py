@@ -6,6 +6,7 @@
 
 import os
 import dotenv
+import discord
 dotenv.load_dotenv()
 
 # PATHS
@@ -28,9 +29,12 @@ ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persi
 '''Prompts'''
 
 # Model Chat
-NAME     = 'Stacy Evans'
-SONG     = 'Do Androids Dream of Electric Sheep?'
-TIMEZONE = 'UTC'
+NAME          = 'Stacy Evans'
+TIMEZONE      = 'UTC'
+
+STATUS        = discord.Status.idle
+ACTIVITY_TYPE = discord.ActivityType.playing
+ACTIVITY_NAME = 'Global Thermonuclear War'
 
 with open(CHAT_PROMPT_PATH, 'r', encoding='utf-8') as chat_prompt:
     PROMPT_CHAT = chat_prompt.read().format(name=NAME)
