@@ -150,8 +150,6 @@ async def on_message(message):
     # utility.clear()
     # print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
 
-
-
 '''
 Run the bot
 '''

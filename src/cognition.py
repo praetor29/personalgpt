@@ -72,7 +72,6 @@ async def chat_link(message: str, nametag: str, short_history: list) -> str:
                 if slice == -1:
                     slice = constants.DISCORD_CHAR_MAX
                 yield buffer[:slice]
-                print(buffer)
                 buffer = buffer[slice:]
         if buffer:
             yield buffer
