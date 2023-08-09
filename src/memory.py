@@ -74,7 +74,6 @@ class ShortTermMemory():
                     await queue.get()
                     )
                 FlushCache = True
-                print(">>> Trimming <<<")
 
                 # Tokenizer Check
                 trimmed = []
@@ -124,7 +123,6 @@ class ShortTermMemory():
         snapshot = []
         for message in buffer_raw:
             # Fetch attributes
-            timestamp = message.get('timestamp')
             name      = message.get('author').get('name')
             text      = message.get('message') 
             # Designate role
@@ -133,13 +131,13 @@ class ShortTermMemory():
                 role  = 'assistant'
             else:
                 role  = 'user'
-            # Format
-            snapshot.append(
-                {
-                'role'    : 'system',
-                'content' : f'{timestamp} | {name}:',
-                }
-            )
+                # Format
+                snapshot.append(
+                    {
+                    'role'    : 'system',
+                    'content' : f'{name} said:',
+                    }
+                )
             snapshot.append(
                 {
                 'role'    : role,

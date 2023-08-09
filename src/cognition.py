@@ -11,12 +11,12 @@ from errors.handler import handle_exception
 
 openai.api_key = constants.OPENAI_API_KEY
 
-async def chat_link(user_message: str, system_message: str, short_history: list) -> str:
+async def chat_link(message: str, nametag: str, short_history: list) -> str:
     '''
     Communicates with the API asynchronously, and yields max char responses.
 
-    user_message   = cleaned message.content
-    system_message = timestamp | message.author.display_name:
+    message   = cleaned message.content
+    nametag   = message.author.display_name said:
     short_history  = snapshot of ShortTermMemory channel-specific queue
     '''
     # day/date/time context.
@@ -39,11 +39,11 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
     uplink.extend([
         {
             'role'    : 'system',
-            'content' : system_message,
+            'content' : nametag,
         },
         {
             'role'    : 'user',
-            'content' : user_message,
+            'content' : message,
         },
     ])
 
@@ -55,7 +55,7 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
             stream     = True,
             # Fine-tuning:
             max_tokens = constants.CHAT_TOKEN_MAX,
-            temperature = 1,
+            temperature = constants.CHAT_TEMP,
         )
     except Exception as exception:
         yield (f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
@@ -72,6 +72,7 @@ async def chat_link(user_message: str, system_message: str, short_history: list)
                 if slice == -1:
                     slice = constants.DISCORD_CHAR_MAX
                 yield buffer[:slice]
+                print(buffer)
                 buffer = buffer[slice:]
         if buffer:
             yield buffer

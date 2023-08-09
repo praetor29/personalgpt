@@ -74,48 +74,47 @@ Bot functioning
 '''
 @bot.event
 async def on_message(message):   
-
     '''Response loop when mentioned.'''
     if bot.user in message.mentions:
         # Ignore own messages
         if message.author == bot.user:
             return
-
-        # Prepare user_message for API call
-        bot_prefix     = f'<@{bot.user.id}>'
-        user_message   = message.content.removeprefix(bot_prefix).strip()
-
-        # Catch empty messages
-        if not user_message:
-            user_message = bot.user.name
         
-        gpt_response  = ''
-        short_history = await ShortTermMemory.read(id=message.channel.id)
-        system_message = f'{utility.current_date()} | {message.author.display_name}:'
+        async with message.channel.typing(): # Show typing indicator
+            # Prepare user_message for API call
+            bot_prefix     = f'<@{bot.user.id}>'
+            user_message   = message.content.removeprefix(bot_prefix).strip()
 
-        primary       = True # Is it the primary message?
-        async for packet in cognition.chat_link(user_message  =user_message,
-                                                system_message=system_message,
-                                                short_history =short_history):
-            try:
-                if primary:
-                    await message.reply(packet) # Send packet as a reply
-                    primary = False
-                else:
-                    await message.channel.send(packet) # Send as regular message
-                
-                gpt_response += packet # Append to full message
+            # Catch empty messages
+            if not user_message:
+                user_message = bot.user.name
+            
+            # Preparing API request paramters
+            gpt_response  = ''
+            short_history = await ShortTermMemory.read(id=message.channel.id)
+            nametag       = f'{message.author.display_name} said:'
 
-            # Error handling
-            except Exception as exception:
+            primary       = True # Is it the primary message?
+            async for packet in cognition.chat_link(message=user_message, nametag=nametag, short_history=short_history):
                 try:
-                    await message.channel.send(
-                        f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
-                except Exception as ex:
-                    title = f"## Unexpected `Error`\n"
-                    no_md = f"```md\n{discord.utils.escape_markdown(user_message)}\n```\n"
-                    error = f"```vbnet\n{handle_exception(ex)}\n```"
-                    await message.author.send(f"{title}{no_md}{error}")
+                    if primary:
+                        await message.reply(packet) # Send packet as a reply
+                        primary = False
+                    else:
+                        await message.channel.send(packet) # Send as regular message
+                    
+                    gpt_response += packet # Append to full message
+
+                # Error handling
+                except Exception as exception:
+                    try:
+                        await message.channel.send(
+                            f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+                    except Exception as ex:
+                        title = f"## Unexpected `Error`\n"
+                        no_md = f"```md\n{discord.utils.escape_markdown(user_message)}\n```\n"
+                        error = f"```vbnet\n{handle_exception(ex)}\n```"
+                        await message.author.send(f"{title}{no_md}{error}")
 
     '''Updating ShortTermMemory.'''
     if message.author != bot.user:
@@ -148,8 +147,8 @@ async def on_message(message):
         }
         await ShortTermMemory.add(package=package_bot)
 
-    # utility.clear()
-    # print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
+    utility.clear()
+    print('\n'.join(message['content'] for message in await ShortTermMemory.read(message.channel.id)))
 
 
 

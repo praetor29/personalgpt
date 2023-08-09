@@ -9,7 +9,7 @@ import dotenv
 dotenv.load_dotenv()
 
 # PATHS
-CHAT_PROMPT_PATH = os.path.join('cogs', 'prompt.txt')
+CHAT_PROMPT_PATH = os.path.join('data', 'prompt.txt')
 MEMORY_DB_PATH   = os.path.join('data', 'memory.db')
 
 # API keys/tokens
@@ -20,7 +20,7 @@ DISCORD_BOT_ID    = os.getenv('DISCORD_BOT_ID')
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
 MODEL_SUMMARIZE = 'text-curie-001'
-MODEL_CHAT      = 'gpt-3.5-turbo'
+MODEL_CHAT      = 'gpt-4'
 
 # Error Messages
 ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persists.`'
@@ -28,18 +28,22 @@ ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persi
 '''Prompts'''
 
 # Model Chat
-SONG     = 'Can You Hear The Music (Ludwig Göransson)'
+NAME     = 'Stacy Evans'
+SONG     = 'Do Androids Dream of Electric Sheep?'
 TIMEZONE = 'UTC'
 
 with open(CHAT_PROMPT_PATH, 'r', encoding='utf-8') as chat_prompt:
-    PROMPT_CHAT = chat_prompt.read().format(SONG=SONG)
+    PROMPT_CHAT = chat_prompt.read().format(name=NAME)
+
+# Temperatures
+CHAT_TEMP = 0.6
 
 '''Tokens'''
-LONG_MEM_MAX     = 900
-SHORT_MEM_MAX    = 500
+LONG_MEM_MAX     = 1000
+SHORT_MEM_MAX    = 2000
 # Controls how often trim() is called.
-UPPER_THRESHOLD  = 0.90 
-LOWER_THRESHOLD  = 0.50
+UPPER_THRESHOLD  = 0.95
+LOWER_THRESHOLD  = 0.75
 
 CHAT_TOKEN_MAX   = 450
 DISCORD_CHAR_MAX = 1500
