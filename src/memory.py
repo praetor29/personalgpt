@@ -245,9 +245,9 @@ class LongTermMemory():
         if not topic:
             return
         
-        print(f'The topic to be compared is:\n{topic}')
+        # Retrieve topic vector
         topic_vector = await cognition.embed(topic)
-        print(True if topic_vector else False)
+        
 
 
 '''

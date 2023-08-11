@@ -107,9 +107,9 @@ async def topic(recent: list) -> str:
             prompt      = prompt,
             temperature = constants.TOPIC_TEMP,
         )
-        topic = response['choices'][0]['textY'].strip()
+        topic = response['choices'][0]['text'].strip()
     except KeyError as exception:
-        print(f'Error: {exception}')
+        print(f'cognition.topic() KeyError: {exception}')
         topic = ''
     except Exception as exception:
         topic = ''
