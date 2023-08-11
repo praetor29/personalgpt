@@ -118,6 +118,25 @@ class ShortTermMemory():
             # Return list of packages
             return list(self.library.get(id)._queue)
     
+    async def get_raw_n(self, id, n_recent=None) -> list:
+        '''
+        Retrieves list of n_messages most recent raw packages from queue.
+        Useful to figure out the current topic at hand.
+
+        Links to cognition.topic()
+        '''
+        # If not exists, return blank []
+        if id not in self.library:
+            return []
+        else:
+            all_packages = list(self.library.get(id)._queue)
+            # Return list of all packages
+            if n_recent is None or n_recent > len(all_packages):
+                return all_packages
+            # Return list of n recent packages
+            else:
+                return all_packages[-n_recent:]
+    
     def format_snapshot(self, buffer_raw) -> list:
         '''Formats the raw snapshot to OpenAI format.'''
         snapshot = []
@@ -217,12 +236,19 @@ class LongTermMemory():
         except Exception as exception:
             print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
         
-    async def similarity(self, id):
+    async def similarity(self, topic: str):
         '''
         Fetches the top 'n' results from database.
         Based on vector cosine similarity.
         '''
-        pass
+        # If topic not exist, return
+        if not topic:
+            return
+        
+        print(f'The topic to be compared is:\n{topic}')
+        topic_vector = await cognition.embed(topic)
+        print(True if topic_vector else False)
+
 
 '''
 Vector similarity: disallow identical entries

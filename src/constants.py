@@ -11,6 +11,7 @@ dotenv.load_dotenv()
 
 # PATHS
 CHAT_PROMPT_PATH     = os.path.join('data', 'prompt', 'prompt.txt')
+TOPIC_PROMPT_PATH    = os.path.join('data', 'prompt', 'topic.txt')
 MEMORY_DB_PATH       = os.path.join('data', 'memory', 'database')
 MEMORY_VECTOR_PATH   = os.path.join('data', 'memory', 'vectors')
 
@@ -21,8 +22,8 @@ DISCORD_BOT_ID    = os.getenv('DISCORD_BOT_ID')
 
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
-MODEL_SUMMARIZE = 'text-curie-001'
-MODEL_CHAT      = 'gpt-4'
+MODEL_TOPIC = 'text-curie-001'
+MODEL_CHAT      = 'gpt-3.5-turbo'
 
 # Error Messages
 ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persists.`'
@@ -40,12 +41,19 @@ ACTIVITY_NAME = 'Global Thermonuclear War'
 with open(CHAT_PROMPT_PATH, 'r', encoding='utf-8') as chat_prompt:
     PROMPT_CHAT = chat_prompt.read().format(name=NAME)
 
+# Topic Finder
+with open(TOPIC_PROMPT_PATH, 'r', encoding='utf-8') as topic_prompt:
+    PROMPT_TOPIC = topic_prompt.read()
+
 # Temperatures
-CHAT_TEMP = 0.6
+CHAT_TEMP  = 0.6
+TOPIC_TEMP = 0
 
 '''Tokens'''
 LONG_MEM_MAX     = 1000
-SHORT_MEM_MAX    = 2000
+RECENT_CONTEXT   = 5 # Number of messages for topic generation
+# SHORT_MEM_MAX    = 2000
+SHORT_MEM_MAX    = 550
 
 # Controls how often trim() is called.
 UPPER_THRESHOLD  = 0.95

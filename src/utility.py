@@ -7,6 +7,7 @@
 import os
 import constants
 import sys
+import re
 from datetime import datetime, timezone
 import tiktoken
 
@@ -25,17 +26,11 @@ def current_date() -> str:
         value = str()
     return value
 
-# def sql_date(timestamp) -> str:
-#     '''
-#     Converts current_date() timestamp into SQL acceptable format.
-#     '''
-#     try:
-#         datetime_obj  = datetime.strptime(timestamp, "%A, %B %d, %Y, %I:%M %p")
-#         sql_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
-#     except Exception:
-#         print('utility.sql_date() failure. Returning empty string.')
-#         sql_timestamp = str()
-#     return sql_timestamp
+def stripper(input: str) -> str:
+    '''
+    Uses regex to strip "@" from display names.
+    '''
+    return re.sub(r'\B@\b', '', input)
 
 def tokenizer(input, model) -> int:
     '''

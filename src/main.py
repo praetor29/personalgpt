@@ -16,6 +16,9 @@ import memory
 import sys
 from errors.handler import handle_exception
 
+# Initialized flag
+initialized = False
+
 '''
 Declare intents
 '''
@@ -67,21 +70,34 @@ async def on_ready():
     print(f'| {login} |')
     print(  '+-' + '-' * len(login) + '-+\n')
 
+    # Set initialized flag to True
+    global initialized
+    initialized = True
+
 '''
 Bot functioning
 '''
 @bot.event
-async def on_message(message):   
+async def on_message(message):
+    # Return if not initialized
+    global initialized
+    if not initialized:
+        return
+
+    # Prepare user_message for API call
+    user_message   = utility.stripper(message.clean_content.strip())
+
     '''Response loop when mentioned.'''
     if bot.user in message.mentions:
         # Ignore own messages
         if message.author == bot.user:
             return
-        
+
         async with message.channel.typing(): # Show typing indicator
-            # Prepare user_message for API call
-            bot_prefix     = f'<@{bot.user.id}>'
-            user_message   = message.content.removeprefix(bot_prefix).strip()
+            # Determines the current topic of conversation
+            recent = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
+            topic  = await cognition.topic(recent=recent)
+            await LongTermMemory.similarity(topic)
 
             # Catch empty messages
             if not user_message:
@@ -126,7 +142,7 @@ async def on_message(message):
                 'id'     : message.author.id,
                 'name'   : message.author.display_name,
                             },
-            'message'    : message.clean_content,
+            'message'    : user_message,
         }
         await ShortTermMemory.add(package=package_user)
     

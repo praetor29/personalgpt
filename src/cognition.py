@@ -21,7 +21,7 @@ async def chat_link(message: str, nametag: str, short_history: list) -> str:
     '''
     # day/date/time context.
     date_line = f'It is currently {utility.current_date()} {constants.TIMEZONE}.'
-    
+
     # Initializes uplink
     uplink = [
             {
@@ -79,6 +79,43 @@ async def chat_link(message: str, nametag: str, short_history: list) -> str:
         yield buffer
     except Exception as exception:
         yield (f"## `Error`\n```vbnet\n{handle_exception(exception)}\n```")
+
+async def topic(recent: list) -> str:
+    '''
+    Analyzes the conversation provided and returns a single-line topic.
+    Uses Legacy OpenAI Completions Endpoint.
+    '''
+    # Return None if recent is empty
+    if not recent:
+        return None
+    topic        = ''
+    conversation = ''
+    # Add each message to conversation
+    for message in recent:
+        # timestamp   = message.get('timestamp').strftime("%A, %B %d, %Y, %I:%M %p")
+        author_dict = message.get('author') # Container for author info           
+        author      = author_dict.get('name')
+        text        = message.get('message')
+
+        conversation += f'{author} said:\n{text}\n'
+
+    prompt = constants.PROMPT_TOPIC.format(conversation=conversation)
+    
+    try:
+        response = await openai.Completion.acreate(
+            model       = constants.MODEL_TOPIC,
+            prompt      = prompt,
+            temperature = constants.TOPIC_TEMP,
+        )
+        topic = response['choices'][0]['textY'].strip()
+    except KeyError as exception:
+        print(f'Error: {exception}')
+        topic = ''
+    except Exception as exception:
+        topic = ''
+        print('Error: cognition.topic() failure!')
+
+    return topic
 
 async def embed(message: str) -> list:
     '''
