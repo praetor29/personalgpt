@@ -10,8 +10,9 @@ import discord
 dotenv.load_dotenv()
 
 # PATHS
-CHAT_PROMPT_PATH = os.path.join('data', 'prompt.txt')
-MEMORY_DB_PATH   = os.path.join('data', 'memory.db')
+CHAT_PROMPT_PATH     = os.path.join('data', 'prompt', 'prompt.txt')
+MEMORY_DB_PATH       = os.path.join('data', 'memory', 'database')
+MEMORY_VECTOR_PATH   = os.path.join('data', 'memory', 'vectors')
 
 # API keys/tokens
 OPENAI_API_KEY    = os.getenv('OPENAI_API_KEY')
@@ -45,6 +46,7 @@ CHAT_TEMP = 0.6
 '''Tokens'''
 LONG_MEM_MAX     = 1000
 SHORT_MEM_MAX    = 2000
+
 # Controls how often trim() is called.
 UPPER_THRESHOLD  = 0.95
 LOWER_THRESHOLD  = 0.75

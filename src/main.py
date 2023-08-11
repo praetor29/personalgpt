@@ -39,9 +39,7 @@ async def on_ready():
     # Initialize LongTermMemory
     print('>> Initializing LongTermMemory...')
     global LongTermMemory
-    LongTermMemory  = memory.LongTermMemory(db_path=constants.MEMORY_DB_PATH)
-    print(f">> Initializing '{constants.MEMORY_DB_PATH}' SQLite database...")
-    await LongTermMemory.initialize_db() # Create memory.db and table (if not exist)
+    LongTermMemory  = memory.LongTermMemory()
 
     # Initialize ShortTermMemory
     print('>> Initializing ShortTermMemory...')
@@ -120,8 +118,10 @@ async def on_message(message):
     if message.author != bot.user:
         # Pushes user package
         package_user = {
+            'guild.id'   : message.guild.id,
             'channel.id' : message.channel.id,
-            'timestamp'  : utility.current_date(),
+            'message.id' : message.id,
+            'timestamp'  : message.created_at,
             'author'     : {
                 'id'     : message.author.id,
                 'name'   : message.author.display_name,
@@ -137,8 +137,10 @@ async def on_message(message):
             return
         
         package_bot  = {
+            'guild.id'   : message.guild.id,
             'channel.id' : message.channel.id,
-            'timestamp'  : utility.current_date(),
+            'message.id' : message.id,
+            'timestamp'  : message.created_at,
             'author'     : {
                 'id'     : bot.user.id,
                 'name'   : bot.user.name

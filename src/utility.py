@@ -20,22 +20,22 @@ def current_date() -> str:
     '''
     try:
         value = datetime.now(timezone.utc).strftime("%A, %B %d, %Y, %I:%M %p")
-    except:
+    except Exception:
         print('utility.current_date() failure. Returning empty string.')
         value = str()
     return value
 
-def sql_date(timestamp) -> str:
-    '''
-    Converts current_date() timestamp into SQL acceptable format.
-    '''
-    try:
-        datetime_obj  = datetime.strptime(timestamp, "%A, %B %d, %Y, %I:%M %p")
-        sql_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
-    except:
-        print('utility.sql_date() failure. Returning empty string.')
-        sql_timestamp = str()
-    return sql_timestamp
+# def sql_date(timestamp) -> str:
+#     '''
+#     Converts current_date() timestamp into SQL acceptable format.
+#     '''
+#     try:
+#         datetime_obj  = datetime.strptime(timestamp, "%A, %B %d, %Y, %I:%M %p")
+#         sql_timestamp = datetime_obj.strftime("%Y-%m-%d %H:%M:%S")
+#     except Exception:
+#         print('utility.sql_date() failure. Returning empty string.')
+#         sql_timestamp = str()
+#     return sql_timestamp
 
 def tokenizer(input, model) -> int:
     '''

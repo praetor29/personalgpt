@@ -10,6 +10,7 @@ import utility
 import aiosqlite
 import json
 import sys
+import os
 from ext.fifolock import FifoLock, Read, Write
 from errors.handler import handle_exception
 
@@ -31,7 +32,7 @@ class ShortTermMemory():
     async def add(self, package: dict):
         '''Adds channel-specific package to ShortTermMemory.'''
         # Remove and allocate channel.id from package
-        id = package.pop('channel.id')
+        id = package.get('channel.id')
         # Create new entry if channel.id not in library
         async with self.lock(Write):
             if id and id not in self.library:
@@ -92,10 +93,10 @@ class ShortTermMemory():
             if id in self.cache:
                 try:
                     for message in self.cache[id]:
-                        await self.LTM.store(id, message)
+                        await self.LTM.store(message) # <--- This is where the magic happens!
                 except Exception as exception:
                     print(f'Failed to flush cache.\n{handle_exception(exception)}')
-                    print(f'Voiding {len(self.cache[id])} messages.')
+                    print(f'Voiding {len(self.cache.get(id))} messages.')
             # Clean up
             if id in self.cache:
                 del self.cache[id]
@@ -147,63 +148,85 @@ class ShortTermMemory():
         return snapshot
 
 class LongTermMemory():
-    def __init__(self, db_path: str):
+    def __init__(self):
         '''Initialize LongTermMemory.'''
-        self.db_path = db_path
 
-    async def initialize_db(self):
-        '''Initialize memory table in SQLite database.'''
+    async def initialize_db(self, guild_id, channel_id):
+        '''
+        Initialize SQLite database for the guild (if not exist).
+        Initialize new table for the channel (if not exist).
+        '''
         try:
-            async with aiosqlite.connect(self.db_path) as db:
+            db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
+
+            async with aiosqlite.connect(db_path) as db:
                 cursor = await db.cursor()
 
                 await cursor.execute(
-                    """
-                        CREATE TABLE IF NOT EXISTS memory (
-                            key INTEGER PRIMARY KEY,
-                            id INTEGER,
+                    f"""
+                        CREATE TABLE IF NOT EXISTS channel_{channel_id} (
+                            message_id INTEGER,
                             timestamp DATETIME,
-                            name TEXT,
+                            author TEXT,
+                            author_id INTEGER,
                             text TEXT,
                             vector TEXT
                             )
-                    """)
+                     """)
         except Exception as exception:
-            print(f'Failed to initialize {constants.MEMORY_DB_PATH}.\n{handle_exception(exception)}')
+            print(f'Failed to initialize table in {constants.MEMORY_DB_PATH}.\n{handle_exception(exception)}')
             print('Calling sys.exit()')
             sys.exit()
 
-    async def store(self, id, message: dict):
+    async def store(self, message: dict):
         '''
         Store message as vector embedding in SQLite database.
         '''
         try:
-            # Retrieve message metadata
-            timestamp = utility.sql_date( # Convert to SQL format
-                        message.get('timestamp')
-                        )
-            name      = message.get('author').get('name')
-            text      = message.get('message') 
+            # Container metadata:
+            guild_id    = message.get('guild.id')
+            channel_id  = message.get('channel.id')
+            message_id  = message.get('message.id')
+            # Message metadata:
+            timestamp   = message.get('timestamp').isoformat() # Convert to ISO 8601  format
+            author_dict = message.get('author') # Container for author info           
+            author      = author_dict.get('name')
+            author_id   = author_dict.get('id')
+            text        = message.get('message') 
+            
             # Convert message content into a vector
-            vector      = await cognition.embed(text)
-            vector_json = json.dumps(vector) # Serialize into json string
+            vector_raw  = await cognition.embed(text)
+            vector      = json.dumps(vector_raw) # Serialize into json string
+            
+            # Initialize table in database
+            await self.initialize_db(guild_id=guild_id, channel_id=channel_id)
 
             # Connect to SQLite database
-            async with aiosqlite.connect(self.db_path) as db:
+            db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
+            async with aiosqlite.connect(db_path) as db:
                 cursor = await db.cursor()
 
                 await cursor.execute(
-                    """
-                        INSERT INTO memory (id, timestamp, name, text, vector)
-                        VALUES (?, ?, ?, ?, ?)
-                    """,
-                    (id, timestamp, name, text, vector_json)
+                    f"""
+                        INSERT INTO channel_{channel_id} (message_id, timestamp, author, author_id, text, vector)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                     """,
+                    (message_id, timestamp, author, author_id, text, vector)
                 )
                 await db.commit() # Commit entry
         except Exception as exception:
             print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
+        
+    async def similarity(self, id):
+        '''
+        Fetches the top 'n' results from database.
+        Based on vector cosine similarity.
+        '''
+        pass
 
 '''
 Vector similarity: disallow identical entries
 [0.80, 1.0)
+
+# Cache pre-existing vectors?
 '''
