@@ -23,7 +23,7 @@ DISCORD_BOT_ID    = os.getenv('DISCORD_BOT_ID')
 # OpenAI Models
 MODEL_EMBED     = 'text-embedding-ada-002'
 MODEL_TOPIC = 'text-curie-001'
-MODEL_CHAT      = 'gpt-3.5-turbo'
+MODEL_CHAT      = 'gpt-4'
 
 # Error Messages
 ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persists.`'
@@ -31,7 +31,7 @@ ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persi
 '''Prompts'''
 
 # Model Chat
-NAME          = 'Stacy Evans'
+NAME          = 'Stacy'
 TIMEZONE      = 'UTC'
 
 STATUS        = discord.Status.idle
@@ -52,8 +52,7 @@ TOPIC_TEMP = 0
 '''Tokens'''
 LONG_MEM_MAX     = 1000
 RECENT_CONTEXT   = 5 # Number of messages for topic generation
-# SHORT_MEM_MAX    = 2000
-SHORT_MEM_MAX    = 550
+SHORT_MEM_MAX    = 2000
 
 # Controls how often trim() is called.
 UPPER_THRESHOLD  = 0.95
