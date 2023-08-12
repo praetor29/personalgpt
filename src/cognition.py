@@ -11,7 +11,7 @@ from errors.handler import handle_exception
 
 openai.api_key = constants.OPENAI_API_KEY
 
-async def chat_link(message: str, nametag: str, short_history: list) -> str:
+async def chat_link(message: str, nametag: str, historical_context: str, short_history: list) -> str:
     '''
     Communicates with the API asynchronously, and yields max char responses.
 
@@ -33,6 +33,20 @@ async def chat_link(message: str, nametag: str, short_history: list) -> str:
                 'content' : date_line,
             },
     ]
+    # Provides historical context
+    if historical_context:
+        historical_info = "Here's some historical context related to the current topic:"
+
+        uplink.extend([
+                {
+                    'role'    : 'system',
+                    'content' : historical_info,
+                },
+                {
+                    'role'    : 'user',
+                    'content' : historical_context,
+                },
+        ])
     # Extends uplink with short history
     uplink.extend(short_history)
     # Finalizes uplink with user input
@@ -136,3 +150,55 @@ async def embed(message: str) -> list:
     except Exception as exception:
         print(f'cognition.embed() failure. Returning [].\n{handle_exception(exception)}')
         return []
+
+async def summarize(historical_context: list):
+    '''
+    Provides a summary of the relevant information
+    from historical messages.
+    '''
+    
+    if not historical_context:
+        return ''
+
+    # Create formatted history
+    historical = ''
+    for message in historical_context:
+        timestamp = message.get('timestamp').strftime("%A, %B %d, %Y") # Only the date
+        author    = message.get('author')
+        text      = message.get('text')
+
+        historical += f'On {timestamp}, {author} said:\n{text}'
+
+    uplink = [
+        {
+        'role'    : 'system',
+        'content' : constants.PROMPT_HISTORICAL,
+        },
+        {
+        'role'    : 'user',
+        'content' : historical,
+        },
+    ]
+
+    try:
+        response = await openai.ChatCompletion.acreate(
+            model       = constants.MODEL_HISTORICAL,
+            messages    = uplink,
+
+            # Fine-tuning:
+            max_tokens  = constants.LONG_MEM_MAX,
+            temperature = constants.HISTORICAL_TEMP,
+        )
+
+        summary = response['choices'][0]['message']['content']
+    
+    except KeyError as exception:
+        print(f'cognition.summarize() KeyError: {exception}')
+        summary = ''
+    except Exception as exception:
+        summary = ''
+        print('Error: cognition.summarize() failure!')
+
+    return summary
+
+    

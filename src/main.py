@@ -94,10 +94,16 @@ async def on_message(message):
             return
 
         async with message.channel.typing(): # Show typing indicator
-            # Determines the current topic of conversation
-            recent = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
-            topic  = await cognition.topic(recent=recent)
-            await LongTermMemory.similarity(topic)
+            # Fetch recent messages from Short Term Memory
+            recent             = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
+            # Determine the current topic
+            topic = await cognition.topic(recent=recent)
+            # Returns a list of similar message indices
+            similar_indices    = await LongTermMemory.similarity(
+                                    topic=topic, guild_id=message.guild.id, channel_id=message.channel.id)
+            similar_messages   = await LongTermMemory.similarity_SQL(
+                                    indices=similar_indices, guild_id=message.guild.id, channel_id=message.channel.id)
+            historical_context = await cognition.summarize(similar_messages)
 
             # Catch empty messages
             if not user_message:
@@ -109,7 +115,11 @@ async def on_message(message):
             nametag       = f'{message.author.display_name} said:'
 
             primary       = True # Is it the primary message?
-            async for packet in cognition.chat_link(message=user_message, nametag=nametag, short_history=short_history):
+            async for packet in cognition.chat_link(
+                                    message=user_message,
+                                    nametag=nametag,
+                                    historical_context=historical_context,
+                                    short_history=short_history):
                 try:
                     if primary:
                         await message.reply(packet) # Send packet as a reply

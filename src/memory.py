@@ -8,9 +8,11 @@ import cognition
 import asyncio
 import utility
 import aiosqlite
+import annoy
 import json
 import sys
 import os
+from datetime import datetime
 from ext.fifolock import FifoLock, Read, Write
 from errors.handler import handle_exception
 
@@ -176,14 +178,11 @@ class LongTermMemory():
         Initialize new table for the channel (if not exist).
         '''
         try:
+            # SQL database
             db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
-
-            async with aiosqlite.connect(db_path) as db:
-                cursor = await db.cursor()
-
-                await cursor.execute(
-                    f"""
+            query   = f"""
                         CREATE TABLE IF NOT EXISTS channel_{channel_id} (
+                            key INTEGER PRIMARY KEY,
                             message_id INTEGER,
                             timestamp DATETIME,
                             author TEXT,
@@ -191,7 +190,15 @@ class LongTermMemory():
                             text TEXT,
                             vector TEXT
                             )
-                     """)
+                     """
+            async with aiosqlite.connect(db_path) as db:
+                cursor = await db.cursor()
+                await cursor.execute(query)
+            
+            # Annoy Index
+            index_path = os.path.join(constants.MEMORY_VECTOR_PATH, f'{guild_id}')
+            os.makedirs(index_path, exist_ok=True)
+            
         except Exception as exception:
             print(f'Failed to initialize table in {constants.MEMORY_DB_PATH}.\n{handle_exception(exception)}')
             print('Calling sys.exit()')
@@ -222,33 +229,133 @@ class LongTermMemory():
 
             # Connect to SQLite database
             db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
-            async with aiosqlite.connect(db_path) as db:
-                cursor = await db.cursor()
-
-                await cursor.execute(
-                    f"""
+            query   = f"""
                         INSERT INTO channel_{channel_id} (message_id, timestamp, author, author_id, text, vector)
                         VALUES (?, ?, ?, ?, ?, ?)
-                     """,
-                    (message_id, timestamp, author, author_id, text, vector)
+                     """
+            async with aiosqlite.connect(db_path) as db:
+                cursor = await db.cursor()
+                await cursor.execute(
+                    query, (message_id, timestamp, author, author_id, text, vector)
                 )
                 await db.commit() # Commit entry
+
+            '''
+            Mirror newly stored message into Annoy database
+            '''   
+            try:
+                await self.indexing(guild_id=guild_id, channel_id=channel_id)
+            except Exception as exception:
+                print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
+
         except Exception as exception:
             print(f'Unexpected LongTermMemory.store() error.\n{handle_exception(exception)}')
+    
+    async def indexing(self, guild_id: int, channel_id: int):
+        '''
+        Builds the Spotify Annoy Index for each channel of each server.
+        [Annoy](https://github.com/spotify/annoy)
+
+        Adds each item from SQLite db to the index.
+        '''
+        try:
+            # Defines the index
+            index = annoy.AnnoyIndex(constants.VECTOR_LENGTH, 'angular')
+            
+            # SQLite information
+            db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
+            table   = f'channel_{channel_id}'
+            query   = f"SELECT key, vector FROM {table}"
+
+            async with aiosqlite.connect(db_path) as db:
+                cursor = await db.execute(query) # Select all rows
+                async for row in cursor:
+                    key, vector_json = row # Fetch info from each row
+                    vector = json.loads(vector_json) # Convert from json-string to raw floats
+
+                    index.add_item(key, vector=vector) # Add to index
+            
+            index.build(constants.ANNOY_TREES) # Build index
+            
+            index_path = os.path.join(constants.MEMORY_VECTOR_PATH, f'{guild_id}', f'{channel_id}.annoy')
+            index.save(index_path) # Saves index to disk
+
+        except Exception as exception:
+            print(f'Unexpected LongTermMemory.indexing() error.\n{handle_exception(exception)}')
         
-    async def similarity(self, topic: str):
+    async def similarity(self, topic: str, guild_id: int, channel_id: int) -> list:
         '''
-        Fetches the top 'n' results from database.
-        Based on vector cosine similarity.
+        Fetches the top 'n' nearest neighbor results from database.
+        Uses the Spotify Annoy algorithm.
+
+        Returns a list of SQL PRIMARY INTEGER KEY values.
         '''
-        # If topic not exist, return
+        # If recent topic not exist, return
         if not topic:
             return
         
         # Retrieve topic vector
         topic_vector = await cognition.embed(topic)
         
+        # Define index
+        index = annoy.AnnoyIndex(constants.VECTOR_LENGTH, 'angular')
+        index_path = os.path.join(constants.MEMORY_VECTOR_PATH, f'{guild_id}', f'{channel_id}.annoy')
+        if not os.path.exists(index_path):
+            return
+        
+        # Loads specified index
+        index.load(index_path) # Retrieves index from list
+        
+        # Fetch results
+        indices, _ = index.get_nns_by_vector(topic_vector, constants.N_HISTORICAL, include_distances=True)
+        return indices
+    
+    async def similarity_SQL(self, indices: list, guild_id: int, channel_id: int) -> list:
+        '''
+        Return the list of messages corresponsing to the indices provided.
+        '''
+        try:
+            # If indices is empty, return
+            if not indices:
+                return []
+            
+            # Convert indices to comma-separated string
+            keys = ','.join(map(str, indices))
 
+            # SQLite information
+            db_path = os.path.join(constants.MEMORY_DB_PATH, f'{guild_id}.db') # Guild-specific db
+            table   = f'channel_{channel_id}'
+            query   = f"""
+                        SELECT key, timestamp, author, text 
+                        FROM {table} 
+                        WHERE key IN ({keys})
+                    """
+
+            # Initialize a list to store the result
+            result = []
+
+            async with aiosqlite.connect(db_path) as db:
+                cursor = await db.execute(query) # Select specified rows
+
+                async for row in cursor:
+                    key, timestamp_str, author, text = row # Fetch info from each row
+                    
+                    try:
+                        timestamp = datetime.fromisoformat(timestamp_str)
+                    except Exception:
+                        timestamp = ''
+
+                    package = {
+                        'timestamp': timestamp,
+                        'author'   : author,
+                        'text'     : text
+                    }
+
+                    result.append(package) # Add package dict to list
+            return result
+        except Exception as exception:
+            print(f'Failed to fetch data from {db_path}.\n{handle_exception(exception)}')
+            return [] # Return an empty list
 
 '''
 Vector similarity: disallow identical entries
