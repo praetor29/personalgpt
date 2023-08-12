@@ -26,7 +26,7 @@ MODEL_EMBED      = 'text-embedding-ada-002'
 VECTOR_LENGTH    = 1536
 ANNOY_TREES      = 20
 MODEL_TOPIC      = 'text-curie-001'
-MODEL_CHAT       = 'gpt-3.5-turbo'
+MODEL_CHAT       = 'gpt-4'
 MODEL_HISTORICAL = 'gpt-3.5-turbo'
 
 # Error Messages
