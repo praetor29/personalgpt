@@ -272,8 +272,10 @@ class LongTermMemory():
                 async for row in cursor:
                     key, vector_json = row # Fetch info from each row
                     vector = json.loads(vector_json) # Convert from json-string to raw floats
-
-                    index.add_item(key, vector=vector) # Add to index
+                    if vector:
+                        index.add_item(key, vector=vector) # Add to index
+                    else:
+                        return
             
             index.build(constants.ANNOY_TREES) # Build index
             

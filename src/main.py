@@ -53,7 +53,7 @@ async def on_ready():
     Database Management
     '''
     # Stuff
-    print('>> Cleaning up database...')
+    # print('>> Cleaning up database...')
     
     # Enable rich presence
     print('>> Setting up bot presence...')
@@ -84,27 +84,41 @@ async def on_message(message):
     if not initialized:
         return
 
-    # Prepare user_message for API call
-    user_message   = utility.stripper(message.clean_content.strip())
+    async with message.channel.typing(): # Show typing indicator
+        # Prepare user_message for API call
+        user_message   = utility.stripper(message.clean_content.strip())
 
-    '''Response loop when mentioned.'''
-    if bot.user in message.mentions:
-        # Ignore own messages
-        if message.author == bot.user:
-            return
-
-        async with message.channel.typing(): # Show typing indicator
+        '''Response loop when mentioned.'''
+        if bot.user in message.mentions:
+            # Ignore own messages
+            if message.author == bot.user:
+                return
+        
             # Fetch recent messages from Short Term Memory
-            recent             = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
+            recent  = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
+            current = {
+            'guild.id'   : message.guild.id,
+            'channel.id' : message.channel.id,
+            'message.id' : message.id,
+            'timestamp'  : message.created_at,
+            'author'     : {
+                'id'     : message.author.id,
+                'name'   : message.author.display_name,
+                            },
+            'message'    : user_message,
+            }
+            # Add current message
+            recent.append(current)
             # Determine the current topic
             topic = await cognition.topic(recent=recent)
+            print(topic, end='\n')
             # Returns a list of similar message indices
             similar_indices    = await LongTermMemory.similarity(
                                     topic=topic, guild_id=message.guild.id, channel_id=message.channel.id)
             similar_messages   = await LongTermMemory.similarity_SQL(
                                     indices=similar_indices, guild_id=message.guild.id, channel_id=message.channel.id)
             historical_context = await cognition.summarize(similar_messages)
-
+            print(historical_context, end='\n')
             # Catch empty messages
             if not user_message:
                 user_message = bot.user.name

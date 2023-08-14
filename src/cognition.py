@@ -106,7 +106,6 @@ async def topic(recent: list) -> str:
     conversation = ''
     # Add each message to conversation
     for message in recent:
-        # timestamp   = message.get('timestamp').strftime("%A, %B %d, %Y, %I:%M %p")
         author_dict = message.get('author') # Container for author info           
         author      = author_dict.get('name')
         text        = message.get('message')

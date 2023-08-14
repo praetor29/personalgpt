@@ -59,14 +59,14 @@ TOPIC_TEMP      = 0
 HISTORICAL_TEMP = 0.2
 
 '''Tokens'''
-LONG_MEM_MAX     = 1000
-RECENT_CONTEXT   = 10 # Number of messages for topic generation
-N_HISTORICAL     = 5 # How many historical messages to fetch?
-SHORT_MEM_MAX    = 2000
+LONG_MEM_MAX     = 750
+RECENT_CONTEXT   = 3 # Number of messages for topic generation
+N_HISTORICAL     = 5 # How many historical messages to fetch from annoy?
+SHORT_MEM_MAX    = 1750
 
 # Controls how often trim() is called.
 UPPER_THRESHOLD  = 0.95
 LOWER_THRESHOLD  = 0.75
 
-CHAT_TOKEN_MAX   = 450
+CHAT_TOKEN_MAX   = 400
 DISCORD_CHAR_MAX = 1500
