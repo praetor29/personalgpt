@@ -93,7 +93,7 @@ async def on_message(message):
         if message.author == bot.user:
             return
         
-    async with message.channel.typing(): # Show typing indicator
+        async with message.channel.typing(): # Show typing indicator
             # Fetch recent messages from Short Term Memory
             recent  = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
             current = {
