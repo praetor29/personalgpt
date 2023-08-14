@@ -60,7 +60,7 @@ HISTORICAL_TEMP = 0.2
 
 '''Tokens'''
 LONG_MEM_MAX     = 750
-RECENT_CONTEXT   = 3 # Number of messages for topic generation
+RECENT_CONTEXT   = 4 # Number of messages for topic generation
 N_HISTORICAL     = 5 # How many historical messages to fetch from annoy?
 SHORT_MEM_MAX    = 1750
 

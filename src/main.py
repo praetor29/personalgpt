@@ -111,14 +111,12 @@ async def on_message(message):
             recent.append(current)
             # Determine the current topic
             topic = await cognition.topic(recent=recent)
-            print(topic, end='\n')
             # Returns a list of similar message indices
             similar_indices    = await LongTermMemory.similarity(
                                     topic=topic, guild_id=message.guild.id, channel_id=message.channel.id)
             similar_messages   = await LongTermMemory.similarity_SQL(
                                     indices=similar_indices, guild_id=message.guild.id, channel_id=message.channel.id)
             historical_context = await cognition.summarize(similar_messages)
-            print(historical_context, end='\n')
             # Catch empty messages
             if not user_message:
                 user_message = bot.user.name
