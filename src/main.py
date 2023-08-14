@@ -84,16 +84,16 @@ async def on_message(message):
     if not initialized:
         return
 
-    async with message.channel.typing(): # Show typing indicator
-        # Prepare user_message for API call
-        user_message   = utility.stripper(message.clean_content.strip())
+    # Prepare user_message for API call
+    user_message   = utility.stripper(message.clean_content.strip())
 
-        '''Response loop when mentioned.'''
-        if bot.user in message.mentions:
-            # Ignore own messages
-            if message.author == bot.user:
-                return
+    '''Response loop when mentioned.'''
+    if bot.user in message.mentions:
+        # Ignore own messages
+        if message.author == bot.user:
+            return
         
+    async with message.channel.typing(): # Show typing indicator
             # Fetch recent messages from Short Term Memory
             recent  = await ShortTermMemory.get_raw_n(id=message.channel.id, n_recent=constants.RECENT_CONTEXT)
             current = {
