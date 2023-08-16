@@ -117,6 +117,14 @@ async def on_message(message):
             similar_messages   = await LongTermMemory.similarity_SQL(
                                     indices=similar_indices, guild_id=message.guild.id, channel_id=message.channel.id)
             historical_context = await cognition.summarize(similar_messages)
+
+            '''
+            <<< Debugging >>>
+            '''
+            # utility.clear()
+            # print(f'Topic of Conversation:\n{topic}', end='\n\n')
+            # print(f'Historical Context:\n{historical_context}', end='\n\n')
+
             # Catch empty messages
             if not user_message:
                 user_message = bot.user.name

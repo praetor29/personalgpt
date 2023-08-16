@@ -150,12 +150,11 @@ async def embed(message: str) -> list:
         print(f'cognition.embed() failure. Returning [].\n{handle_exception(exception)}')
         return []
 
-async def summarize(historical_context: list):
+async def summarize(historical_context: str):
     '''
     Provides a summary of the relevant information
     from historical messages.
     '''
-    
     if not historical_context:
         return ''
 
@@ -197,7 +196,6 @@ async def summarize(historical_context: list):
     except Exception as exception:
         summary = ''
         print('Error: cognition.summarize() failure!')
-
     return summary
 
     
