@@ -1,0 +1,23 @@
+{
+    "openai"    : {
+        "APIError"                : "There is an issue on our side. Please retry your request after a brief wait and contact us if the issue persists.",
+        "Timeout"                 : "Your request has timed out. Please retry your request after a brief wait and contact us if the issue persists.",
+        "RateLimitError"          : "You have hit your assigned rate limit. Please pace your requests. Refer to our Rate limit guide for more information.",
+        "APIConnectionError"      : "There is an issue connecting to our services. Please check your network settings, proxy configuration, SSL certificates, or firewall rules.",
+        "InvalidRequestError"     : "Your request was malformed or missing some required parameters, such as a token or an input. The error message should advise you on the specific error made. Check the documentation for the specific API method you are calling and make sure you are sending valid and complete parameters. You may also need to check the encoding, format, or size of your request data.",
+        "AuthenticationError"     : "Your API key or token was invalid, expired, or revoked. Please check your API key or token and make sure it is correct and active. You may need to generate a new one from your account dashboard.",
+        "ServiceUnavailableError" : "There is an issue on our servers. Please retry your request after a brief wait and contact us if the issue persists. Check the status page for updates."
+    },
+    "discord"    : {
+        "NotFound"                : "The requested resource could not be found. Please verify the resource exists and try again.",
+        "Forbidden"               : "The requested action cannot be performed. You might not have the necessary permissions or the resource may not be accessible.",
+        "HTTPException"           : "An unexpected HTTP event occurred. Please check your request and try again.",
+        "LoginFailure"            : "Unable to login to discord. Please check for a valid bot token and try again."
+    },
+    "aiosqlite" : {
+        "OperationalError"        : "An operational error occurred. This can be caused by issues such as a malformed SQL query or a problem with the database file.",
+        "DatabaseError"           : "A generic error class that catches a number of database-related errors. It could be due to problems with the database schema, a failure in a data manipulation operation, or other database operations.",
+        "ProgrammingError"        : "This error indicates a programming error, such as a table not being found or already existing, incorrect SQL syntax, or the wrong number of bind variables provided in a SQL statement.",
+        "NotSupportedError"       : "An operation is not supported. This could be due to using a method or database feature that isn't supported by SQLite."
+    }
+}
