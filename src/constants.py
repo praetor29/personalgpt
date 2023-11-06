@@ -25,9 +25,9 @@ DISCORD_BOT_ID    = os.getenv('DISCORD_BOT_ID')
 MODEL_EMBED      = 'text-embedding-ada-002'
 VECTOR_LENGTH    = 1536
 ANNOY_TREES      = 20
-MODEL_TOPIC      = 'text-curie-001'
-MODEL_CHAT       = 'gpt-4'
-MODEL_HISTORICAL = 'gpt-3.5-turbo'
+MODEL_TOPIC      = 'gpt-3.5-turbo-instruct'
+MODEL_CHAT       = 'gpt-4-1106-preview'
+MODEL_HISTORICAL = 'gpt-3.5-turbo-1106'
 
 # Error Messages
 ERROR_CONTACT    = '`Please contact` <@704328610567159918> `if the problem persists.`'
