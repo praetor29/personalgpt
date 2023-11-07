@@ -8,7 +8,7 @@ The project aims to create a Discord bot that utilizes the OpenAI API to sustain
 - Short Term Memory
 - 100% asynchronous
 - Customizable parameters
-- OpenAI `gpt-3.5-turbo` and `gpt-4` compatible
+- Runs on OpenAI's `gpt-4-turbo` model
 
 ### Note
 Self hosted: Requires active OpenAI and Discord API keys.
@@ -23,5 +23,4 @@ praetor29
 yumeshu
 goldiereal
 j1nzou
-pegasus_1105
 ```
