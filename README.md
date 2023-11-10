@@ -1,5 +1,6 @@
 # The PersonalGPT Project
-![PersonalGPTLogo](https://github.com/praetor29/personalgpt/blob/main/res/logo.png)
+<img src="https://github.com/praetor29/personalgpt/blob/main/res/logo.png" width=25% height=25%>
+
 > Logo design by goldiereal
 
 The project aims to create a Discord bot that utilizes the OpenAI API to sustain intelligent, high caliber conversation using the [discord.py](https://github.com/Rapptz/discord.py) python library.
