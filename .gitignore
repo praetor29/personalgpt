@@ -1,7 +1,5 @@
 # Custom
-scratchpad/
-scratchpad.py
-data/
+sandbox/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
