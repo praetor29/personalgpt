@@ -14,19 +14,14 @@ Primary bot loop.
 
 # Import libraries
 import discord
-from core import constants
+from src.core import constants
 
+# Bot modules
+from src.bot import initialize
 
-bot = discord.Bot()
-
-@bot.event
-async def on_ready():
-    print(f"{bot.user} is ready and online!")
-
-@bot.slash_command(name = "hello", description = "Say hello to the bot")
-async def hello(ctx):
-    await ctx.respond("Hey!")
-
+bot = discord.Bot(
+    intents=discord.Intents(messages=True)
+    )
 
 def start():
     """
@@ -36,3 +31,9 @@ def start():
         bot.run(constants.DISCORD)
     except:
         print('Unable to initialize bot.')
+
+@bot.event
+async def on_ready():
+    await initialize.print_ascii()
+    await initialize.set_presence(bot=bot)
+

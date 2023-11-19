@@ -18,9 +18,11 @@ Libraries:
 '''
 
 # Importing libraries
-from core import bot, utility
+from src.core import utility
+from src.bot import bot
 
 utility.clear()
 bot.start()
+
 
 
