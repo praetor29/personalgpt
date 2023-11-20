@@ -25,15 +25,21 @@ def clear():
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
+# async def tokenize(input: str) -> int:
+#     """
+#     Tokenize strings using 'cl100k_base'.
+#     Works with gpt-4, gpt-3.5-turbo, text-embedding-ada-002.
+#     """
+#     encoding = tiktoken.get_encoding('cl100k_base').encode(input)
+#     tokens   = len(encoding)
+#     return tokens
+
 async def tokenize(input: str) -> int:
     """
-    Tokenize strings using 'cl100k_base'.
-    Works with gpt-4, gpt-3.5-turbo, text-embedding-ada-002.
+    Tokenize strings using a simple approximation:
+    1 token = 4 characters.
     """
-    encoding = tiktoken.get_encoding('cl100k_base').encode(input)
-    tokens   = len(encoding)
-    return tokens
-
-    
+    tokens   = len(input) // 4
+    return tokens  
 
 

@@ -18,7 +18,7 @@ import discord
 # Internal modules
 from src.bot import initialize, message_handler
 from src.core import constants, utility
-from src.memory import memory
+from src.memory import memory, creation
 
 # Configuring intents (this is crucial!!)
 intents = discord.Intents.default() # default intents
@@ -38,16 +38,22 @@ def start():
 
 @bot.event
 async def on_ready():
+    '''
+    Run ititialization functions.
+    '''
     await initialize.print_ascii()
     await initialize.set_presence(bot=bot)
 
 @bot.event
 async def on_message(message):
+    '''
+    Memory functionality upon receiving a new message.
+    '''
         # await message_handler.response(bot=bot, message=message)
     
     await memory.enqueue(message=message)
-    
-    print(memory.counter.get(message.channel.id))
+    # print(await creation.fetch_counter(message=message))
+
 
     
 

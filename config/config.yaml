@@ -7,3 +7,11 @@ activity:
   # playing, watching, listening, streaming
   type: listening
   name: "Waterparks"
+
+# Memory management
+mem_max: 8096 # tokens
+
+threshold: # normalized scale
+  upper: 1.10 # Begin trimming
+  lower: 0.90 # End trimming
+

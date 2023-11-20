@@ -47,16 +47,20 @@ status_map = {
     'dnd'      : discord.Status.dnd,
     'invisible': discord.Status.invisible,
 }
-
 activity_map = {
     'playing'  : discord.ActivityType.playing,
     'streaming': discord.ActivityType.streaming,
     'listening': discord.ActivityType.listening,
     'watching' : discord.ActivityType.watching,
 }
-
 STATUS        = status_map.get(CONFIG.get('status', 'dnd'))
 ACTIVITY_TYPE = activity_map.get(CONFIG.get('activity').get('type', 'listening'))
 ACTIVITY_NAME = CONFIG.get('activity').get('name', 'Waterparks')
+
+# Memory management
+MEM_MAX   = CONFIG.get('mem_max', 4096)
+MEM_UPPER = CONFIG.get('threshold').get('upper', 1.10)
+MEM_LOWER = CONFIG.get('threshold').get('lower', 0.90)
+
 
 
