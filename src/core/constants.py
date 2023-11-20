@@ -33,12 +33,12 @@ load_dotenv(env_path)
 
 # Load config
 config_path = path.join(path.dirname(__file__), '..', '..', 'config', 'config.yaml')
-with open(config_path, "r") as file:
+with open(config_path, 'r', encoding='utf-8') as file:
     CONFIG = yaml.safe_load(file)
 
 # Load prompts
 prompts_path = path.join(path.dirname(__file__), '..', '..', 'config', 'prompts.yaml')
-with open(prompts_path, "r") as file:
+with open(prompts_path, 'r', encoding='utf-8') as file:
     PROMPTS = yaml.safe_load(file)
 
 '''
