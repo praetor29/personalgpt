@@ -13,29 +13,19 @@ Cognitive functions using API requests.
 '''
 
 # Import libraries
+import discord
 from openai import AsyncOpenAI
 # Import modules
 from src.core import constants
+from src.cognition import chat
 
 # Initialize client with openai key
 client = AsyncOpenAI(api_key=constants.OPENAI)
 
-async def chat_completion(user_message: str) -> str:
+async def response(message: discord.Message) -> str:
     """
-    Sends and receives a response from AsyncOpenAI API.
+    Front-end for a chat completion.
     """
-    
-    response = await client.chat.completions.create(
-        messages = [
-            {
-                'role': 'user',
-                'content': f'{user_message}',
-            }
-        ],
-        model       = constants.CHAT_MODEL,
-        temperature = constants.CHAT_TEMP,
-        max_tokens  = constants.CHAT_MAX,
-    )
-    
-    return response.choices[0].message.content
+    response = await chat.chat_completion(client=client, message=message)
+    return response
 

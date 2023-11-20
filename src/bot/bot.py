@@ -17,8 +17,8 @@ import discord
 
 # Internal modules
 from src.bot import initialize, message_handler
-from src.core import constants, utility
-from src.memory import memory, creation
+from src.core import constants
+from src.memory import memory
 
 # Configuring intents (this is crucial!!)
 intents = discord.Intents.default() # default intents
@@ -52,11 +52,6 @@ async def on_message(message):
     # Enqueue message
     await memory.enqueue(message=message)
     
+    # Reply if mentioned
     if bot.user in message.mentions:
-        # Sample API Call
-        await message_handler.response(bot=bot, message=message)
-
-
-    
-
-
+        await message_handler.reply(message=message)

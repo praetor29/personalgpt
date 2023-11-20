@@ -10,15 +10,12 @@ import discord
 from src.cognition import cognition
 
 
-async def response(bot: discord.Bot, message: discord.Message):
+async def reply(message: discord.Message):
     """
     Responds to the user message.
     """
     async with message.channel.typing():
-        response = await cognition.chat_completion(user_message=message)
+        response = await cognition.response(message=message)
         await message.reply(response)
 
-    
-
-
-
+        

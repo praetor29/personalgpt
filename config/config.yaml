@@ -26,7 +26,7 @@ activity:
 #---------------------------------------+
 #           Memory Management           |
 #---------------------------------------+
-mem_max: 4096 # tokens
+mem_max: 8096 # tokens
 
 threshold: # normalized scale
   upper: 0.95 # Begin trimming
@@ -50,4 +50,3 @@ chat:
   model : ft:gpt-3.5-turbo-1106:personal::8Ibhmf2N
   temp  : 0.55
   tokens: 512
-  prompt: 

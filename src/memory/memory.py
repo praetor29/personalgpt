@@ -88,3 +88,49 @@ async def trim(message: discord.message):
 
         # Declare .get() operation as done
         queue.task_done()
+
+'''
+Convert Queue to List of Dicts
+'''
+
+async def unravel(message: discord.Message) -> list:
+    """
+    Acquire lock for safe read.
+    Clone the queue into a list of dictionaries containing display_name and clean_content.
+    """
+    # Acquire lock
+    lock = await creation.fetch_lock(message=message)
+
+    async with lock:
+        # Fetch queue
+        queue = await creation.fetch_queue(message=message)
+
+        # Note: Potentially risky accessing of internal attributes _queue
+        items = list(queue._queue) # this iterates over the queue and converts it into a list
+
+    # Create dictionaries
+    construction = []
+    for item in items:
+
+        system_dict = {
+            'role'    : 'system',
+            'content' : f'{item.author.display_name} said:',
+        }
+        user_dict = {
+            'role'    : 'user',
+            'content' : item.clean_content,
+        }
+
+        # Add to construction list
+        construction.append(system_dict)
+        construction.append(user_dict)
+
+    return construction
+
+
+
+
+    
+    
+
+
