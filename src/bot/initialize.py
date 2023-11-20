@@ -14,7 +14,7 @@ async def print_ascii():
     """
     print(ascii.bot_2)
 
-async def set_presence(bot: object):
+async def set_presence(bot: discord.Bot):
     """
     Change presence to what's defined in config.
     """
@@ -26,4 +26,4 @@ async def set_presence(bot: object):
         )
     )
 
-    
+
