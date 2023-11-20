@@ -9,9 +9,9 @@ activity:
   name: "Waterparks"
 
 # Memory management
-mem_max: 8096 # tokens
+mem_max: 4096 # tokens
 
 threshold: # normalized scale
-  upper: 1.10 # Begin trimming
-  lower: 0.90 # End trimming
+  upper: 0.95 # Begin trimming
+  lower: 0.75 # End trimming
 

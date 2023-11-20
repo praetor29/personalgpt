@@ -52,7 +52,7 @@ async def on_message(message):
         # await message_handler.response(bot=bot, message=message)
     
     await memory.enqueue(message=message)
-    # print(await creation.fetch_counter(message=message))
+    print(await creation.fetch_counter(message=message))
 
 
     

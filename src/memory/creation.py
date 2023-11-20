@@ -63,20 +63,11 @@ async def fetch_lock(message: discord.message) -> asyncio.Lock:
 Trim Check
 '''
 
-# async def fetch_trim(message: discord.message) -> bool:
-#     """
-#     Check if trim is required. Returns bool.
-#     """
-#     return counter[message.channel.id] > (constants.MEM_MAX * constants.MEM_UPPER)
-
 async def fetch_trim(message: discord.message) -> bool:
     """
     Check if trim is required. Returns bool.
     """
-    current_token_count = counter[message.channel.id]
-    trim_threshold = constants.MEM_MAX * constants.MEM_UPPER
-    print(f"Current token count: {current_token_count}, Trim Threshold: {trim_threshold}")
-    return current_token_count > trim_threshold
+    return counter[message.channel.id] > (constants.MEM_MAX * constants.MEM_UPPER)
 
 
 
