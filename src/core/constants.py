@@ -19,7 +19,12 @@ import yaml
 import discord
 
 '''
-Load
+.__                   .___
+|  |   _________    __| _/
+|  |  /  _ \__  \  / __ | 
+|  |_(  <_> ) __ \/ /_/ | 
+|____/\____(____  |____ | 
+                \/     \/ 
 '''
 
 # Load environment
@@ -31,8 +36,18 @@ config_path = path.join(path.dirname(__file__), '..', '..', 'config', 'config.ya
 with open(config_path, "r") as file:
     CONFIG = yaml.safe_load(file)
 
+# Load prompts
+prompts_path = path.join(path.dirname(__file__), '..', '..', 'config', 'prompts.yaml')
+with open(prompts_path, "r") as file:
+    PROMPTS = yaml.safe_load(file)
+
 '''
-Define
+                     _____.__        
+  ____  ____   _____/ ____\__| ____  
+_/ ___\/  _ \ /    \   __\|  |/ ___\ 
+\  \__(  <_> )   |  \  |  |  / /_/  >
+ \___  >____/|___|  /__|  |__\___  / 
+     \/           \/        /_____/  
 '''
 
 # API Keys/Tokens
@@ -57,10 +72,30 @@ STATUS        = status_map.get(CONFIG.get('status', 'dnd'))
 ACTIVITY_TYPE = activity_map.get(CONFIG.get('activity').get('type', 'listening'))
 ACTIVITY_NAME = CONFIG.get('activity').get('name', 'Waterparks')
 
-# Memory management
+# Memory Management
 MEM_MAX   = CONFIG.get('mem_max', 4096)
-MEM_UPPER = CONFIG.get('threshold').get('upper', 1.10)
-MEM_LOWER = CONFIG.get('threshold').get('lower', 0.90)
+MEM_UPPER = CONFIG.get('threshold').get('upper', 0.95)
+MEM_LOWER = CONFIG.get('threshold').get('lower', 0.75)
 
+# OpenAI Models
+CHAT_MODEL = CONFIG.get('chat').get('model', 'gpt-3.5-turbo')
+CHAT_TEMP  = CONFIG.get('chat').get('temp', 0.6)
+CHAT_MAX   = CONFIG.get('chat').get('tokens', 512)
 
+# ElevenLabs
+VOICE_ID        = CONFIG.get('voice').get('id')
+VOICE_STABILITY = CONFIG.get('voice').get('stability')
+VOICE_STYLE     = CONFIG.get('voice').get('style')
+VOICE_BOOST     = CONFIG.get('voice').get('boost', True)
 
+'''
+                                    __          
+_____________  ____   _____ _______/  |_  ______
+\____ \_  __ \/  _ \ /     \\____ \   __\/  ___/
+|  |_> >  | \(  <_> )  Y Y  \  |_> >  |  \___ \ 
+|   __/|__|   \____/|__|_|  /   __/|__| /____  >
+|__|                      \/|__|             \/ 
+'''
+
+# Chat
+CHAT_PROMPT = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/prompts.yaml`.')

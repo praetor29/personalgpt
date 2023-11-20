@@ -24,15 +24,17 @@ async def chat_completion(user_message: str) -> str:
     """
     Sends and receives a response from AsyncOpenAI API.
     """
-
+    
     response = await client.chat.completions.create(
-        messages=[
+        messages = [
             {
                 'role': 'user',
                 'content': f'{user_message}',
             }
         ],
-        model='ft:gpt-3.5-turbo-1106:personal::8Ibhmf2N',
+        model       = constants.CHAT_MODEL,
+        temperature = constants.CHAT_TEMP,
+        max_tokens  = constants.CHAT_MAX,
     )
     
     return response.choices[0].message.content
