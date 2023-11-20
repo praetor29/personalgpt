@@ -14,10 +14,11 @@ Primary bot loop.
 
 # Import libraries
 import discord
-from src.core import constants
 
-# Bot modules
+# Internal modules
 from src.bot import initialize, message_handler
+from src.core import constants, utility
+from src.memory import memory
 
 # Configuring intents (this is crucial!!)
 intents = discord.Intents.default() # default intents
@@ -42,10 +43,12 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+        # await message_handler.response(bot=bot, message=message)
+    
+    await memory.enqueue(message=message)
+    
+    print(memory.counter.get(message.channel.id))
 
-    if bot.user in message.mentions:
-        await message_handler.response(bot=bot, message=message)
-    else:
-        pass # this is where we link to memory
+    
 
 
