@@ -48,5 +48,5 @@ model: eleven_turbo_v2
 #---------------------------------------+
 chat:
   model : ft:gpt-3.5-turbo-1106:personal::8Ibhmf2N
-  temp  : 0.55
+  temp  : 0.60
   tokens: 512

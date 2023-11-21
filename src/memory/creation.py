@@ -67,7 +67,6 @@ async def fetch_trim(message: discord.message) -> bool:
     """
     Check if trim is required. Returns bool.
     """
-    print(f"Current token count at: {counter.get(message.channel.id)}")
     return counter[message.channel.id] > (constants.MEM_MAX * constants.MEM_UPPER)
 
 
