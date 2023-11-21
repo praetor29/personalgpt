@@ -25,5 +25,3 @@ async def set_presence(bot: discord.Bot):
         name     = constants.ACTIVITY_NAME,
         )
     )
-
-

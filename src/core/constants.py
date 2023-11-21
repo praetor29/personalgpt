@@ -55,6 +55,9 @@ OPENAI     = getenv('OPENAI')
 DISCORD    = getenv('DISCORD')
 ELEVENLABS = getenv('ELEVENLABS')
 
+# Dynamic IDs
+BOT_ID = str()
+
 # Bot presence
 status_map = {
     'online'   : discord.Status.online,

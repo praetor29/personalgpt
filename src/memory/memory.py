@@ -111,19 +111,24 @@ async def unravel(message: discord.Message) -> list:
     # Create dictionaries
     construction = []
     for item in items:
+        # Check if bot's message or user's
+        if message.author.id == constants.BOT_ID:
+            role = 'assistant'
+        else:
+            role = 'user'
 
-        system_dict = {
+        name_dict = {
             'role'    : 'system',
             'content' : f'{item.author.display_name} said:',
         }
-        user_dict = {
-            'role'    : 'user',
+        message_dict = {
+            'role'    : role,
             'content' : item.clean_content,
         }
 
         # Add to construction list
-        construction.append(system_dict)
-        construction.append(user_dict)
+        construction.append(name_dict)
+        construction.append(message_dict)
 
     return construction
 

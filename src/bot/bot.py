@@ -41,6 +41,9 @@ async def on_ready():
     '''
     Run ititialization functions.
     '''
+    # Add Bot user ID to constants
+    constants.BOT_ID = bot.user.id
+
     await initialize.print_ascii()
     await initialize.set_presence(bot=bot)
 
