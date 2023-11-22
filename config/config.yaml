@@ -54,4 +54,4 @@ vision:
   model : gpt-4-vision-preview
   tokens: 250
   # low/auto/high
-  detail: low
+  detail: auto

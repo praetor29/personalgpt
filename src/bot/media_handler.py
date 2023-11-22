@@ -8,6 +8,7 @@ Handles media analysis.
 import discord
 from src.core import constants
 from src.cognition import cognition
+from src.memory import custom_message
 
 async def verify_media(message: discord.Message) -> list:
     """
@@ -32,5 +33,8 @@ async def reply_media(message: discord.Message, media: list):
     Responds to the user message. Also sends through media.
     """
     async with message.channel.typing():
-        response = await cognition.response_media(message=message, media=media)
+        response, media_context = await cognition.response_media(message=message, media=media)
         await message.reply(response)
+    
+    # Call slipstream custom object
+    await custom_message.slipstream(message=message, media_context=media_context)

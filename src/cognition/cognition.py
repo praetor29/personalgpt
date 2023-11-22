@@ -29,9 +29,13 @@ async def response(message: discord.Message) -> str:
     response = await chat.chat_completion(client=client, message=message)
     return response
 
-async def response_media(message: discord.Message, media: list) -> str:
+async def response_media(message: discord.Message, media: list):
     """
     Front-end for a chat completion with media content.
     """
-    response = await chat_media.chat_completion_media(client=client, message=message, media=media)
-    return response
+    response, media_context = await chat_media.chat_completion_media(client=client, message=message, media=media)  
+
+    return response, media_context
+
+# Clean up multiple function passthroughts of client, message etc., in chat.py and chat_media.py
+# fix type hinting for response_media

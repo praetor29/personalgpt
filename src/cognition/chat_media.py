@@ -14,7 +14,7 @@ from src.memory import memory
 Construction Functions
 '''
 
-async def constructor_media(client: openai.AsyncOpenAI, message: discord.Message, media: list) -> list:
+async def constructor_media(client: openai.AsyncOpenAI, message: discord.Message) -> list:
     """
     Constructs the uplink list.
     """
@@ -30,11 +30,6 @@ async def constructor_media(client: openai.AsyncOpenAI, message: discord.Message
     context = await memory.unravel(message=message)
     # Augment uplink with context
     uplink.extend(context)
-    
-    # Add media context <--- lots happening under the hood!!
-    media_context = await media_info(client=client, message=message, media=media)
-    # Augment uplink with media context
-    uplink.extend(media_context)
 
     return uplink
 
@@ -118,8 +113,13 @@ async def chat_completion_media(client: openai.AsyncOpenAI, message: discord.Mes
     """
     Sends and receives a response from the OpenAI API.
     """
-    # Construct uplink <--- lots happening under the hood!!
-    uplink = await constructor_media(client=client, message=message, media=media)
+    # Construct initial uplink
+    uplink = await constructor_media(client=client, message=message)
+
+    # Add media context <--- lots happening under the hood!!
+    media_context = await media_info(client=client, message=message, media=media)
+    # Augment uplink with media context
+    uplink.extend(media_context)
 
     response = await client.chat.completions.create(
         messages    = uplink,
@@ -127,5 +127,5 @@ async def chat_completion_media(client: openai.AsyncOpenAI, message: discord.Mes
         temperature = constants.CHAT_TEMP,
         max_tokens  = constants.CHAT_MAX,
     )
-    print(uplink)
-    return response.choices[0].message.content
+
+    return response.choices[0].message.content, media_context
