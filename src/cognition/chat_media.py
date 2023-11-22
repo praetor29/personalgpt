@@ -7,6 +7,7 @@ Asynchronous Chat Completion functionality.
 # Import libraries
 import openai
 import discord
+from typing import Union, List
 from src.core import constants
 from src.memory import memory
 
@@ -109,7 +110,7 @@ async def containerize(message: discord.Message, descriptions: list) -> list:
 Primary API Call
 '''
 
-async def chat_completion_media(client: openai.AsyncOpenAI, message: discord.Message, media: list) -> str:
+async def chat_completion_media(client: openai.AsyncOpenAI, message: discord.Message, media: list) -> Union[str, List]:
     """
     Sends and receives a response from the OpenAI API.
     """

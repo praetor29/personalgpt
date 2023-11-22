@@ -15,6 +15,7 @@ Cognitive functions using API requests.
 # Import libraries
 import discord
 from openai import AsyncOpenAI
+from typing import Union, List
 # Import modules
 from src.core import constants
 from src.cognition import chat, chat_media
@@ -29,7 +30,7 @@ async def response(message: discord.Message) -> str:
     response = await chat.chat_completion(client=client, message=message)
     return response
 
-async def response_media(message: discord.Message, media: list):
+async def response_media(message: discord.Message, media: list) -> Union[str, List]:
     """
     Front-end for a chat completion with media content.
     """
@@ -38,4 +39,3 @@ async def response_media(message: discord.Message, media: list):
     return response, media_context
 
 # Clean up multiple function passthroughts of client, message etc., in chat.py and chat_media.py
-# fix type hinting for response_media
