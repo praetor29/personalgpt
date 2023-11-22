@@ -16,7 +16,7 @@ Primary bot loop.
 import discord
 
 # Internal modules
-from src.bot import initialize, message_handler
+from src.bot import initialize, message_handler, media_handler
 from src.core import constants
 from src.memory import memory
 
@@ -57,4 +57,16 @@ async def on_message(message):
     
     # Reply if mentioned
     if bot.user in message.mentions:
-        await message_handler.reply(message=message)
+
+        # Divert message through media handler if it contains attachments
+        if message.attachments:
+            # Verify attachments
+            media = await media_handler.verify_media(message=message)
+
+            # If list of verified exists, proceed.
+            if media:
+                await media_handler.reply_media(message=message, media=media)
+            else:
+                await message_handler.reply(message=message)
+        else:
+            await message_handler.reply(message=message)

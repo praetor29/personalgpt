@@ -32,7 +32,6 @@ threshold: # normalized scale
   upper: 0.95 # Begin trimming
   lower: 0.75 # End trimming
 
-
 #---------------------------------------+
 #              ElevenLabs               |
 #---------------------------------------+
@@ -48,5 +47,11 @@ model: eleven_turbo_v2
 #---------------------------------------+
 chat:
   model : ft:gpt-3.5-turbo-1106:personal::8Ibhmf2N
-  temp  : 0.60
+  temp  : 0.55
   tokens: 512
+
+vision:
+  model : gpt-4-vision-preview
+  tokens: 250
+  # low/auto/high
+  detail: low

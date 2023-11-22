@@ -85,11 +85,20 @@ CHAT_MODEL = CONFIG.get('chat').get('model', 'gpt-3.5-turbo')
 CHAT_TEMP  = CONFIG.get('chat').get('temp', 0.6)
 CHAT_MAX   = CONFIG.get('chat').get('tokens', 512)
 
+VISION_MODEL  = CONFIG.get('vision').get('model', 'gpt-4-vision-preview')
+VISION_MAX    = CONFIG.get('vision').get('max', 250)
+VISION_DETAIL = CONFIG.get('vision').get('detail', 'auto')
+
 # ElevenLabs
 VOICE_ID        = CONFIG.get('voice').get('id')
 VOICE_STABILITY = CONFIG.get('voice').get('stability')
 VOICE_STYLE     = CONFIG.get('voice').get('style')
 VOICE_BOOST     = CONFIG.get('voice').get('boost', True)
+
+# Acceptable Media (as of present implementation)
+MEDIA = {
+    'image' : {'png', 'gif', 'jpeg', 'webp'},
+}
 
 '''
                                     __          
@@ -101,4 +110,7 @@ _____________  ____   _____ _______/  |_  ______
 '''
 
 # Chat
-CHAT_PROMPT = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/prompts.yaml`.')
+CHAT_PROMPT   = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/prompts.yaml`.')
+
+# Vision
+VISION_PROMPT  = PROMPTS.get('vision', 'Describe the image provided, for somebody who cannot see, but can understand text.')

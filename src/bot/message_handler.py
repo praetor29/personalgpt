@@ -6,7 +6,6 @@ Handles on_message() functions.
 
 # Import libraries
 import discord
-# from src.core import constants
 from src.cognition import cognition
 
 

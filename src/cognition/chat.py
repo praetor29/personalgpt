@@ -43,5 +43,5 @@ async def chat_completion(client: openai.AsyncOpenAI, message: discord.Message) 
         temperature = constants.CHAT_TEMP,
         max_tokens  = constants.CHAT_MAX,
     )
-    
+
     return response.choices[0].message.content
