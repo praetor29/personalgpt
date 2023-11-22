@@ -9,13 +9,14 @@ With experience gained through many months of beta testing and feedback, this ne
 
 ## Objectives
 The primary goal is to reach an **all-round appearance of "sentience"** (as close as possible), with the following features in the pipeline:
-- Discord VC support (Whisper/ElevenLabs API)
-- Image recognition (GPT-4 Vision)
-- Image generation (DALLE-3)
-- Ability to run python code (maybe)
-- External APIs function calling
-- Reactions
-- Schedule-based probability function for message follow-ups
+- [ ] Discord VC support (Whisper/ElevenLabs API)
+- [X] Image recognition (GPT-4 Vision)
+- [ ] Image generation (DALLE-3)
+- [ ] Ability to run python code (maybe)
+- [ ] External APIs function calling
+- [ ] Reactions
+- [ ] Schedule-based probability function for message **follow-ups**
+- [ ] "Translate" slash command
 
 ## Contributors
 ### Developer
