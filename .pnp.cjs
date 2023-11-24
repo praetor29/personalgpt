@@ -33,11 +33,10 @@ const RAW_RUNTIME_STATE =
           ["@types/node", "npm:16.18.65"],\
           ["@types/react", "npm:18.2.38"],\
           ["@types/react-dom", "npm:18.2.17"],\
-          ["evt", "npm:2.5.3"],\
           ["github-pages-plugin-for-type-route", "npm:0.1.1"],\
           ["gitlanding", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.23.25"],\
           ["i18nifty", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:1.6.2"],\
-          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.47.23"],\
+          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.46.37"],\
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:18.2.0"],\
           ["react-scripts", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:5.0.1"],\
@@ -10401,7 +10400,7 @@ const RAW_RUNTIME_STATE =
           ["embla-carousel-react", "virtual:07e34854470d05e6a3fc47cb63a5c2bd3d66f43f50e9845a6bccc8a26a9b14602378ec16d4e3f1b7610404978694b301d6640bb87aa1a3ea98bfefd45e9cc13e#npm:7.1.0"],\
           ["framer-motion", "virtual:07e34854470d05e6a3fc47cb63a5c2bd3d66f43f50e9845a6bccc8a26a9b14602378ec16d4e3f1b7610404978694b301d6640bb87aa1a3ea98bfefd45e9cc13e#npm:4.1.17"],\
           ["memoizee", "npm:0.4.15"],\
-          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.47.23"],\
+          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.46.37"],\
           ["powerhooks", "npm:0.20.32"],\
           ["react", "npm:18.2.0"],\
           ["react-github-btn", "virtual:07e34854470d05e6a3fc47cb63a5c2bd3d66f43f50e9845a6bccc8a26a9b14602378ec16d4e3f1b7610404978694b301d6640bb87aa1a3ea98bfefd45e9cc13e#npm:1.4.0"],\
@@ -13828,17 +13827,17 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["onyxia-ui", [\
-      ["npm:0.47.23", {\
-        "packageLocation": "../../AppData/Local/Yarn/Berry/cache/onyxia-ui-npm-0.47.23-cc0c9aaf2a-10c0.zip/node_modules/onyxia-ui/",\
+      ["npm:0.46.37", {\
+        "packageLocation": "../../AppData/Local/Yarn/Berry/cache/onyxia-ui-npm-0.46.37-25fdae36f0-10c0.zip/node_modules/onyxia-ui/",\
         "packageDependencies": [\
-          ["onyxia-ui", "npm:0.47.23"]\
+          ["onyxia-ui", "npm:0.46.37"]\
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.47.23", {\
-        "packageLocation": "./.yarn/__virtual__/onyxia-ui-virtual-5c2a1ec994/3/AppData/Local/Yarn/Berry/cache/onyxia-ui-npm-0.47.23-cc0c9aaf2a-10c0.zip/node_modules/onyxia-ui/",\
+      ["virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.46.37", {\
+        "packageLocation": "./.yarn/__virtual__/onyxia-ui-virtual-a580c07338/3/AppData/Local/Yarn/Berry/cache/onyxia-ui-npm-0.46.37-25fdae36f0-10c0.zip/node_modules/onyxia-ui/",\
         "packageDependencies": [\
-          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.47.23"],\
+          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.46.37"],\
           ["@emotion/react", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:11.11.1"],\
           ["@mui/icons-material", "virtual:07e34854470d05e6a3fc47cb63a5c2bd3d66f43f50e9845a6bccc8a26a9b14602378ec16d4e3f1b7610404978694b301d6640bb87aa1a3ea98bfefd45e9cc13e#npm:5.14.18"],\
           ["@mui/material", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:5.14.18"],\
@@ -14151,11 +14150,10 @@ const RAW_RUNTIME_STATE =
           ["@types/node", "npm:16.18.65"],\
           ["@types/react", "npm:18.2.38"],\
           ["@types/react-dom", "npm:18.2.17"],\
-          ["evt", "npm:2.5.3"],\
           ["github-pages-plugin-for-type-route", "npm:0.1.1"],\
           ["gitlanding", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.23.25"],\
           ["i18nifty", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:1.6.2"],\
-          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.47.23"],\
+          ["onyxia-ui", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:0.46.37"],\
           ["react", "npm:18.2.0"],\
           ["react-dom", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:18.2.0"],\
           ["react-scripts", "virtual:edd58c11afd98c8e9f9334eaa8012bee4c77975c3bece331fa67cd8a72d178982368d95adf5e2d628143a49faa73623fca4d9f0cb84504687cd0ddddd6a20b01#npm:5.0.1"],\
