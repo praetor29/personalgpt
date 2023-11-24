@@ -1,25 +1,46 @@
-# The PersonalGPT Project: `GitHub Pages Branch`
+# Getting Started with Create React App
 
-This branch is dedicated to hosting the GitHub Pages site for **The PersonalGPT Project**. It is an essential part of our project's documentation and public presence. Below, you'll find important information about the role and restrictions of this branch.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-> [!IMPORTANT]
-> This branch is **locked for development**. What does this mean?
-> - **No Direct Commits**: Direct commits or merges to this branch are not allowed.
-> - **Read-Only**: This branch serves as a read-only snapshot of our project's public website.
+## Available Scripts
 
-### :bulb: Purpose of `gh-pages` Branch
+In the project directory, you can run:
 
-This branch is specifically for:
-- **Web Hosting**: Serving the content of our project's public website.
-- **Documentation**: Providing users and contributors with accessible and up-to-date information.
-- **Visibility**: Enhancing the online presence and accessibility of The PersonalGPT Project.
+### `yarn start`
 
-> [!NOTE]
-> - **No Pull Requests**: Pull requests to this branch will not be accepted.
-> - **No Feature Development**: This branch is not for feature development or bug fixes.
-> - **Use Main/Branches**: For development, use the `main` branch or other relevant development branches.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### :link: Useful Links
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-- [Main Repository](https://github.com/praetor29/personalgpt/)
-- [Project Discord](https://discord.gg/9EA2mrG3ZT)
+### `yarn test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `yarn build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `yarn eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
