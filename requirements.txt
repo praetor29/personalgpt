@@ -24,12 +24,11 @@ h11==0.14.0
 httpcore==1.0.2
 httpx==0.25.1
 idna==3.4
-ipython==8.17.2
 jedi==0.19.1
 matplotlib-inline==0.1.6
 msgspec==0.18.4
 multidict==6.0.4
-openai==1.3.4
+openai==1.3.5
 orjson==3.9.10
 parso==0.8.3
 prompt-toolkit==3.0.41
