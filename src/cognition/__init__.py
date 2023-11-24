@@ -1,0 +1,4 @@
+'''
+OpenAI API Functionality
+~~~~~~~~~~~~~~~~~~~~~~~~
+'''
