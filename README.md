@@ -1,23 +1,18 @@
-# The PersonalGPT Project: `GitHub Pages`
+# The PersonalGPT Project: `GitHub Pages Development`
 
-This branch is dedicated to hosting the GitHub Pages site for **The PersonalGPT Project**. It is an essential part of our project's documentation and public presence. Below, you'll find important information about the role and restrictions of this branch.
+This branch, `gh-pages-dev`, is dedicated to the development of the [GitHub Pages site](https://praetor29.github.io/personalgpt/) for **The PersonalGPT Project**. It serves as the primary environment for crafting and testing changes before they are published. Below, you'll find essential information about the role and guidelines of this branch.
 
-> [!IMPORTANT]
-> This branch is **locked for development**. What does this mean?
-> - **No Direct Commits**: Direct commits or merges to this branch are not allowed.
-> - **Read-Only**: This branch serves as a read-only snapshot of our project's public website.
+### :bulb: Purpose of `gh-pages-dev` Branch
 
-### :bulb: Purpose of `gh-pages` Branch
-
-This branch is specifically for:
-- **Web Hosting**: Serving the content of our project's public website.
-- **Documentation**: Providing users and contributors with accessible and up-to-date information.
-- **Visibility**: Enhancing the online presence and accessibility of The PersonalGPT Project.
+This branch is specifically designed for:
+- **Website Development**: Hosting the development version of the project's public website.
+- **Testing Changes**: Providing a space to test new features, updates, and fixes.
+- **Preparing Releases**: Preparing and reviewing changes before they are deployed to the `gh-pages` branch.
 
 > [!NOTE]
-> - **No Pull Requests**: Pull requests to this branch will not be accepted.
-> - **No Feature Development**: This branch is not for feature development or bug fixes.
-> - **Use Main/Branches**: For development, use the `main` branch or other relevant development branches.
+> - **Pull Requests Allowed**: Pull requests to this branch are encouraged for collaborative development.
+> - **Feature Development and Bug Fixes**: This branch is the main hub for developing new features and fixing bugs.
+> - **Transition to `gh-pages`**: Once changes are reviewed and finalized, they are built into the `gh-pages` branch for deployment.
 
 ### :link: Useful Links
 
