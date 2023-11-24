@@ -1,4 +1,4 @@
-# The PersonalGPT Project: `GitHub Pages Branch`
+# The PersonalGPT Project: `GitHub Pages`
 
 This branch is dedicated to hosting the GitHub Pages site for **The PersonalGPT Project**. It is an essential part of our project's documentation and public presence. Below, you'll find important information about the role and restrictions of this branch.
 
