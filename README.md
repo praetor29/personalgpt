@@ -1,7 +1,7 @@
-# The PersonalGPT `Rewrite`
-<img src="https://github.com/praetor29/personalgpt/blob/cloning-project-rewrite/res/combo.png" width=50% height=50%>
+# Cloning Project `Rewrite`
+<img src="https://github.com/praetor29/personalgpt/blob/41fb79fd1fea01f3b898f048bab4b535b43dfea0/static/media/dark.b4376b4f184722ea3d28.png" width=50% height=50%>
 
-> *The project logo and the jin2ou model.*
+> *The project logo and the `jin2ou` model.*
 
 ## About this branch
 This development effort seeks to bring the codebase up to speed with the latest [OpenAI Python](https://github.com/openai/openai-python) library.
@@ -30,3 +30,6 @@ goldiereal
 yumeshu
 mrinali.
 ```
+### :link: Useful Links
+- [Webpage](https://praetor29.github.io/personalgpt)
+- [Discord](https://discord.gg/9EA2mrG3ZT)
