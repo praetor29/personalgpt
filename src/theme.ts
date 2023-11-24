@@ -4,10 +4,16 @@ import { createText } from "onyxia-ui/Text";
 
 
 export const { useTheme, ThemeProvider } = createThemeProvider({
+	// "getTypographyDesc": params => ({
+	// 	...defaultGetTypographyDesc(params),
+	// 	"fontFamily": '"Open Sans", sans-serif'
+	// })
+
 	"getTypographyDesc": params => ({
 		...defaultGetTypographyDesc(params),
-		"fontFamily": '"Open Sans", sans-serif'
+		"fontFamily": '"Play", sans-serif'
 	})
+	
 });
 
 export const { makeStyles } = createMakeStyles({ useTheme });

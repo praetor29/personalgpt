@@ -1,28 +1,30 @@
 import { memo } from "react";
-import { makeStyles, Text } from "theme";
 import { declareComponentKeys } from "i18nifty";
 import { useTranslation } from "i18n";
 
+import { GlHero } from "gitlanding/GlHero/GlHero";
+import pfp from "assets/img/taylor/pfp.png";
+
 export const FourOhFour = memo(() => {
-    const { classes } = useStyles();
     const { t } = useTranslation({ FourOhFour });
 
     return (
-        <div className={classes.root}>
-            <Text typo="page heading">{t("not found")} 😥</Text>
-        </div>
+        <GlHero
+			title={t("404Title")}
+            subTitle={t("404Subtitle")}
+			illustration={{
+                "type": "image",
+                "src": pfp,
+                "hasShadow": true
+            }}
+			hasAnimation={true}
+		/>
     );
 });
 
-export const { i18n } = declareComponentKeys<"not found">()({
+export const { i18n } = declareComponentKeys<
+| "404Title"
+| "404Subtitle"
+>()({
     FourOhFour,
 });
-
-const useStyles = makeStyles({ "name": { FourOhFour } })(theme => ({
-    "root": {
-        "display": "flex",
-        "alignItems": "center",
-        "justifyContent": "center",
-        "backgroundColor": theme.colors.useCases.surfaces.background,
-    },
-}));

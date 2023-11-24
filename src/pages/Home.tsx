@@ -1,80 +1,116 @@
 import { memo } from "react";
 import { GlHero } from "gitlanding/GlHero/GlHero";
-import { GlArticle } from "gitlanding/GlArticle";
 import { GlCards } from "gitlanding/GlCards";
 import { GlLogoCard } from "gitlanding/GlCards/GlLogoCard";
+import { GlCheckList } from "gitlanding/GlCheckList";
+import { GlSectionDivider } from "gitlanding/GlSectionDivider";
 import { declareComponentKeys, useTranslation } from "i18n";
-import heroPng from "assets/img/hero.png";
-import articlePng from "assets/img/home-article.png";
-import balloonIcon from "assets/icons/balloon.png";
-import drawioIcon from "assets/icons/drawio.png";
-import githubIcon from "assets/icons/github.png";
-import plusIcon from "assets/icons/plus.png";
-import rocketIcon from "assets/icons/rocket-chat.png";
-import tchapIcon from "assets/icons/tchap.png";
+
+// Import the useIsDarkModeEnabled hook from onyxia-ui (custom!!)
+import { useIsDarkModeEnabled } from 'onyxia-ui/lib/useIsDarkModeEnabled';
+
+// main image
+import pfp from "assets/img/taylor/pfp.png";
+
+// pycord logo
+import pycord from "assets/icons/pycord.png";
+
+// openai logo
+import darkOpenai from "assets/icons/openai/dark.svg";
+import lightOpenai from "assets/icons/openai/light.svg";
+
+// elevenlabs logo
+import lightElevenlabs from "assets/icons/elevenlabs/light.png";
+import darkElevenlabs from "assets/icons/elevenlabs/dark.png";
 
 export const Home = memo(() => {
 	const { t } = useTranslation({ Home });
+	const { isDarkModeEnabled } = useIsDarkModeEnabled(); // custom!!
+
+	// light vs dark saga (custom!!)
+	const openai = isDarkModeEnabled ? darkOpenai : lightOpenai;
+	const elevenlabs = isDarkModeEnabled ? darkElevenlabs : lightElevenlabs;
+	
+
 	return (
 		<>
 			<GlHero
-				title={t("heroTitle")}
-				subTitle={t("heroSubtitle")}
+				title={t("Title")}
+				subTitle={t("Subtitle")}
 				illustration={{
 					"type": "image",
-					"src": heroPng,
+					"src": pfp,
 					"hasShadow": false
 				}}
 				hasLinkToSectionBellow={true}
 			/>
+			
+			<GlCheckList
+          hasAnimation={true}
+          heading="Core Features"
+          elements={[
+            {
+              "title": "Finetuning Support",
+              "description": "Utilizes cutting-edge `gpt-3.5-turbo-1106` fine-tuned models for precise user mimicry, offering unparalleled personalization and accuracy in responses."
+            },
+            {
+              "title": "GPT-4 Vision",
+              "description": "Employs the new `gpt-4-vision-preview` model for advanced **image recognition**, showcasing state-of-the-art capabilities in visual data interpretation and analysis."
+            },
+            {
+              "title": "Configurable Memory",
+              "description": "Features a highly robust and adaptable `asyncio` queue, employing a dependable **First In, First Out** (FIFO) strategy to guarantee reliable and lossless data handling."
+            },
+            {
+              "title": "Fully Asynchronous Processing",
+              "description": "Designed to manage high volumes of concurrent messages efficiently, ensuring seamless performance without any overload."
+            },
+            {
+              "title": "Customizable Parameters",
+              "description": "Offers extensive customization options for the bot's front-end. Easily modify all aspects via the [Discord Developer Portal](https://discord.com/developers/applications) complemented by a user-friendly configuration file, ensuring a tailored experience."
+            },
+            {
+              "title": "Discord Voice Chat (In Dev)",
+              "description": "Integrates OpenAI's `whisper-1` STT model alongside ElevenLab's TTS voice cloning technology, paving the way for a simulated audio conversation experience on Discord. Anticipate a groundbreaking conversational experience."
+            }
+          ]}
+		/>
+			
+			<GlSectionDivider />
 
-			<GlArticle
-				title={t("articleTitle")}
-				body={t("articleBody")}
-				buttonLabel={t("articleButtonLabel")}
-				buttonLink={{
-					"href": "https://example.com",
-				}}
-				illustration={{
-					"type": "image",
-					"src": articlePng,
-					"hasShadow": false
-				}}
-				hasAnimation={true}
-				illustrationPosition="left"
-			/>
-
-			<GlCards>
+			<GlCards
+				title="Uses open source libraries"
+			>
 				<GlLogoCard
 					title={t("card1Title")}
 					paragraph={t("card1Paragraph")}
-					buttonLabel="Button Label"
-					iconUrls={[
-						tchapIcon,
-						githubIcon
+					iconUrls={[pycord]}
 
-					]}
+					buttonLabel="View project"
+					link={{
+						href: "https://github.com/Pycord-Development/pycord"
+					}}
 				/>
 				<GlLogoCard
 					title={t("card2Title")}
 					paragraph={t("card2Paragraph")}
-					buttonLabel="Button Label"
-					iconUrls={[
-						rocketIcon
-					]}
+					iconUrls={[openai]}
+
+					buttonLabel="View project"
+					link={{
+						href: "https://github.com/openai/openai-python"
+					}}
 				/>
 
 				<GlLogoCard
 					title={t("card3Title")}
 					paragraph={t("card3Paragraph")}
-					buttonLabel="Button Label"
-					iconUrls={[
-						balloonIcon,
-						drawioIcon,
-						rocketIcon,
-						plusIcon
-					]}
-					overlapIcons={true}
+					iconUrls={[elevenlabs]}
+
+					buttonLabel="View project"
+					link={{
+						href: "https://github.com/elevenlabs/elevenlabs-python"
+					}}
 				/>
 			</GlCards>
 		</>
@@ -82,11 +118,8 @@ export const Home = memo(() => {
 });
 
 export const { i18n } = declareComponentKeys<
-	| "heroTitle"
-	| "heroSubtitle"
-	| "articleTitle"
-	| "articleBody"
-	| "articleButtonLabel"
+	| "Title"
+	| "Subtitle"
 	| "card1Title"
 	| "card2Title"
 	| "card3Title"

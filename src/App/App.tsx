@@ -3,7 +3,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useRoute } from "../router";
 import { Home } from "../pages/Home";
-import { PageExample } from "../pages/PageExample";
+// import { PageExample } from "../pages/PageExample"; // removed example page
 import { FourOhFour } from "../pages/FourOFour";
 import { ThemeProvider } from "../theme";
 
@@ -22,7 +22,7 @@ export function App() {
 					(()=>{
 						switch(route.name){
 							case "home": return <Home />;
-							case "pageExample": return <PageExample />;
+							// case "pageExample": return <PageExample />; // removed example page
 							default : return <FourOhFour />;
 						}
 					})()
