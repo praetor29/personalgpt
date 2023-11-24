@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.js": "/personalgpt/static/js/main.bf34de19.js",
+    "main.js": "/personalgpt/static/js/main.4534807e.js",
     "static/media/home-article.png": "/personalgpt/static/media/home-article.64a2f430b7a77662910e.png",
     "static/media/article-page-example.png": "/personalgpt/static/media/article-page-example.70d6bd57ede0ada106fa.png",
     "static/media/hero.png": "/personalgpt/static/media/hero.5e0a7345cf72196b81c5.png",
@@ -9,9 +9,9 @@
     "static/media/data-visualisation.png": "/personalgpt/static/media/data-visualisation.c147fb3b112f51f096a2.png",
     "static/media/kubernetes.png": "/personalgpt/static/media/kubernetes.52ea2430dfac2c2b029c.png",
     "index.html": "/personalgpt/index.html",
-    "main.bf34de19.js.map": "/personalgpt/static/js/main.bf34de19.js.map"
+    "main.4534807e.js.map": "/personalgpt/static/js/main.4534807e.js.map"
   },
   "entrypoints": [
-    "static/js/main.bf34de19.js"
+    "static/js/main.4534807e.js"
   ]
 }
