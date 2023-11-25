@@ -33,7 +33,7 @@ orjson==3.9.10
 parso==0.8.3
 prompt-toolkit==3.0.41
 pure-eval==0.2.2
-py-cord==2.4.1
+py-cord-dev==2.5.0rc5
 pycares==4.4.0
 pycparser==2.21
 pydantic==2.5.1
