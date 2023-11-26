@@ -10,7 +10,7 @@
   
 <p align="center">
 <img alt="Python" src="https://img.shields.io/badge/Python-3.10-blue?logo=python"> <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-1.3.5-white?logo=openai">
-<img alt="Pycord" src="https://img.shields.io/badge/Pycord-2.4.1-blue"> <img alt="ElevenLabs" src="https://img.shields.io/badge/ElevenLabs-0.2.26-white">
+<img alt="Pycord" src="https://img.shields.io/badge/Pycord-2.5.0rc5-blue"> <img alt="ElevenLabs" src="https://img.shields.io/badge/ElevenLabs-0.2.26-white">
 </p>
 
 <p align="center">
