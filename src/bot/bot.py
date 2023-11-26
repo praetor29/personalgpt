@@ -83,6 +83,5 @@ async def ping(ctx):
 
 @bot.slash_command(description=f'Begin voice call.')
 async def speak(ctx, message: str):
-    await ctx.respond(f'okay i am now ready', ephemeral=True)
     await voice.speak(ctx=ctx, message=message)
 

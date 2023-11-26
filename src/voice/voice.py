@@ -97,6 +97,8 @@ async def speak(ctx, message: str):
         # Exit if failed to get voice client
         if not voice_client:
             return   
+        
+        await ctx.respond(f'okay i am now ready', ephemeral=True)
 
         # Synthesize text-to-speech
         audio_data = await tts(message)
