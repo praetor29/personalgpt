@@ -54,6 +54,7 @@ _/ ___\/  _ \ /    \   __\|  |/ ___\
 OPENAI     = getenv('OPENAI')
 DISCORD    = getenv('DISCORD')
 ELEVENLABS = getenv('ELEVENLABS')
+LAVALINK   = getenv('LAVALINK')
 
 # Dynamic IDs
 BOT_ID = str()
@@ -99,6 +100,11 @@ VOICE_BOOST     = CONFIG.get('voice').get('boost', True)
 MEDIA = {
     'image' : {'png', 'gif', 'jpeg', 'webp'},
 }
+
+# Voice Management
+LAVALINK_HOST = CONFIG.get('server').get('host')
+LAVALINK_PORT = CONFIG.get('server').get('port')
+
 
 '''
                                     __          

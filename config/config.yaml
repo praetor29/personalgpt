@@ -55,3 +55,10 @@ vision:
   tokens: 250
   # low/auto/high
   detail: auto
+
+#---------------------------------------+
+#               Lavalink                |
+#---------------------------------------+
+server:
+  host: localhost
+  port: 2333

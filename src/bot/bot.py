@@ -19,6 +19,7 @@ import discord
 from src.bot import initialize, message_handler, media_handler
 from src.core import constants
 from src.memory import memory
+from src.voice import voice
 
 # Configuring intents (this is crucial!!)
 intents = discord.Intents.default() # default intents
@@ -44,8 +45,13 @@ async def on_ready():
     # Add Bot user ID to constants
     constants.BOT_ID = bot.user.id
 
-    await initialize.print_ascii()
     await initialize.set_presence(bot=bot)
+
+    # Start wavelink voice capabilities
+    await voice.connect_nodes(bot=bot)
+
+    # Print ASCII in terminal to signify ready
+    await initialize.print_ascii()
 
 @bot.event
 async def on_message(message):
@@ -70,3 +76,8 @@ async def on_message(message):
                 await message_handler.reply(message=message)
         else:
             await message_handler.reply(message=message)
+
+@bot.slash_command(name="play")
+async def play(ctx, search: str):
+  await voice.play(ctx=ctx, search=search)
+
