@@ -16,7 +16,7 @@ colorama==0.4.6
 decorator==5.1.1
 distro==1.8.0
 docopt==0.6.2
-elevenlabs==0.2.26
+elevenlabs @ git+https://github.com/praetor29/elevenlabs-python@066b2cc9d6dae69b4a6
 exceptiongroup==1.1.3
 executing==2.0.1
 frozenlist==1.4.0

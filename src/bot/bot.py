@@ -47,9 +47,6 @@ async def on_ready():
 
     await initialize.set_presence(bot=bot)
 
-    # Start wavelink voice capabilities
-    await voice.connect_nodes(bot=bot)
-
     # Print ASCII in terminal to signify ready
     await initialize.print_ascii()
 
@@ -77,7 +74,7 @@ async def on_message(message):
         else:
             await message_handler.reply(message=message)
 
-@bot.slash_command(name="play")
-async def play(ctx, search: str):
-  await voice.play(ctx=ctx, search=search)
+@bot.slash_command(name="speak")
+async def speak(ctx):
+    await voice.speak(ctx=ctx)
 

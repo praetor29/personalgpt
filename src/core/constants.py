@@ -51,10 +51,10 @@ _/ ___\/  _ \ /    \   __\|  |/ ___\
 '''
 
 # API Keys/Tokens
-OPENAI     = getenv('OPENAI')
-DISCORD    = getenv('DISCORD')
-ELEVENLABS = getenv('ELEVENLABS')
-LAVALINK   = getenv('LAVALINK')
+OPENAI            = getenv('OPENAI')
+DISCORD           = getenv('DISCORD')
+ELEVENLABS        = getenv('ELEVENLABS')
+LAVALINK_PASSWORD = getenv('LAVALINK')
 
 # Dynamic IDs
 BOT_ID = str()
@@ -91,10 +91,12 @@ VISION_MAX    = CONFIG.get('vision').get('max', 250)
 VISION_DETAIL = CONFIG.get('vision').get('detail', 'auto')
 
 # ElevenLabs
-VOICE_ID        = CONFIG.get('voice').get('id')
-VOICE_STABILITY = CONFIG.get('voice').get('stability')
-VOICE_STYLE     = CONFIG.get('voice').get('style')
-VOICE_BOOST     = CONFIG.get('voice').get('boost', True)
+VOICE_ID         = CONFIG.get('voice').get('id')
+VOICE_STABILITY  = CONFIG.get('voice').get('stability')
+VOICE_SIMILARITY = CONFIG.get('voice').get('similarity')
+VOICE_STYLE      = CONFIG.get('voice').get('style')
+VOICE_BOOST      = CONFIG.get('voice').get('boost', True)
+VOICE_MODEL      = CONFIG.get('voice').get('model', 'eleven_turbo_v2')
 
 # Acceptable Media (as of present implementation)
 MEDIA = {
@@ -104,6 +106,7 @@ MEDIA = {
 # Voice Management
 LAVALINK_HOST = CONFIG.get('server').get('host')
 LAVALINK_PORT = CONFIG.get('server').get('port')
+LAVALINK_URI  = f'http://{LAVALINK_HOST}:{LAVALINK_PORT}'
 
 
 '''

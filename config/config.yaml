@@ -36,11 +36,13 @@ threshold: # normalized scale
 #              ElevenLabs               |
 #---------------------------------------+
 voice:
-  id       : k2GEvsgcUkWzL3T2Q4F0
-  stability: 0.5
-  style    : 0.2
-  boost    : True
-model: eleven_turbo_v2
+  id        : k2GEvsgcUkWzL3T2Q4F0
+  stability : 0.5
+  style     : 0.2
+  similarity: 0.8
+  boost     : True
+  
+  model: eleven_turbo_v2
 
 #---------------------------------------+
 #             OpenAI Models             |
