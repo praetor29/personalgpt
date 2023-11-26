@@ -1,7 +1,6 @@
 # Custom dev ignores
 node_modules
-config/config.yaml
-config/.env
+prompts.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
