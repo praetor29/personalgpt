@@ -42,6 +42,8 @@ voice:
   similarity: 0.8
   boost     : True
   
+  # 1. eleven_turbo_v2 (Low Quality, Fast)
+  # 2. eleven_multilingual_v2 (High Quality, Slow) - Not Recommended!
   model: eleven_turbo_v2
 
 #---------------------------------------+

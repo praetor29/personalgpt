@@ -13,101 +13,34 @@ Centralized voice management.
 '''
 
 # Import libraries
-import discord
-import asyncio
-from io import BytesIO
 from elevenlabs import set_api_key, Voice, VoiceSettings, generate
-from src.core import constants
+from io import BytesIO
+import asyncio
+import discord
 
+# Import modules
+from src.core import constants
+from src.core import utility
+
+# Declare API key
 set_api_key(constants.ELEVENLABS)
 
-# async def tts(text) -> AsyncIterator[bytes]:
-#     """
-#     Uses ElevenLabs to asynchronously run TTS.
-#     """
-#     async for audio_chunk in await agenerate(
-#     text   = text,
-#     stream = True,
+'''
+ElevenLabs API Call
+'''
 
-#     # Parameters
-#     model  = constants.VOICE_MODEL,
-#     voice  = Voice(
-#         voice_id = constants.VOICE_ID,
-#         settings = VoiceSettings(
-#             stability         = constants.VOICE_STABILITY,
-#             similarity_boost  = constants.VOICE_SIMILARITY,
-#             style             = constants.VOICE_STYLE,
-#             use_speaker_boost = constants.VOICE_BOOST,
-#             )
-#         ),
-#     ):
-#         yield audio_chunk
-
-# CUSTOM CLASS???
-# from collections import deque
-# from threading import Event
-
-# class AsyncQueueAudioSource(discord.AudioSource):
-#     def __init__(self):
-#         self.queue = deque()
-#         self.done_playing = Event()
-
-#     def read(self):
-#         if not self.queue:
-#             self.done_playing.wait()
-#             self.done_playing.clear()
-
-#         return self.queue.popleft()
-
-#     def write(self, data):
-#         self.queue.append(data)
-#         self.done_playing.set()
-
-# async def speak(ctx):
-#     text = "Hello world, this is a test. Blah blah blah, morgan himes, blah blah, this is so complex."
-
-#     if ctx.author.voice:
-#         channel = ctx.author.voice.channel
-#         voice_client = await channel.connect()
-
-#     source = AsyncQueueAudioSource()
-#     voice_client.play(source)
-
-#     try:
-#         async for audio_chunk in tts(text):
-#             source.write(audio_chunk)
-#             while source.queue:  # Wait for the chunk to be consumed
-#                 await asyncio.sleep(0.2)
-#     finally:
-#         if voice_client.is_connected():
-#             await voice_client.disconnect()
-
-from pydub import AudioSegment
-
-def convert_audio(audio_data, source_format="mp3"):
-    # Load the audio data using the appropriate format
-    audio_segment = AudioSegment.from_file(BytesIO(audio_data), format=source_format)
-
-    # Convert the audio to the desired format (48kHz, stereo, 16-bit)
-    converted_audio = audio_segment.set_frame_rate(48000).set_channels(2).set_sample_width(2)
-
-    # Export the converted audio to bytes
-    buffer = BytesIO()
-    converted_audio.export(buffer, format="wav")
-    return buffer.getvalue()
-
-
-async def tts(text):
+async def tts(message):
     """
     Uses ElevenLabs to asynchronously run TTS.
     """
-    audio = await asyncio.to_thread(generate,
-    text   = text,
-    stream = False,
+    # Await audio data in a non-blocking thread
+    audio = await asyncio.to_thread(
+    generate, # ElevenLabs function
 
     # Parameters
-    model  = constants.VOICE_MODEL,
-    voice  = Voice(
+    text  = message,
+    model = constants.VOICE_MODEL,
+    voice = Voice(
         voice_id = constants.VOICE_ID,
         settings = VoiceSettings(
             stability         = constants.VOICE_STABILITY,
@@ -117,30 +50,84 @@ async def tts(text):
             )
         ),
     )
-
-    converted_audio = await asyncio.to_thread(
-        convert_audio,
-        audio_data=audio,
-        source_format="mp3"  # Adjust the format if different
-    )
+    
+    # Convert audio to Discord compatible format (uses a non-blocking thread)
+    converted_audio = await asyncio.to_thread(utility.convert_audio, audio=audio)
     
     return converted_audio
 
-async def speak(ctx):
-    text = "Hello world, this is a test. Blah blah blah, morgan himes, blah blah, this is so complex."
+'''
+VC Functions
+'''
 
-    if ctx.author.voice:
-        channel = ctx.author.voice.channel
-        voice_client = await channel.connect()
+async def connect(ctx) -> discord.VoiceClient:
+    """
+    Checks if connected.
+    Connects if not.
+    Returns state.
+    """
+    # If bot already in VC, return VC
+    if ctx.voice_client:
+        voice_client = ctx.voice_client
+        return voice_client
     
-    audio_data = await tts(text)  # Await the entire audio data
+    else:
+        # If user in VC, connect to that VC
+        if ctx.author.voice:
+             channel = ctx.author.voice.channel
+             try:
+                voice_client = await channel.connect()
+                return voice_client
+             except Exception as e:
+                 await ctx.respond(f'Error connecting to channel: `{e}`', ephemeral=True)  
+                 return False              
+        else:
+            # Ask user to connect to VC
+            await ctx.respond(f'join vc so i can join', ephemeral=True)
+            return False
 
-    audio_source = discord.PCMAudio(BytesIO(audio_data))
-    voice_client.play(audio_source)
+async def speak(ctx, message: str):
+    """
+    Allows the bot to connect to VC and speak.
+    """
+    try:
+        # Retrieve channel
+        voice_client = await connect(ctx=ctx)
+        
+        # Exit if failed to get voice client
+        if not voice_client:
+            return   
 
-    while voice_client.is_playing():
-        await asyncio.sleep(1)
+        # Synthesize text-to-speech
+        audio_data = await tts(message)
 
-    if voice_client.is_connected():
-        await voice_client.disconnect()
+        # Create discord audio source
+        audio_source = discord.PCMAudio(BytesIO(audio_data))
+        
+        # Create event to play audio
+        play_audio = asyncio.Event()           
+        
+        def after_playing(error):
+            if error:
+                # Schedule the execution of a coroutine function to handle the error
+                asyncio.create_task(handle_error(error))
+            # Signals end of audio playing
+            play_audio.set()
+        
+        async def handle_error(error):
+            # Now you can await inside this function
+            await ctx.respond(f'Error playing audio: `{error}`', ephemeral=True)
+        
+        # Plays audio
+        voice_client.play(audio_source, after=after_playing)
+        
+        # Wait for the audio to finish playing
+        await play_audio.wait()  
 
+    except Exception as e:
+        await ctx.respond(f'An error occured: `{e}`', ephemeral=True) 
+
+    finally:
+        # Disconnect from the voice channel
+        if voice_client and voice_client.is_connected():
+            await voice_client.disconnect()

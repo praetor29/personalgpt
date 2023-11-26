@@ -74,7 +74,15 @@ async def on_message(message):
         else:
             await message_handler.reply(message=message)
 
-@bot.slash_command(name="speak")
-async def speak(ctx):
-    await voice.speak(ctx=ctx)
+'''
+/Slash Commands
+'''
+@bot.slash_command(description=f"Check latency.")
+async def ping(ctx):
+    await ctx.respond(f"`{round(bot.latency, 3)}` ms.")
+
+@bot.slash_command(description=f'Begin voice call.')
+async def speak(ctx, message: str):
+    await ctx.respond(f'okay i am now ready', ephemeral=True)
+    await voice.speak(ctx=ctx, message=message)
 
