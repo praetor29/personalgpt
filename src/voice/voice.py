@@ -1,202 +1,163 @@
 '''
-voice
-~~~~~
-Centralized voice management.
+voice cog
+~~~~~~~~~
+Centralized voice management cog.
 '''
 '''
-██╗   ██╗ ██████╗ ██╗ ██████╗███████╗
-██║   ██║██╔═══██╗██║██╔════╝██╔════╝
-██║   ██║██║   ██║██║██║     █████╗  
-╚██╗ ██╔╝██║   ██║██║██║     ██╔══╝  
- ╚████╔╝ ╚██████╔╝██║╚██████╗███████╗
-  ╚═══╝   ╚═════╝ ╚═╝ ╚═════╝╚══════╝                                                                                               
+██╗   ██╗ ██████╗ ██╗ ██████╗███████╗  
+██║   ██║██╔═══██╗██║██╔════╝██╔════╝    ____    ____     ____  
+██║   ██║██║   ██║██║██║     █████╗    _/ ___\  /  _ \   / ___\ 
+╚██╗ ██╔╝██║   ██║██║██║     ██╔══╝    \  \___ (  <_> ) / /_/  >
+ ╚████╔╝ ╚██████╔╝██║╚██████╗███████╗   \___  > \____/  \___  / 
+  ╚═══╝   ╚═════╝ ╚═╝ ╚═════╝╚══════╝       \/         /_____/                                                                                                 
 '''
 
 # Import libraries
-from io import BytesIO
-import asyncio
 import discord
+from discord.ext import commands
+import asyncio
 
 # Import modules
-from src.voice import tts
 from src.core import constants
+from src.voice import tts
 
-'''
-VC Functions
-'''
-
-# Holds guilds, and their respective voice channels, alone flags, and VC states (T/F)
-connections = {}
-
-async def connect(ctx):
+class Voice(commands.Cog):
     """
-    Checks if connected.
-    Connects if not.
-    Returns state.
+    Voice Cog
+    ~~~~~~~~~
+    Maintains all VC methods in a modular way.
     """
+    
+    def __init__(self, bot: discord.Bot):
+        """
+        Initialize the class.
+        """
+        self.bot = bot
 
-    guild_id = ctx.guild.id
+        # Dictionary that holds all voice connections
+        self.connections = {}
+    
+    '''
+    VC Methods
+    '''
 
-    # Check if supposedly connected, but the voice client is not actually connected
-    if guild_id in connections:
-        voice_client = connections.get(guild_id, {}).get('voice_client')
-        if voice_client and not voice_client.is_connected():
-            # Reset the state if the bot is not actually connected
-            connections.pop(guild_id, None)
+    async def verify(self, ctx) -> bool:
+        """
+        Verifies if the ctx is eligible.
+        """
+        print("verify() called")
+        try: # for debugging!!
+            # 1. Reject non-guild requests (DMs)
+            if ctx.guild is None:
+                await ctx.respond('i can only vc in servers', ephemeral=True)
+                return False
 
-    # If bot already in guild VC, return the existing voice client
-    if guild_id in connections:
-        return connections[guild_id]['voice_client']
-
-    # If user in VC, connect to that VC
-    if ctx.author.voice:
-        channel = ctx.author.voice.channel
-
-        try:
-            voice_client = await channel.connect()
-
-            # Update connections
-            connections[guild_id] = {
-                'voice_client': voice_client,
-                'state'       : False,
-                'alone_loop'  : False,
-            }
-            return voice_client
-
+            # 2. Reject if not in VC
+            elif ctx.author.voice is None:
+                await ctx.respond('you have to join vc first', ephemeral=True)
+                return False
+            
+            # 3. Reject if already in VC
+            elif self.connections.get(ctx.guild.id, None) is not None:
+                await ctx.respond('im already in vc', ephemeral=True)
+                return False
+            
+            # (!) Handle potential mismatch
+            elif not await self.mismatch(ctx):
+                return False
+            
+            # Passed! Return confirmation
+            else:
+                await ctx.respond('ok ready now', ephemeral=True)
+                print('Passed verification!')
+                return True
         except Exception as e:
-            await ctx.respond(f'Error connecting to channel: `{e}`', ephemeral=True)
+            print(f"Exception in verify(): {e}")
             return False
-    else:
-        # Ask user to connect to VC
-        await ctx.respond(f'you have to join vc first', ephemeral=True)
-        return False
 
-# async def alone(ctx, voice_client: discord.VoiceClient):
-#     """
-#     Disconnects if alone in VC for more than the idle time.
-#     Has grace periods implemented.
-#     """
-#     # Initialize the entry if it doesn't exist
-#     if ctx.guild.id not in connections:
-#         connections[ctx.guild.id] = {
-#             'voice_client': voice_client,
-#             'state'       : False,
-#             'alone_loop'  : False
-#         }
-
-#     while True:
-#         connections[ctx.guild.id]['alone_loop'] = True
-
-#         # Check regularly to be responsive
-#         await asyncio.sleep(5)
+    async def connect(self, ctx):
+        """
+        Connects to voice channel.
+        """
+        # Debug print
+        print("connect() called")
+        print(f"Dictionary state: {self.connections.get(ctx.guild.id)}")
+        print(f"Discord.py state: {ctx.guild.voice_client}")
         
-#         # Check if connected to VC at all. If not, break.
-#         ## Safeguard check against exceptions
-#         if not voice_client or not voice_client.is_connected():
-#             connections[ctx.guild.id]['alone_loop'] = False
-#             break
-        
-#         # Number of members in vc
-#         members = len(voice_client.channel.members)
+        try: # for debuggin!!
+            # Run verification
+            if await self.verify(ctx):
 
-#         # Check if alone in vc
-#         if members == 1:
-#             # Begin grace period
-#             await asyncio.sleep(constants.VOICE_IDLE)
+                # Obtain channel
+                channel = ctx.author.voice.channel
+                # Connect to channel
+                await channel.connect()
+        except Exception as e:
+            print(f"Exception in connect(): {e}")
+
+
+    @discord.slash_command()
+    async def vc(self, ctx):
+        """
+        Start a voice call.
+        """
+        await self.connect(ctx)
+
+    '''
+    Utility Methods
+    '''
+    
+    async def mismatch(self, ctx) -> bool:
+        """
+        Handles library vs dict state mismatch.
+        
+        Note: Something of a workaround!
+        """
+        print("mismatch() called")
+        if (
+            ctx.guild.voice_client is not None and
+            self.connections.get(ctx.guild.id, None) is None
+            ):
+            print("Mismatch detected")
+            try:
+                await ctx.guild.voice_client.disconnect()
+                print("Bot disconnected successfully")
+                ctx.guild.voice_client.cleanup()
+                print(f"Internal state after cleanup: {ctx.guild.voice_client}")
+                await asyncio.sleep(1)
+                print(f"Internal state after sleep: {ctx.guild.voice_client}")
+                return True
+            except Exception as e:
+                await ctx.respond(f'i think it broke: `{e}`', ephemeral=True)
+                print(f"Exception in mismatch(): {e}")
+                return False
+        print("No mismatch detected")
+        return True
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+
+        # Check if member was bot
+        if member == self.bot.user:
             
-#             # Final check
-#             if members == 1:
-#                 await ctx.respond(f"goodbye", ephemeral=True)
-                
-#                 # Disconnect and update connections
-#                 await voice_client.disconnect()
-#                 connections.pop(ctx.guild.id, None)
-                
-#                 break
+            # If change was a disconnect
+            if (
+                before.channel is not None and # was in VC
+                after.channel is None # no longer in VC
+                ):
+                # Remove connection from dict
+                self.connections.pop(member.guild.id, None)
 
-async def alone(ctx, voice_client: discord.VoiceClient):
-    """
-    Disconnects if alone in VC for more than the idle time.
-    Has grace periods implemented.
-    """
-    guild_id = ctx.guild.id
-
-    # Initialize the entry if it doesn't exist
-    if guild_id not in connections:
-        connections[guild_id] = {
-            'voice_client': voice_client,
-            'state'       : False,
-            'alone_loop'  : False
-        }
-    else:
-        # Set the flag when entering the loop
-        connections[guild_id]['alone_loop'] = True
-
-    while True:
-        # Check if connected to VC at all. If not, break and reset state.
-        ## Safeguard check against exceptions
-        if not voice_client or not voice_client.is_connected():
-            if guild_id in connections:
-                connections[guild_id]['alone_loop'] = False
-            break
-        
-        # Number of members in vc
-        members = len(voice_client.channel.members)
-
-        # Check if alone in vc
-        if members == 1:
-            # Begin grace period
-            await asyncio.sleep(constants.VOICE_IDLE)
+                print(f"Updated dictionary state: removed the entry")
             
-            # Recheck the member count and if still alone, disconnect
-            if len(voice_client.channel.members) == 1:
-                await ctx.respond(f"goodbye", ephemeral=True)
+            # If change was a connect
+            elif (
+                after.channel is not None # is now in VC/different VC
+                ):
+                # Add connection to dict
+                self.connections[member.guild.id] = after.channel
+                print(f"Updated dictionary state: {self.connections.get(member.guild.id)}")
+
+
                 
-                # Disconnect and update connections
-                await voice_client.disconnect()
-                
-                # Safely remove the guild from connections if it exists
-                connections.pop(guild_id, None)
-                
-                break
-        else:
-            # If the bot is not alone, continue the loop
-            await asyncio.sleep(5)
 
-'''
-VC Features
-'''
-
-async def read(ctx, voice_client: discord.VoiceClient, text: str):
-    """
-    Allows the bot to connect to VC and speak.
-    """
-    try:
-        # Synthesize text-to-speech and retrieve bytes
-        audio_data = await tts.tts(text)
-
-        # Create discord audio source
-        audio_source = discord.PCMAudio(BytesIO(audio_data))
-        
-        # Create event to play audio
-        play_audio = asyncio.Event()           
-        
-        def after_playing(error):
-            if error:
-                # Schedule the execution of a coroutine function to handle the error
-                asyncio.create_task(handle_error(error))
-            # Signals end of audio playing
-            play_audio.set()
-        
-        async def handle_error(error):
-            # Now you can await inside this function
-            await ctx.respond(f'error playing audio: `{error}`', ephemeral=True)
-        
-        # Plays audio
-        voice_client.play(audio_source, after=after_playing)
-        
-        # Wait for the audio to finish playing
-        await play_audio.wait()  
-
-    except Exception as e:
-        await ctx.respond(f'an error occured: `{e}`', ephemeral=True)
