@@ -33,10 +33,8 @@ class Voice(commands.Cog):
         Initialize the class.
         """
         self.bot = bot
-
-        # Dictionary that holds all voice connections
-        self.connections = {}
     
+
     '''
     VC Methods
     '''
@@ -56,29 +54,30 @@ class Voice(commands.Cog):
             return False
         
         # 3. Reject if already in VC
-        elif self.connections.get(ctx.guild.id, None) is not None:
+        elif ctx.guild.voice_client is not None:
             await ctx.respond('im already in vc', ephemeral=True)
             return False
                     
-        # Passed! Return confirmation
+        # Passed!
         else:
-            await ctx.respond('ok ready now', ephemeral=True)
             return True
 
     async def connect(self, ctx):
         """
         Connects to voice channel.
         """
-        # Run verification
-        if await self.verify(ctx):
+        try:
+            # Run verification
+            if await self.verify(ctx):
 
-            # Obtain channel
-            channel = ctx.author.voice.channel
-            # Connect to channel
-            try:
+                # Obtain channel
+                channel = ctx.author.voice.channel
+                # Connect to channel
                 await channel.connect()
-            except Exception as e:
-                await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
+                await ctx.respond('ok ready now', ephemeral=True)
+            
+        except Exception as e:
+            await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
 
 
     @discord.slash_command()
@@ -88,6 +87,7 @@ class Voice(commands.Cog):
         """
         await self.connect(ctx)
 
+
     '''
     Utility Methods
     '''
@@ -95,7 +95,7 @@ class Voice(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """
-        Maintains the connections dictionary and handles state mismatches (zombie channels.)
+        Handles state mismatches (zombie channels.)
 
         Ensures voice channel connections are robust.
         """
@@ -108,28 +108,22 @@ class Voice(commands.Cog):
                 after.channel is None # no longer in VC
                 ):
 
-                # 1. Remove connection from dict
-                self.connections.pop(member.guild.id, None)
+                # Cleanup zombie channels if required
+                if member.guild.voice_client is not None:
+                    try:
+                        await self.cleanup(member)
+                    except Exception as e:
+                        print(f'Could not cleanup channel: {e}')
+    
+    async def cleanup(self, member):
+        """
+        Cleanup zombie channel connections.
+        """
+        client = member.guild.voice_client
 
-                # 2. Cleanup potential zombie channels
-                if (
-                    member.guild.voice_client is not None and
-                    self.connections.get(member.guild.id, None) is None
-                    ):
-                    # First disconnect the client from zombie channel
-                    try:
-                        await member.guild.voice_client.disconnect()
-                    except Exception as e:
-                        print(f'Could not disconnect from zombie channel: {e}')
-                    # Then cleanup() zombie channel
-                    try:
-                        member.guild.voice_client.cleanup()
-                    except Exception as e:
-                        print(f'Could not cleanup zombie channel: {e}')
-            
-            # If change was a *connect*
-            elif (
-                after.channel is not None # is now in VC/different VC
-                ):
-                # Add connection to dict
-                self.connections[member.guild.id] = after.channel
+        # First disconnect the client from zombie channel
+        await client.disconnect()
+
+        # Then cleanup() zombie channel
+        client.cleanup()
+
