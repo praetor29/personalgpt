@@ -92,13 +92,6 @@ async def ping(ctx):
 '''
 THINGS TO WORK ON IN THIS REFACTORING:
 
-1. One primary vc() command.
-2. All other features like read() need VC command to be active, and add onto vc()
-3. Rethink alone() function - it is TOO chonky
-4. Too much verbosity - rethink upon python standards.
-5. Don't worry about error handling to begin with - first have a stable implementation.
+1. All other features like read() need VC command to be active, and add onto vc()
+
 '''
-
-
-
-

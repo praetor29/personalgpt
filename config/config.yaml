@@ -70,4 +70,4 @@ mode: 1
 #             Voice Channel             |
 #---------------------------------------+
 # How long idle in VC (alone) in seconds
-idle: 30
+idle: 60

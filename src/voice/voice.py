@@ -14,7 +14,7 @@ Centralized voice management cog.
 
 # Import libraries
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import asyncio
 
 # Import modules
@@ -33,6 +33,9 @@ class Voice(commands.Cog):
         Initialize the class.
         """
         self.bot = bot
+        
+        # Idle loop
+        self.idle_loop.start()  
     
 
     '''
@@ -95,35 +98,75 @@ class Voice(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """
-        Handles state mismatches (zombie channels.)
-
+        Handles change of voice state.
         Ensures voice channel connections are robust.
         """
         # Check if member was bot
         if member == self.bot.user:
             
-            # If change was a *disconnect*
-            if (
-                before.channel is not None and # was in VC
-                after.channel is None # no longer in VC
-                ):
+            # If change was a *connect*
+            if after.channel is not None: # changed VC/joined VC
+                await self.handle_connect(guild=member.guild)
 
-                # Cleanup zombie channels if required
-                if member.guild.voice_client is not None:
-                    try:
-                        await self.cleanup(member)
-                    except Exception as e:
-                        print(f'Could not cleanup channel: {e}')
+            # If change was a *disconnect*
+            if before.channel is not None and after.channel is None: # no longer in VC
+                await self.handle_disconnect(guild=member.guild)
     
-    async def cleanup(self, member):
+    async def handle_connect(self, guild):
         """
-        Cleanup zombie channel connections.
+        Handles state change: connect.
         """
-        client = member.guild.voice_client
+        pass # nothing here yet!
+
+    async def handle_disconnect(self, guild):
+        """
+        Handles state change: disconnect.
+        """
+        # 1. Cleanup zombie channels if required
+        if guild.voice_client is not None:
+            try:
+                await self.cleanup(guild)
+            except Exception as e:
+                print(f'Could not cleanup channel: {e}')
+    
+    async def cleanup(self, guild):
+        """
+        Cleanup zombie voice channel connections.
+        """
+        voice_client = guild.voice_client
 
         # First disconnect the client from zombie channel
-        await client.disconnect()
+        await voice_client.disconnect()
 
         # Then cleanup() zombie channel
-        client.cleanup()
+        voice_client.cleanup()
+
+    '''
+    Loop Methods
+    '''
+
+    @tasks.loop(seconds=constants.VOICE_IDLE)
+    async def idle_loop(self):
+        """
+        Check all voice channels the bot is in and disconnect if alone.
+        """
+        for vc in self.bot.voice_clients:
+            # If connected and alone
+            if vc.is_connected() and len(vc.channel.members) == 1:
+                # Wait for the grace period
+                await asyncio.sleep(constants.VOICE_IDLE)  
+                # Recheck to see if still alone
+                if len(vc.channel.members) == 1:  
+                    await vc.disconnect() # Disconnect
+
+    @idle_loop.before_loop
+    async def before_idle_loop(self):
+        await self.bot.wait_until_ready()
+
+    def cog_unload(self):
+        """
+        Cancel all idle loops when the cog is unloaded
+        """
+        self.idle_loop.cancel()
+
 
