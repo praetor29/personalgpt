@@ -15,7 +15,7 @@ library = {}
 ## token counts
 counter = {}
 ## channel locks (for thread safety)
-locker   = {}
+locker  = {}
 
 '''
 Queue/Counter Creation

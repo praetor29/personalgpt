@@ -61,8 +61,13 @@ vision:
   detail: auto
 
 #---------------------------------------+
-#               Lavalink                |
+#    Voice Activity Detection (VAD)     |
 #---------------------------------------+
-server:
-  host: localhost
-  port: 2333
+# Agressiveness (1-3)
+mode: 1
+
+#---------------------------------------+
+#             Voice Channel             |
+#---------------------------------------+
+# How long idle in VC (alone) in seconds
+idle: 30

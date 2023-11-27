@@ -103,11 +103,11 @@ MEDIA = {
     'image' : {'png', 'gif', 'jpeg', 'webp'},
 }
 
-# Voice Management
-LAVALINK_HOST = CONFIG.get('server').get('host')
-LAVALINK_PORT = CONFIG.get('server').get('port')
-LAVALINK_URI  = f'http://{LAVALINK_HOST}:{LAVALINK_PORT}'
+# Voice Acitvity Detection (VAD)
+VAD_MODE   = CONFIG.get('mode', 1)
 
+# Voice Channel
+VOICE_IDLE = CONFIG.get('idle', 60)
 
 '''
                                     __          
