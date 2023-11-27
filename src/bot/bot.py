@@ -92,6 +92,18 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.respond(f"`{round(bot.latency, 3)}` ms.", ephemeral=True)
 
+#######################################################################
+
+'''
+REWRITE LOGIC:
+
+1. One VC command.
+2. All other features need VC command to be active.
+3. Rethink alone() function - it is TOO chonky
+4. Too much verbosity - rethink upon python standards.
+5. Don't worry about error handling to begin with - first have a stable implementation.
+'''
+
 @bot.slash_command(description='Read text aloud.')
 async def read(ctx, text: str):
     # Ensure it's in a guild

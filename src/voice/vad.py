@@ -35,4 +35,3 @@ async def is_speech(audio_frame, sample_rate) -> bool:
     status = await asyncio.to_thread(vad.is_speech(audio_frame, sample_rate))
 
     return status
-
