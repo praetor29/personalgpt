@@ -20,6 +20,7 @@ import asyncio
 # Import modules
 from src.core import constants
 from src.voice import tts
+from src.voice.vad import VADSink
 
 class Voice(commands.Cog):
     """
@@ -29,14 +30,24 @@ class Voice(commands.Cog):
     """
     
     def __init__(self, bot: discord.Bot):
-        """
-        Initialize the class.
-        """
-        self.bot = bot
-        
-        # Idle loop
-        self.idle_loop.start()  
-    
+            """
+            Initialize the Voice class.
+
+            Args:
+                bot (discord.Bot): The Discord bot instance.
+
+            Attributes:
+                bot (discord.Bot): The Discord bot instance.
+                idle_loop (discord.ext.tasks.Loop): The idle loop task.
+                vad (webrtcvad.Vad): The VAD (Voice Activity Detector) instance.
+            """
+            self.bot = bot
+            
+            # Idle loop
+            self.idle_loop.start()
+            
+            # VAD
+            self.vad_sink = VADSink()
 
     '''
     VC Methods
@@ -90,9 +101,14 @@ class Voice(commands.Cog):
         """
         await self.connect(ctx)
 
-
+    async def once_done(self):
+        """
+        Callback for when recording is finished.
+        """
+        print('Recording finished.')
+    
     '''
-    Utility Methods
+    Listener Methods
     '''
 
     @commands.Cog.listener()
@@ -116,18 +132,34 @@ class Voice(commands.Cog):
         """
         Handles state change: connect.
         """
-        pass # nothing here yet!
+        voice_client = guild.voice_client
+
+        if voice_client is not None:           
+            # Start recording with VADSink
+            voice_client.start_recording(self.vad_sink, self.once_done)
+
+            # Start the VAD loop
+            asyncio.create_task(self.vad_sink.vad_loop())
 
     async def handle_disconnect(self, guild):
         """
         Handles state change: disconnect.
         """
-        # 1. Cleanup zombie channels if required
-        if guild.voice_client is not None:
+        voice_client = guild.voice_client
+
+        if voice_client is not None:
+            # 1. Cleanup zombie channels if required
             try:
                 await self.cleanup(guild)
             except Exception as e:
                 print(f'Could not cleanup channel: {e}')
+        
+            # 2. Stop recording
+            try:
+                voice_client.stop_recording()
+            except Exception as e:
+                print(f'Could not stop recording: {e}')
+
     
     async def cleanup(self, guild):
         """

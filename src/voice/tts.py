@@ -46,5 +46,7 @@ async def tts(message) -> bytes:
     
     # Convert audio to Discord compatible format (uses a non-blocking thread)
     converted_audio = await asyncio.to_thread(utility.convert_audio, audio=audio)
+
+    # ! use discord.FFmpegOpusAudio() instead of converting manually!!
     
     return converted_audio

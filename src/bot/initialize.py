@@ -12,7 +12,7 @@ async def print_ascii():
     """
     Print ASCII art in terminal.
     """
-    print(ascii.bot_2)
+    print(ascii.bot_1)
 
 async def set_presence(bot: discord.Bot):
     """

@@ -104,7 +104,8 @@ MEDIA = {
 }
 
 # Voice Acitvity Detection (VAD)
-VAD_MODE   = CONFIG.get('mode', 1)
+VAD_MODE           = CONFIG.get('mode', 1)
+VAD_FRAME_DURATION = CONFIG.get('duration', 10)
 
 # Voice Channel
 VOICE_IDLE = CONFIG.get('idle', 60)
