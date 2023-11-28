@@ -45,8 +45,8 @@ class Voice(commands.Cog):
             
             # Idle loop
             self.idle_loop.start()
-            
-            # VAD
+
+            # VADSink
             self.vad_sink = VADSink()
 
     '''
@@ -100,13 +100,20 @@ class Voice(commands.Cog):
         Start a voice call.
         """
         await self.connect(ctx)
+        
+        ctx.guild.voice_client.start_recording(
+            self.vad_sink,  # The sink type to use.
+            self.once_done,  # What to do once done.
+        )
 
+        await self.vad_sink.vad_loop()
+    
     async def once_done(self):
         """
-        Callback for when recording is finished.
+        Called once the recording is done.
         """
-        print('Recording finished.')
-    
+        print('done')
+
     '''
     Listener Methods
     '''
@@ -135,11 +142,7 @@ class Voice(commands.Cog):
         voice_client = guild.voice_client
 
         if voice_client is not None:           
-            # Start recording with VADSink
-            voice_client.start_recording(self.vad_sink, self.once_done)
-
-            # Start the VAD loop
-            asyncio.create_task(self.vad_sink.vad_loop())
+            pass
 
     async def handle_disconnect(self, guild):
         """
@@ -153,14 +156,7 @@ class Voice(commands.Cog):
                 await self.cleanup(guild)
             except Exception as e:
                 print(f'Could not cleanup channel: {e}')
-        
-            # 2. Stop recording
-            try:
-                voice_client.stop_recording()
-            except Exception as e:
-                print(f'Could not stop recording: {e}')
 
-    
     async def cleanup(self, guild):
         """
         Cleanup zombie voice channel connections.

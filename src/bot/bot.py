@@ -14,6 +14,7 @@ Primary bot loop.
 
 # Import libraries
 import discord
+import asyncio
 
 # Internal modules
 from src.bot import initialize, message_handler, media_handler
