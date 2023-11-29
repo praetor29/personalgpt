@@ -32,13 +32,13 @@ class VADSink(discord.sinks.Sink):
         
         # Parameters
         self.sample_rate = 48000
-        self.frame_duration_ms = constants.VAD_FRAME_DURATION  # Frame duration in milliseconds
+        self.frame_duration = constants.VAD_FRAME_DURATION  # Frame duration in milliseconds
 
         # Calculate the number of samples in each audio frame
-        self.number_of_samples = int(self.sample_rate * self.frame_duration_ms / 1000)  # Number of samples per frame
-
-        # Calculate frame length in bytes (16-bit audio = 2 bytes per sample)
-        self.frame_length_in_bytes = self.number_of_samples * 2
+        self.number_of_samples = int(self.sample_rate * self.frame_duration / 1000)  # Number of samples per frame
+        
+        # Calculate the size of each audio frame in bytes
+        self.frame_size = self.number_of_samples * 2
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -65,18 +65,19 @@ class VADSink(discord.sinks.Sink):
         (PCM, self.sample_rate Hz, 16-bit, mono)
         Uses ffmpeg natively for efficiency.
         """
-        # Declare ffmpeg command
+        # Declare ffmpeg command for downsampling
         ffmpeg = [
             'ffmpeg',
             '-f', 's16le',  # Specify the format of the input data
-            '-i', 'pipe:0',  # Input from stdin
-            '-f', 's16le',  # Specify PCM format for output
-            '-ar', '48000',  # Sample rate
-            '-ac', '1',  # Mono
-            '-acodec', 'pcm_s16le',  # PCM codec
+            '-ar', '96000', # Input sample rate
+            '-ac', '1',     # Input is mono
+            '-i', 'pipe:0', # Input from stdin
+            '-ar', '48000', # Output sample rate (downsample to 48kHz)
+            '-acodec', 'pcm_s16le',  # PCM codec for output
+            '-f', 's16le',  # Specify the format of the output data
             'pipe:1'  # Output to stdout
         ]
-   
+
         # Run process under a context manager
         with subprocess.Popen(ffmpeg,
             stdin=subprocess.PIPE,
@@ -87,44 +88,52 @@ class VADSink(discord.sinks.Sink):
             output, error = process.communicate(input=audio)
 
         if process.returncode != 0:
-            raise Exception(f"FFmpeg error: {error.decode('utf8')}")
+            print(f"FFmpeg error: {error.decode('utf8')}")
         
-        print(f"Input data size: {len(audio)} bytes")
         if output:
-            print(f"Converted data size: {len(output)} bytes")
+            return output
         else:
             print("Conversion failed, output is None")
-
-        return output
 
     async def vad_loop(self) -> bool:
         """
         Primary loop for voice activity detection.
         Processes audio frames from the queue and uses VAD to detect speech.
         """
-        buffer = bytes()  # Buffer to store incoming audio data
+        buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
 
         while True:
-            buffer += await self.playlist.get()
+            # Wait for the next item from the playlist
+            raw  = await self.playlist.get()
 
-            # Process complete frames in the buffer
-            while len(buffer) >= self.frame_length_in_bytes:
+            # Convert audio frame to webrtcvad compatible format
+            data = self.format_audio(raw)
+            
+            # Append new data to the buffer
+            buffer.extend(data)
+
+            while len(buffer) >= self.frame_size:
                 # Extract one frame from the buffer
-                audio_frame = buffer[:self.frame_length_in_bytes]
-                buffer = buffer[self.frame_length_in_bytes:]
+                webrtc_frame = buffer[:self.frame_size ]
 
-                # Convert audio frame to webrtcvad compatible format
-                webrtc_frame = self.format_audio(audio_frame)
-
+                # Remove the processed frame from the buffer
+                buffer = buffer[self.frame_size:]
+                       
                 if webrtc_frame:
-
-                    # Check if the frame size after conversion is correct
-                    if len(webrtc_frame) == self.frame_length_in_bytes:
-                        is_speech = await asyncio.to_thread(
-                            self.vad.is_speech, webrtc_frame, self.sample_rate
-                        )
-                        print(is_speech)
-                    else:
-                        print("Converted frame size incorrect, skipping frame")
-
-                        
+                    is_speech = await asyncio.to_thread(
+                        self.vad.is_speech, webrtc_frame, self.sample_rate
+                    )
+                    print(is_speech)
+    
+    def save_audio_data(self, audio_data: bytes, filename: str):
+        """
+        Saves raw audio data to a file for verification purposes.
+        
+        Args:
+            audio_data: The raw audio data to save.
+            filename: The name of the file to save the data to.
+        """
+        with open(filename, 'ab') as f:  # 'ab' mode to append binary data
+            f.write(audio_data)
+            print(f"Data written to {filename}")
+                         

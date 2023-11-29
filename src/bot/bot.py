@@ -40,8 +40,8 @@ def start():
         # Start bot proper
         bot.run(constants.DISCORD)
 
-    except:
-        print('Unable to initialize bot.')
+    except Exception as e:
+        print(f'Unable to initialize bot: {e}')
 
 @bot.event
 async def on_ready():
