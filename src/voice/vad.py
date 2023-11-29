@@ -64,6 +64,9 @@ class VADSink(discord.sinks.Sink):
         Efficient audio conversion to webrtcvad compatible format.
         (PCM, self.sample_rate Hz, 16-bit, mono)
         Uses ffmpeg natively for efficiency.
+
+        ! Strange thing: pycord outputs data at 96 kHz for some reason, so this is static.
+          No idea why this is the case, but it works so I'm not complaining.
         """
         # Declare ffmpeg command for downsampling
         ffmpeg = [
@@ -72,7 +75,7 @@ class VADSink(discord.sinks.Sink):
             '-ar', '96000', # Input sample rate
             '-ac', '1',     # Input is mono
             '-i', 'pipe:0', # Input from stdin
-            '-ar', '48000', # Output sample rate (downsample to 48kHz)
+            '-ar', str(self.sample_rate), # Output sample rate (downsample to 48kHz)
             '-acodec', 'pcm_s16le',  # PCM codec for output
             '-f', 's16le',  # Specify the format of the output data
             'pipe:1'  # Output to stdout
