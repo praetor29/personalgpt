@@ -105,7 +105,7 @@ class VADSink(discord.sinks.Sink):
         """
         buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
 
-        while True:
+        while self.vc.recording:
             # Wait for the next item from the playlist
             raw  = await self.playlist.get()
 
@@ -127,16 +127,5 @@ class VADSink(discord.sinks.Sink):
                         self.vad.is_speech, webrtc_frame, self.sample_rate
                     )
                     print(is_speech)
-    
-    def save_audio_data(self, audio_data: bytes, filename: str):
-        """
-        Saves raw audio data to a file for verification purposes.
-        
-        Args:
-            audio_data: The raw audio data to save.
-            filename: The name of the file to save the data to.
-        """
-        with open(filename, 'ab') as f:  # 'ab' mode to append binary data
-            f.write(audio_data)
-            print(f"Data written to {filename}")
+
                          

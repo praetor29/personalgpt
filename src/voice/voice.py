@@ -46,7 +46,7 @@ class Voice(commands.Cog):
             # Idle loop
             self.idle_loop.start()
 
-            # VADSink
+            # VAD instance
             self.vad_sink = VADSink()
 
     '''
@@ -88,11 +88,33 @@ class Voice(commands.Cog):
                 channel = ctx.author.voice.channel
                 # Connect to channel
                 await channel.connect()
+                
+                # Start recording
+                await self.record(ctx)
+
                 await ctx.respond('ok ready now', ephemeral=True)
             
         except Exception as e:
             await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
+    
+    async def record(self, ctx):
+        """
+        Records audio from voice channel.
+        """
+        # Obtain voice client
+        voice_client = ctx.guild.voice_client
+        
+        try:
+            # Start recording
+            voice_client.start_recording(
+                self.vad_sink,  # VADSink() instance
+                self.once_done,  # Calls dummy function once recording is done
+                None
+            )
+            await self.vad_sink.vad_loop()
 
+        except Exception as e:
+            await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
 
     @discord.slash_command()
     async def vc(self, ctx):
@@ -100,19 +122,14 @@ class Voice(commands.Cog):
         Start a voice call.
         """
         await self.connect(ctx)
-        
-        ctx.guild.voice_client.start_recording(
-            self.vad_sink,  # The sink type to use.
-            self.once_done,  # What to do once done.
-        )
-
-        await self.vad_sink.vad_loop()
     
-    async def once_done(self):
+    async def once_done(self, sink: discord.sinks, channel: discord.TextChannel, *args):
         """
         Called once the recording is done.
+
+        Receives inputs, does nothing.
         """
-        print('done')
+        pass
 
     '''
     Listener Methods
@@ -140,9 +157,7 @@ class Voice(commands.Cog):
         Handles state change: connect.
         """
         voice_client = guild.voice_client
-
-        if voice_client is not None:           
-            pass
+        pass
 
     async def handle_disconnect(self, guild):
         """
@@ -156,6 +171,9 @@ class Voice(commands.Cog):
                 await self.cleanup(guild)
             except Exception as e:
                 print(f'Could not cleanup channel: {e}')
+
+            # 2. Stop recording
+            voice_client.stop_recording()
 
     async def cleanup(self, guild):
         """
