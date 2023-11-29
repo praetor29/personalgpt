@@ -54,67 +54,85 @@ class Voice(commands.Cog):
     '''
 
     async def verify(self, ctx) -> bool:
-        """
-        Verifies if the ctx is eligible.
-        """
-        # 1. Reject non-guild requests (DMs)
-        if ctx.guild is None:
-            await ctx.respond('i can only vc in servers', ephemeral=True)
-            return False
+            """
+            Verifies if the ctx is eligible.
 
-        # 2. Reject if not in VC
-        elif ctx.author.voice is None:
-            await ctx.respond('you have to join vc first', ephemeral=True)
-            return False
-        
-        # 3. Reject if already in VC
-        elif ctx.guild.voice_client is not None:
-            await ctx.respond('im already in vc', ephemeral=True)
-            return False
-                    
-        # Passed!
-        else:
-            return True
+            Parameters:
+            - ctx: The context object representing the command invocation.
+
+            Returns:
+            - bool: True if the context is eligible, False otherwise.
+            """
+            # 1. Reject non-guild requests (DMs)
+            if ctx.guild is None:
+                await ctx.respond('i can only vc in servers', ephemeral=True)
+                return False
+
+            # 2. Reject if not in VC
+            elif ctx.author.voice is None:
+                await ctx.respond('you have to join vc first', ephemeral=True)
+                return False
+            
+            # 3. Reject if already in VC
+            elif ctx.guild.voice_client is not None:
+                await ctx.respond('im already in vc', ephemeral=True)
+                return False
+                        
+            # Passed!
+            else:
+                return True
 
     async def connect(self, ctx):
-        """
-        Connects to voice channel.
-        """
-        try:
-            # Run verification
-            if await self.verify(ctx):
+            """
+            Connects to the voice channel and starts recording.
 
-                # Obtain channel
-                channel = ctx.author.voice.channel
-                # Connect to channel
-                await channel.connect()
+            Parameters:
+            - ctx: The context object representing the command invocation.
+
+            Returns:
+            None
+            """
+            try:
+                # Run verification
+                if await self.verify(ctx):
+
+                    # Obtain channel
+                    channel = ctx.author.voice.channel
+                    # Connect to channel
+                    await channel.connect()
+                    
+                    await ctx.respond('ok ready now', ephemeral=True)
+
+                    # Start recording
+                    await self.record(ctx)
                 
-                # Start recording
-                await self.record(ctx)
-
-                await ctx.respond('ok ready now', ephemeral=True)
-            
-        except Exception as e:
-            await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
+            except Exception as e:
+                await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
     
     async def record(self, ctx):
-        """
-        Records audio from voice channel.
-        """
-        # Obtain voice client
-        voice_client = ctx.guild.voice_client
-        
-        try:
-            # Start recording
-            voice_client.start_recording(
-                self.vad_sink,  # VADSink() instance
-                self.once_done,  # Calls dummy function once recording is done
-                None
-            )
-            await self.vad_sink.vad_loop()
+            """
+            Records audio from voice channel.
 
-        except Exception as e:
-            await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
+            Parameters:
+            - ctx: The context object representing the command invocation.
+
+            Returns:
+            None
+            """
+            # Obtain voice client
+            voice_client = ctx.guild.voice_client
+            
+            try:
+                # Start recording
+                voice_client.start_recording(
+                    self.vad_sink,  # VADSink() instance
+                    self.once_done,  # Calls dummy function once recording is done
+                    None
+                )
+                await self.vad_sink.vad_loop()
+
+            except Exception as e:
+                await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
 
     @discord.slash_command()
     async def vc(self, ctx):
@@ -140,6 +158,11 @@ class Voice(commands.Cog):
         """
         Handles change of voice state.
         Ensures voice channel connections are robust.
+
+        Parameters:
+        - member: The member whose voice state changed.
+        - before: The voice state before the change.
+        - after: The voice state after the change.
         """
         # Check if member was bot
         if member == self.bot.user:
@@ -155,29 +178,44 @@ class Voice(commands.Cog):
     async def handle_connect(self, guild):
         """
         Handles state change: connect.
+
+        Parameters:
+        - guild: The guild object representing the connected guild.
+
+        Returns:
+        None
         """
         voice_client = guild.voice_client
         pass
 
     async def handle_disconnect(self, guild):
-        """
-        Handles state change: disconnect.
-        """
-        voice_client = guild.voice_client
+            """
+            Handles state change: disconnect.
 
-        if voice_client is not None:
-            # 1. Cleanup zombie channels if required
-            try:
-                await self.cleanup(guild)
-            except Exception as e:
-                print(f'Could not cleanup channel: {e}')
+            1. Cleanup zombie channels
+            2. Stop recording
 
-            # 2. Stop recording
-            voice_client.stop_recording()
+            Args:
+                guild (discord.Guild): The guild object representing the server.
+            """
+            voice_client = guild.voice_client
+
+            if voice_client is not None:
+                # 1. Cleanup zombie channels if required
+                try:
+                    await self.cleanup(guild)
+                except Exception as e:
+                    print(f'Could not cleanup channel: {e}')
+
+                # 2. Stop recording
+                voice_client.stop_recording()
 
     async def cleanup(self, guild):
         """
         Cleanup zombie voice channel connections.
+
+        Parameters:
+        - guild: The guild object representing the server.
         """
         voice_client = guild.voice_client
 
@@ -207,6 +245,10 @@ class Voice(commands.Cog):
 
     @idle_loop.before_loop
     async def before_idle_loop(self):
+        """
+        This method is called before the idle loop starts.
+        It waits until the bot is ready before proceeding.
+        """
         await self.bot.wait_until_ready()
 
     def cog_unload(self):
@@ -214,5 +256,4 @@ class Voice(commands.Cog):
         Cancel all idle loops when the cog is unloaded
         """
         self.idle_loop.cancel()
-
-
+        

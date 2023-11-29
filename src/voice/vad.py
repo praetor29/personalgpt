@@ -25,6 +25,12 @@ class VADSink(discord.sinks.Sink):
     VAD Subclass of Sink.
     """
     def __init__(self, *, filters=None):
+        """
+        Initializes the VAD (Voice Activity Detection) object.
+
+        Args:
+            filters (optional): Filters to be applied during VAD. Defaults to None.
+        """
         super().__init__() # Initialize parent class
 
         # Create VAD object and define its mode
@@ -65,7 +71,23 @@ class VADSink(discord.sinks.Sink):
         (PCM, self.sample_rate Hz, 16-bit, mono)
         Uses ffmpeg natively for efficiency.
 
-        ! Strange thing: pycord outputs data at 96 kHz for some reason, so this is static.
+        Args:
+            audio (bytes): The input audio data to be converted.
+
+        Returns:
+            bytes: The converted audio data in the specified format.
+
+        Raises:
+            None
+
+        Notes:
+            - The input audio data should be in PCM format.
+            - The input sample rate should be 96 kHz.
+            - The output sample rate will be downsampled to self.sample_rate (48 kHz).
+            - The output audio data will be in 16-bit, mono format.
+            - If the conversion fails, None will be returned.
+
+        !! Caution: pycord outputs data at 96 kHz for some reason, so this is static.
           No idea why this is the case, but it works so I'm not complaining.
         """
         # Declare ffmpeg command for downsampling
@@ -99,33 +121,34 @@ class VADSink(discord.sinks.Sink):
             print("Conversion failed, output is None")
 
     async def vad_loop(self) -> bool:
-        """
-        Primary loop for voice activity detection.
-        Processes audio frames from the queue and uses VAD to detect speech.
-        """
-        buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
+            """
+            Primary loop for voice activity detection.
+            Processes audio frames from the queue and uses VAD to detect speech.
 
-        while self.vc.recording:
-            # Wait for the next item from the playlist
-            raw  = await self.playlist.get()
+            Returns:
+                bool: True if speech is detected, False otherwise.
+            """
+            buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
 
-            # Convert audio frame to webrtcvad compatible format
-            data = self.format_audio(raw)
-            
-            # Append new data to the buffer
-            buffer.extend(data)
+            while self.vc.recording:
+                # Wait for the next item from the playlist
+                raw  = await self.playlist.get()
 
-            while len(buffer) >= self.frame_size:
-                # Extract one frame from the buffer
-                webrtc_frame = buffer[:self.frame_size ]
+                # Convert audio frame to webrtcvad compatible format
+                data = self.format_audio(raw)
+                
+                # Append new data to the buffer
+                buffer.extend(data)
 
-                # Remove the processed frame from the buffer
-                buffer = buffer[self.frame_size:]
-                       
-                if webrtc_frame:
-                    is_speech = await asyncio.to_thread(
-                        self.vad.is_speech, webrtc_frame, self.sample_rate
-                    )
-                    print(is_speech)
+                while len(buffer) >= self.frame_size:
+                    # Extract one frame from the buffer
+                    webrtc_frame = buffer[:self.frame_size ]
 
-                         
+                    # Remove the processed frame from the buffer
+                    buffer = buffer[self.frame_size:]
+                           
+                    if webrtc_frame:
+                        is_speech = await asyncio.to_thread(
+                            self.vad.is_speech, webrtc_frame, self.sample_rate
+                        )
+                        print(is_speech)
