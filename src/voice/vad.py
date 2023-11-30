@@ -69,8 +69,8 @@ class VADSink(discord.sinks.Sink):
         VAD STATE
         '''
         self.live_state = False
-        self.state = False
-        self.hold  = False
+        self.state      = False
+        self.hold       = False
 
         # Thresholds
         self.threshold  = constants.VAD_SMOOTHING
@@ -154,12 +154,11 @@ class VADSink(discord.sinks.Sink):
                 bool: True if speech is detected, False otherwise.
             """
             asyncio.create_task(self.transcribe())
-
+            
             buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
-
+            
             while self.vc.recording:
                 
-
                 # <<< Wait for the next item from the playlist
                 raw  = await self.playlist.get()
 
@@ -188,7 +187,7 @@ class VADSink(discord.sinks.Sink):
 
                         # Smooth the VAD state
                         await self.smooth_state()
-                
+
                 # Check if the buffer is empty and reset state
                 if not buffer:
                     self.live_state = False
@@ -215,7 +214,7 @@ class VADSink(discord.sinks.Sink):
                 self.state = False
     
     @contextmanager
-    def hold(self):
+    def hold_manager(self):
         try:
             self.hold = True
             yield
@@ -242,7 +241,7 @@ class VADSink(discord.sinks.Sink):
     #                         frames.append(await self.active.get())
 
     #                     # !! Speech ended, process frames
-    #                     with self.hold():
+    #                     with self.hold_manager():
     #                         # Create a memory file to store the audio data
     #                         with io.BytesIO() as memfile:
     #                             # Create a wave file writer
@@ -279,46 +278,38 @@ class VADSink(discord.sinks.Sink):
         try:
             while self.vc.recording:
 
-                if self.state:  # Speech has started
-                    print(f"Recording state... {self.state}")
-                    print("Detected speech, starting to collect frames...")
+                if self.state:
                     frames = []
-
                     while self.state:  # Collect frames while talking
                         frame = await self.active.get()
                         frames.append(frame)
-                        print(f"Collected a frame. Total frames collected: {len(frames)}")
 
-                    print("Speech ended, processing frames...")
-                    with self.hold():
-                        print("Holding VAD loop...")
+                    with self.hold_manager():
 
                         # Create a memory file to store the audio data
-                        with io.BytesIO() as memfile:
+                        # with io.BytesIO() as memfile:
                             # Create a wave file writer
-                            with wave.open(memfile, 'wb') as wav_file:
-                                print("Writing frames to in-memory WAV file...")
-                                wav_file.setnchannels(1)  # Mono channel
-                                wav_file.setsampwidth(2)  # PCM 16 bit
-                                wav_file.setframerate(self.sample_rate)
-                                wav_file.writeframes(b''.join(frames))
+                            # with wave.open(memfile, 'wb') as wav_file:
+                        with open("test_output.wav", "wb") as wav_file:
+                            wav_file.setnchannels(1)  # Mono channel
+                            wav_file.setsampwidth(2)  # PCM 16 bit
+                            wav_file.setframerate(self.sample_rate)
+                            wav_file.writeframes(b''.join(frames))
+                            wav_file.close()
 
-                            memfile.seek(0)  # Rewind the buffer
-                            print("In-memory WAV file created. Starting transcription...")
-
+                            # memfile.seek(0)  # Rewind the buffer
+                            continue
                             '''
                             TRANSCRIBE MEMFILE
                             '''
                             transcription = await cognition.transcribe(audio=memfile)
                             
-                            print("Transcription complete.")
+                            print()
                             print(transcription)
                             print()
-                            
+
         except Exception as e:
             print(f'VADSink transcribe() error: {e}')
-            # Optionally, you might want to re-raise the exception for further handling outside
-            # raise
 
 
 
