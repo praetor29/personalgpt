@@ -12,13 +12,16 @@ Cognitive functions using API requests.
  ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝                                                                                                                                  
 '''
 
+# TODO: Convert to OOP Class Structure
+
 # Import libraries
 import discord
 from openai import AsyncOpenAI
 from typing import Union, List
+
 # Import modules
 from src.core import constants
-from src.cognition import chat, chat_media
+from src.cognition import chat, chat_media, whisper
 
 # Initialize client with openai key
 client = AsyncOpenAI(api_key=constants.OPENAI)
@@ -38,4 +41,9 @@ async def response_media(message: discord.Message, media: list) -> Union[str, Li
 
     return response, media_context
 
-# Clean up multiple function passthroughts of client, message etc., in chat.py and chat_media.py
+async def transcribe(audio) -> str:
+    """
+    Front-end for an audio transcription.
+    """
+    transcription = await whisper.whisper(client=client, audio=audio)
+    return transcription

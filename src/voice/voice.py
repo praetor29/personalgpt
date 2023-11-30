@@ -130,7 +130,6 @@ class Voice(commands.Cog):
                     None
                 )
                 asyncio.create_task(self.vad_sink.vad_loop())
-                print('Recording started')
 
             except Exception as e:
                 await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
@@ -141,12 +140,7 @@ class Voice(commands.Cog):
         Start a voice call.
         """
         await self.connect(ctx)
-        
-        counter = 0
-        while True:
-            print(f"{counter}: Current state: {self.vad_sink.state}")
-            counter += 1
-            await asyncio.sleep(1)
+
     
     async def once_done(self, sink: discord.sinks, channel: discord.TextChannel, *args):
         """

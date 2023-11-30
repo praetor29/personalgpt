@@ -12,6 +12,8 @@ Memory management.
 ╚═╝     ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝                                                                                                     
 '''
 
+# TODO: Convert to OOP Class Structure
+
 # Import libraries
 import discord
 from src.memory import creation

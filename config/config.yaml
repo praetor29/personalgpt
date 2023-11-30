@@ -60,6 +60,10 @@ vision:
   # low/auto/high
   detail: auto
 
+whisper:
+  model: whisper-1
+  lang : en
+
 #---------------------------------------+
 #    Voice Activity Detection (VAD)     |
 #---------------------------------------+
@@ -67,6 +71,8 @@ vision:
 mode    : 3
 # Frame duration [10-30] ms
 duration: 30
+# Smoothing
+smoothing: 5
 
 #---------------------------------------+
 #             Voice Channel             |

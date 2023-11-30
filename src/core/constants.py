@@ -54,7 +54,6 @@ _/ ___\/  _ \ /    \   __\|  |/ ___\
 OPENAI            = getenv('OPENAI')
 DISCORD           = getenv('DISCORD')
 ELEVENLABS        = getenv('ELEVENLABS')
-LAVALINK_PASSWORD = getenv('LAVALINK')
 
 # Dynamic IDs
 BOT_ID = str()
@@ -90,6 +89,9 @@ VISION_MODEL  = CONFIG.get('vision').get('model', 'gpt-4-vision-preview')
 VISION_MAX    = CONFIG.get('vision').get('max', 250)
 VISION_DETAIL = CONFIG.get('vision').get('detail', 'auto')
 
+WHISPER_MODEL = CONFIG.get('whisper').get('model', 'whisper-1')
+WHISPER_LANG  = CONFIG.get('whisper').get('lang', None)
+
 # ElevenLabs
 VOICE_ID         = CONFIG.get('voice').get('id')
 VOICE_STABILITY  = CONFIG.get('voice').get('stability')
@@ -106,6 +108,7 @@ MEDIA = {
 # Voice Acitvity Detection (VAD)
 VAD_MODE           = CONFIG.get('mode', 3)
 VAD_FRAME_DURATION = CONFIG.get('duration', 30)
+VAD_SMOOTHING      = CONFIG.get('smoothing', 3)
 
 # Voice Channel
 VOICE_IDLE = CONFIG.get('idle', 60)
@@ -124,3 +127,6 @@ CHAT_PROMPT   = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/
 
 # Vision
 VISION_PROMPT  = PROMPTS.get('vision', 'Describe the image provided, for somebody who cannot see, but can understand text.')
+
+# Whisper
+WHISPER_PROMPT = PROMPTS.get('whisper', None)

@@ -86,3 +86,10 @@ async def on_message(message):
 @bot.slash_command(description="Check latency.")
 async def ping(ctx):
     await ctx.respond(f"`{round(bot.latency, 3)}` ms.", ephemeral=True)
+
+
+# from src.cognition import cognition
+# @bot.slash_command(description="Whisper test.")
+# async def whisper(ctx):
+#     transcription = await cognition.transcribe()
+#     await ctx.respond(transcription, ephemeral=True)
