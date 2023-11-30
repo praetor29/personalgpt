@@ -103,7 +103,7 @@ class Voice(commands.Cog):
                     
                     await ctx.respond('ok ready now', ephemeral=True)
 
-                    # Start recording
+                    # Start the recording task
                     await self.record(ctx)
                 
             except Exception as e:
@@ -129,7 +129,8 @@ class Voice(commands.Cog):
                     self.once_done,  # Calls dummy function once recording is done
                     None
                 )
-                await self.vad_sink.vad_loop()
+                asyncio.create_task(self.vad_sink.vad_loop())
+                print('Recording started')
 
             except Exception as e:
                 await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
@@ -140,6 +141,12 @@ class Voice(commands.Cog):
         Start a voice call.
         """
         await self.connect(ctx)
+        
+        counter = 0
+        while True:
+            print(f"{counter}: Current state: {self.vad_sink.state}")
+            counter += 1
+            await asyncio.sleep(1)
     
     async def once_done(self, sink: discord.sinks, channel: discord.TextChannel, *args):
         """
@@ -256,4 +263,3 @@ class Voice(commands.Cog):
         Cancel all idle loops when the cog is unloaded
         """
         self.idle_loop.cancel()
-        

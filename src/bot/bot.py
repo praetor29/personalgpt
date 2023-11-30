@@ -14,7 +14,6 @@ Primary bot loop.
 
 # Import libraries
 import discord
-import asyncio
 
 # Internal modules
 from src.bot import initialize, message_handler, media_handler
@@ -87,12 +86,3 @@ async def on_message(message):
 @bot.slash_command(description="Check latency.")
 async def ping(ctx):
     await ctx.respond(f"`{round(bot.latency, 3)}` ms.", ephemeral=True)
-
-#######################################################################
-
-'''
-THINGS TO WORK ON IN THIS REFACTORING:
-
-1. All other features like read() need VC command to be active, and add onto vc()
-
-'''

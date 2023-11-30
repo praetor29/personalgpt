@@ -53,6 +53,11 @@ class VADSink(discord.sinks.Sink):
         
         # Obtain event loop
         self.loop = asyncio.get_event_loop()
+
+        '''
+        VAD STATE
+        '''
+        self.state = False
    
     def write(self, data, user):
         """
@@ -148,7 +153,8 @@ class VADSink(discord.sinks.Sink):
                     buffer = buffer[self.frame_size:]
                            
                     if webrtc_frame:
-                        is_speech = await asyncio.to_thread(
+                        # Set the VAD state based on input frame
+                        self.state = await asyncio.to_thread(
                             self.vad.is_speech, webrtc_frame, self.sample_rate
                         )
-                        print(is_speech)
+

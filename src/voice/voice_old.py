@@ -71,49 +71,6 @@ async def connect(ctx):
         await ctx.respond(f'you have to join vc first', ephemeral=True)
         return False
 
-# async def alone(ctx, voice_client: discord.VoiceClient):
-#     """
-#     Disconnects if alone in VC for more than the idle time.
-#     Has grace periods implemented.
-#     """
-#     # Initialize the entry if it doesn't exist
-#     if ctx.guild.id not in connections:
-#         connections[ctx.guild.id] = {
-#             'voice_client': voice_client,
-#             'state'       : False,
-#             'alone_loop'  : False
-#         }
-
-#     while True:
-#         connections[ctx.guild.id]['alone_loop'] = True
-
-#         # Check regularly to be responsive
-#         await asyncio.sleep(5)
-        
-#         # Check if connected to VC at all. If not, break.
-#         ## Safeguard check against exceptions
-#         if not voice_client or not voice_client.is_connected():
-#             connections[ctx.guild.id]['alone_loop'] = False
-#             break
-        
-#         # Number of members in vc
-#         members = len(voice_client.channel.members)
-
-#         # Check if alone in vc
-#         if members == 1:
-#             # Begin grace period
-#             await asyncio.sleep(constants.VOICE_IDLE)
-            
-#             # Final check
-#             if members == 1:
-#                 await ctx.respond(f"goodbye", ephemeral=True)
-                
-#                 # Disconnect and update connections
-#                 await voice_client.disconnect()
-#                 connections.pop(ctx.guild.id, None)
-                
-#                 break
-
 async def alone(ctx, voice_client: discord.VoiceClient):
     """
     Disconnects if alone in VC for more than the idle time.
