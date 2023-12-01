@@ -19,7 +19,6 @@ import asyncio
 
 # Import modules
 from src.core import constants
-from src.voice import tts
 from src.voice.vad import VADSink
 
 class Voice(commands.Cog):
@@ -45,9 +44,6 @@ class Voice(commands.Cog):
             
             # Idle loop
             self.idle_loop.start()
-
-            # VAD instance
-            self.vad_sink = VADSink()
 
     '''
     VC Methods
@@ -119,17 +115,20 @@ class Voice(commands.Cog):
             Returns:
             None
             """
+            # Create an instance of VADSink()
+            vad_sink = VADSink(ctx=ctx, bot=self.bot)
+
             # Obtain voice client
             voice_client = ctx.guild.voice_client
             
             try:
                 # Start recording
                 voice_client.start_recording(
-                    self.vad_sink,  # VADSink() instance
+                    vad_sink,  # VADSink() instance
                     self.once_done,  # Calls dummy function once recording is done
                     None
                 )
-                asyncio.create_task(self.vad_sink.vad_loop())
+                asyncio.create_task(vad_sink.vad_loop())
 
             except Exception as e:
                 await ctx.respond(f"i think it broke: `{e}`", ephemeral=True)

@@ -15,7 +15,7 @@ from src.memory import memory
 Construction Functions
 '''
 
-async def constructor_media(client: openai.AsyncOpenAI, message: discord.Message) -> list:
+async def constructor_media(message: discord.Message) -> list:
     """
     Constructs the uplink list.
     """
@@ -115,7 +115,7 @@ async def chat_completion_media(client: openai.AsyncOpenAI, message: discord.Mes
     Sends and receives a response from the OpenAI API.
     """
     # Construct initial uplink
-    uplink = await constructor_media(client=client, message=message)
+    uplink = await constructor_media(message=message)
 
     # Add media context <--- lots happening under the hood!!
     media_context = await media_info(client=client, message=message, media=media)

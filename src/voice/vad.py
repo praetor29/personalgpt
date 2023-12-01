@@ -18,17 +18,20 @@ import asyncio
 import subprocess
 import wave
 import os
+from io import BytesIO
 from contextlib import contextmanager
 
 # Import modules
 from src.core import constants
 from src.cognition import cognition
+from src.memory import memory, custom_message
+from src.voice import tts
 
 class VADSink(discord.sinks.Sink):
     """
     VAD Subclass of Sink.
     """
-    def __init__(self, *, filters=None):
+    def __init__(self, ctx, bot, *, filters=None):
         """
         Initializes the VAD (Voice Activity Detection) object.
 
@@ -36,6 +39,10 @@ class VADSink(discord.sinks.Sink):
             filters (optional): Filters to be applied during VAD. Defaults to None.
         """
         super().__init__() # Initialize parent class
+        
+        # Declare context
+        self.ctx = ctx
+        self.bot = bot
 
         # Create VAD object and define its mode
         self.vad = webrtcvad.Vad(constants.VAD_MODE)
@@ -162,7 +169,11 @@ class VADSink(discord.sinks.Sink):
                 except asyncio.TimeoutError:
                     # Playlist is effectively empty, set state to False
                     self.state = False
-                    await self.transcribe()
+
+                    # Open context manager
+                    with self.hold_manager():
+                        await self.transcribe() # <--- this is where the magic happens!
+
                     continue  # Skip the rest of the loop and wait for new data
 
                 # Convert audio frame to webrtcvad compatible format
@@ -234,45 +245,148 @@ class VADSink(discord.sinks.Sink):
                 return
             
             try:
-                # Open context manager
-                with self.hold_manager():
+                frames = []
+                # Dumps active queue into frames list
+                while not self.active.empty():
+                    frame = await self.active.get()
+                    # Ensure frame is bytes-like object
+                    if isinstance(frame, bytes):
+                        frames.append(frame)
+                
+                # Concatenate frames into a single binary clip
+                clip = b''.join(frames)
+                
+                '''
+                File I/O
+                '''
+                ## Create output path
+                cache_dir = 'cache'
+                os.makedirs(cache_dir, exist_ok=True)
+                output_path = os.path.join(cache_dir, f'audio_{self.vc.guild.id}.wav')
 
-                    frames = []
-                    # Dumps active queue into frames list
-                    while not self.active.empty():
-                        frame = await self.active.get()
-                        # Ensure frame is bytes-like object
-                        if isinstance(frame, bytes):
-                            frames.append(frame)
-                    
-                    # Concatenate frames into a single binary clip
-                    clip = b''.join(frames)
-                    
-                    
-                    '''
-                    File I/O
-                    '''
-                    ## Create output path
-                    cache_dir = 'cache'
-                    os.makedirs(cache_dir, exist_ok=True)
-                    output_path = os.path.join(cache_dir, f'audio_{self.vc.guild.id}.wav')
-                    
-                    ## Write clip to file
-                    with wave.open(output_path, 'wb') as wav_file:
-                        wav_file.setnchannels(1)  # Mono channel
-                        wav_file.setsampwidth(2)  # PCM 16 bit
-                        wav_file.setframerate(self.sample_rate)
-                        wav_file.writeframes(clip)
-                    
-                    ## If file exists, transcribe
-                    if output_path:
-                        with open(output_path, 'rb') as payload:
-                            transcription = await cognition.transcribe(audio=payload)
-                    os.remove(output_path) # Delete file
+                ## Write clip to file
+                with wave.open(output_path, 'wb') as wav_file:
+                    wav_file.setnchannels(1)  # Mono channel
+                    wav_file.setsampwidth(2)  # PCM 16 bit
+                    wav_file.setframerate(self.sample_rate)
+                    wav_file.writeframes(clip)
+                
+                ## If file exists, transcribe
+                if output_path:
+                    with open(output_path, 'rb') as payload:
+                        transcription = await cognition.transcribe(audio=payload)
+                os.remove(output_path) # Delete file
+                
+                '''
+                >>> Conversational
+                '''
+                # Compute response and memory tasks
+                response = await self.compute(transcription=transcription)
 
-                    print()
-                    print(transcription)
-                    print()
-
+                # Trigger speech
+                await self.speech(content=response)
+                
             except Exception as e:
                 print(f'VADSink transcribe() error: {e}')
+    
+    async def compute(self, transcription: str) -> custom_message.AudioMessage:
+            """
+            Compute the response from the bot based on the given transcription.
+            Also updates memory with the user's message and the bot's response.
+
+            Args:
+                transcription (str): The user's transcription.
+
+            Returns:
+                response (str): The bot's response.
+            """
+            # Cue user message
+            user_message = await self.wrapper(
+                content = transcription,
+                author  = self.ctx.author,
+            )
+
+            # Receive response from OpenAI API
+            response = await cognition.response_audio(message=user_message)
+
+            # Cue bot message
+            bot_message = await self.wrapper(
+                content = response,
+                author  = self.ctx.guild.get_member(self.bot.user.id),
+            )
+            
+            # Debug print statements
+            # print(user_message.author.display_name)
+            # print(user_message.clean_content)
+            # print(bot_message.author.display_name)
+            # print(bot_message.clean_content)
+            # print()
+
+            return response
+
+    async def wrapper(self, content: str, author: discord.User) -> custom_message.AudioMessage:
+            """
+            Creates an AudioMessage object and enqueues it.
+
+            Args:
+                content (str): The content of the message.
+                author (discord.User): The author of the message.
+
+            Returns:
+                custom_message.AudioMessage: The created AudioMessage object.
+            """
+            # Create AudioMessage object
+            message = custom_message.AudioMessage(
+                content       = content,
+                clean_content = content,
+                author        = author,
+                channel       = self.vc.channel,
+            )
+
+            # Enqueue message
+            await memory.enqueue(message=message)
+
+            return message
+    
+    async def speech(self, content: str):
+            """
+            Speaks message into the voice channel.
+
+            Parameters:
+            - content (str): The message to be spoken.
+
+            Raises:
+            - Exception: If an error occurs during the speech.
+
+            Returns:
+            - None
+            """
+            try:
+                # Synthesize text-to-speech and retrieve bytes
+                audio_data = await tts.tts(content)
+
+                # Create discord audio source
+                audio_source = discord.PCMAudio(BytesIO(audio_data))
+                
+                # Create event to play audio
+                play_audio = asyncio.Event()           
+                
+                def after_playing(error):
+                    if error:
+                        # Schedule the execution of a coroutine function to handle the error
+                        asyncio.create_task(handle_error(error))
+                    # Signals end of audio playing
+                    play_audio.set()
+                
+                async def handle_error(error):
+                    # Now you can await inside this function
+                    await self.ctx.respond(f"i think the audio broke: `{e}`", ephemeral=True)
+                
+                # Plays audio
+                self.vc.play(audio_source, after=after_playing)
+                
+                # Wait for the audio to finish playing
+                await play_audio.wait()  
+
+            except Exception as e:
+                await self.ctx.respond(f"i think it broke: `{e}`", ephemeral=True)

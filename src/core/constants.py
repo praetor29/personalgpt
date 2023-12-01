@@ -123,10 +123,13 @@ _____________  ____   _____ _______/  |_  ______
 '''
 
 # Chat
-CHAT_PROMPT   = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/prompts.yaml`.')
+CHAT_PROMPT    = PROMPTS.get('chat', '')
 
 # Vision
 VISION_PROMPT  = PROMPTS.get('vision', 'Describe the image provided, for somebody who cannot see, but can understand text.')
 
 # Whisper
 WHISPER_PROMPT = PROMPTS.get('whisper', None)
+
+# Voice
+VOICE_PROMPT   = PROMPTS.get('voice', '')
