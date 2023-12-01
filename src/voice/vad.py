@@ -363,10 +363,10 @@ class VADSink(discord.sinks.Sink):
             """
             try:
                 # Synthesize text-to-speech and retrieve bytes
-                audio_data = await tts.tts(content)
+                audio = await tts.tts(content)
 
                 # Create discord audio source
-                audio_source = discord.PCMAudio(BytesIO(audio_data))
+                audio_source = discord.PCMAudio(BytesIO(audio))
                 
                 # Create event to play audio
                 play_audio = asyncio.Event()           
@@ -379,8 +379,7 @@ class VADSink(discord.sinks.Sink):
                     play_audio.set()
                 
                 async def handle_error(error):
-                    # Now you can await inside this function
-                    await self.ctx.respond(f"i think the audio broke: `{e}`", ephemeral=True)
+                    await self.ctx.respond(f"i think the audio broke: `{error}`", ephemeral=True)
                 
                 # Plays audio
                 self.vc.play(audio_source, after=after_playing)
