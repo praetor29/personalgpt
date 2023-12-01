@@ -68,7 +68,7 @@ class VADSink(discord.sinks.Sink):
         '''
         VAD STATE
         '''
-        self.live_state = False
+        # self.live_state = False
         self.state      = False
         self.hold       = False
 
@@ -152,15 +152,18 @@ class VADSink(discord.sinks.Sink):
 
             Returns:
                 bool: True if speech is detected, False otherwise.
-            """
-            asyncio.create_task(self.transcribe())
-            
+            """           
             buffer = bytearray()  # Buffer to store incoming audio data as a mutable bytearray
             
             while self.vc.recording:
-                
-                # <<< Wait for the next item from the playlist
-                raw  = await self.playlist.get()
+                try:
+                    # <<< Wait for the next item from the playlist with timeout (1 sec)
+                    raw = await asyncio.wait_for(self.playlist.get(), 1)
+                except asyncio.TimeoutError:
+                    # Playlist is effectively empty, set state to False
+                    self.state = False
+                    await self.transcribe()
+                    continue  # Skip the rest of the loop and wait for new data
 
                 # Convert audio frame to webrtcvad compatible format
                 data = self.format_audio(raw)
@@ -181,24 +184,20 @@ class VADSink(discord.sinks.Sink):
                            
                     if webrtc_frame:
                         # Set the VAD state based on input frame
-                        self.live_state = await asyncio.to_thread(
+                        verdict = await asyncio.to_thread(
                             self.vad.is_speech, webrtc_frame, self.sample_rate
                         )
 
                         # Smooth the VAD state
-                        await self.smooth_state()
-
-                # Check if the buffer is empty and reset state
-                if not buffer:
-                    self.live_state = False
+                        await self.smooth_state(verdict)
         
-    async def smooth_state(self):
+    async def smooth_state(self, verdict: bool):
         """
         Provides smoothing to the output of vad_loop().
         """
 
         # True Logic
-        if self.live_state:
+        if verdict:
             self.true_count += 1 # Increment true count
             self.false_count = 0 # Reset false count
 
@@ -221,95 +220,68 @@ class VADSink(discord.sinks.Sink):
         finally:
             self.hold = False
 
-    # async def transcribe(self):
-    #         """
-    #         Transcribe active buffer.
-
-    #         This method transcribes the audio data from the active buffer. It collects frames while speech is detected,
-    #         processes the frames when speech ends, and then transcribes the audio using the `cognition.transcribe` method.
-
-    #         Raises:
-    #             Exception: If an error occurs during the transcription process.
-    #         """
-    #         try:
-    #             while self.vc.recording:
-
-    #                 if self.state:  # Speech has started
-    #                     frames = []
-
-    #                     while self.state:  # Collect frames while talking
-    #                         frames.append(await self.active.get())
-
-    #                     # !! Speech ended, process frames
-    #                     with self.hold_manager():
-    #                         # Create a memory file to store the audio data
-    #                         with io.BytesIO() as memfile:
-    #                             # Create a wave file writer
-    #                             with wave.open(memfile, 'wb') as wav_file:
-    #                                 wav_file.setnchannels(1)  # Mono channel
-    #                                 wav_file.setsampwidth(2)  # PCM 16 bit
-    #                                 wav_file.setframerate(self.sample_rate)
-    #                                 wav_file.writeframes(b''.join(frames))
-
-    #                             memfile.seek(0)  # Rewind the buffer
-
-    #                             '''
-    #                             TRANSCRIBE MEMFILE
-    #                             '''
-    #                             transcription = await cognition.transcribe(audio=memfile)
-                                
-    #                             print()
-    #                             print(transcription)
-    #                             print()
-
-    #         except Exception as e:
-    #             print(f'VADSink transcribe() error: {e}')
-
     async def transcribe(self):
-        """
-        Transcribe active buffer.
+            """
+            Transcribe active buffer.
 
-        This method transcribes the audio data from the active buffer. It collects frames while speech is detected,
-        processes the frames when speech ends, and then transcribes the audio using the `cognition.transcribe` method.
+            This method transcribes the audio data from the active buffer. It collects frames while speech is detected,
+            processes the frames when speech ends, and then transcribes the audio using the `cognition.transcribe` method.
 
-        Raises:
-            Exception: If an error occurs during the transcription process.
-        """
-        try:
-            while self.vc.recording:
+            Raises:
+                Exception: If an error occurs during the transcription process.
+            """
+            if self.active.empty():
+                return
+            
+            try:
+                print('entered transcribe()')
+                with self.hold_manager():
+                    print(f'Hold state: {self.hold}')
 
-                if self.state:
                     frames = []
-                    while self.state:  # Collect frames while talking
+                    while not self.active.empty():
                         frame = await self.active.get()
-                        frames.append(frame)
+                        # Ensure frame is bytes-like object
+                        if isinstance(frame, bytes):
+                            frames.append(frame)
+                        else:
+                            print("Frame is not a bytes-like object")
+                    
+                    clip = b''.join(frames)
 
-                    with self.hold_manager():
-
-                        # Create a memory file to store the audio data
-                        # with io.BytesIO() as memfile:
-                            # Create a wave file writer
-                            # with wave.open(memfile, 'wb') as wav_file:
-                        with open("test_output.wav", "wb") as wav_file:
+                    # Create a memory file to store the audio data
+                    with io.BytesIO() as memfile:
+                        print('created memfile')
+                        # Create a wave file writer
+                        with wave.open(memfile, 'wb') as wav_file:
                             wav_file.setnchannels(1)  # Mono channel
                             wav_file.setsampwidth(2)  # PCM 16 bit
                             wav_file.setframerate(self.sample_rate)
-                            wav_file.writeframes(b''.join(frames))
-                            wav_file.close()
+                            wav_file.writeframes(clip)
+                            print('wrote frames to wav_file')
 
-                            # memfile.seek(0)  # Rewind the buffer
-                            continue
-                            '''
-                            TRANSCRIBE MEMFILE
-                            '''
-                            transcription = await cognition.transcribe(audio=memfile)
-                            
-                            print()
-                            print(transcription)
-                            print()
+                        memfile.seek(0)  # Rewind the buffer
+                        print('seeked memfile')
 
-        except Exception as e:
-            print(f'VADSink transcribe() error: {e}')
+                        output_path = 'transcription_input.wav'
+                        with open(output_path, 'wb') as f:
+                            f.write(memfile.read())
+
+                        audio_file = open('transcription_input.wav', "rb")
+
+                        '''
+                        TRANSCRIBE MEMFILE
+                        '''
+                        transcription = await cognition.transcribe(audio=audio_file)
+                        
+                        print()
+                        print(transcription)
+                        print()
+                
+                print(f'Hold state: {self.hold}')
+
+            except Exception as e:
+                print(f'VADSink transcribe() error: {e}')
 
 
 
