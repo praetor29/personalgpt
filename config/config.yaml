@@ -72,7 +72,7 @@ mode    : 3
 # Frame duration [10-30] ms
 duration: 30
 # Smoothing
-smoothing: 5
+smoothing: 3
 
 #---------------------------------------+
 #             Voice Channel             |

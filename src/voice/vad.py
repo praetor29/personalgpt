@@ -17,9 +17,7 @@ import webrtcvad
 import asyncio
 import subprocess
 import wave
-import io
 import os
-import tempfile
 from contextlib import contextmanager
 
 # Import modules
@@ -236,52 +234,45 @@ class VADSink(discord.sinks.Sink):
                 return
             
             try:
-                print('entered transcribe()')
+                # Open context manager
                 with self.hold_manager():
-                    print(f'Hold state: {self.hold}')
 
                     frames = []
+                    # Dumps active queue into frames list
                     while not self.active.empty():
                         frame = await self.active.get()
                         # Ensure frame is bytes-like object
                         if isinstance(frame, bytes):
                             frames.append(frame)
-                        else:
-                            print("Frame is not a bytes-like object")
                     
+                    # Concatenate frames into a single binary clip
                     clip = b''.join(frames)
-
+                    
+                    
+                    '''
+                    File I/O
+                    '''
+                    ## Create output path
                     cache_dir = 'cache'
                     os.makedirs(cache_dir, exist_ok=True)
                     output_path = os.path.join(cache_dir, f'audio_{self.vc.guild.id}.wav')
-
+                    
+                    ## Write clip to file
                     with wave.open(output_path, 'wb') as wav_file:
-                        print('created wav file')
                         wav_file.setnchannels(1)  # Mono channel
                         wav_file.setsampwidth(2)  # PCM 16 bit
                         wav_file.setframerate(self.sample_rate)
                         wav_file.writeframes(clip)
-                        print('wrote frames to wav_file')
                     
+                    ## If file exists, transcribe
                     if output_path:
                         with open(output_path, 'rb') as payload:
                             transcription = await cognition.transcribe(audio=payload)
-                    os.remove(output_path)
+                    os.remove(output_path) # Delete file
 
                     print()
                     print(transcription)
                     print()
-                
-                print(f'Hold state: {self.hold}')
 
             except Exception as e:
                 print(f'VADSink transcribe() error: {e}')
-
-
-
-
-
-
-
-
-
