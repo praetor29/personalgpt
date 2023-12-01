@@ -2,7 +2,7 @@
 node_modules
 /config/prompts.yaml
 /config/.env
-data
+cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

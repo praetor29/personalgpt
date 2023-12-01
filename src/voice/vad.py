@@ -18,6 +18,8 @@ import asyncio
 import subprocess
 import wave
 import io
+import os
+import tempfile
 from contextlib import contextmanager
 
 # Import modules
@@ -249,34 +251,26 @@ class VADSink(discord.sinks.Sink):
                     
                     clip = b''.join(frames)
 
-                    # Create a memory file to store the audio data
-                    with io.BytesIO() as memfile:
-                        print('created memfile')
-                        # Create a wave file writer
-                        with wave.open(memfile, 'wb') as wav_file:
-                            wav_file.setnchannels(1)  # Mono channel
-                            wav_file.setsampwidth(2)  # PCM 16 bit
-                            wav_file.setframerate(self.sample_rate)
-                            wav_file.writeframes(clip)
-                            print('wrote frames to wav_file')
+                    cache_dir = 'cache'
+                    os.makedirs(cache_dir, exist_ok=True)
+                    output_path = os.path.join(cache_dir, f'audio_{self.vc.guild.id}.wav')
 
-                        memfile.seek(0)  # Rewind the buffer
-                        print('seeked memfile')
+                    with wave.open(output_path, 'wb') as wav_file:
+                        print('created wav file')
+                        wav_file.setnchannels(1)  # Mono channel
+                        wav_file.setsampwidth(2)  # PCM 16 bit
+                        wav_file.setframerate(self.sample_rate)
+                        wav_file.writeframes(clip)
+                        print('wrote frames to wav_file')
+                    
+                    if output_path:
+                        with open(output_path, 'rb') as payload:
+                            transcription = await cognition.transcribe(audio=payload)
+                    os.remove(output_path)
 
-                        output_path = 'transcription_input.wav'
-                        with open(output_path, 'wb') as f:
-                            f.write(memfile.read())
-
-                        audio_file = open('transcription_input.wav', "rb")
-
-                        '''
-                        TRANSCRIBE MEMFILE
-                        '''
-                        transcription = await cognition.transcribe(audio=audio_file)
-                        
-                        print()
-                        print(transcription)
-                        print()
+                    print()
+                    print(transcription)
+                    print()
                 
                 print(f'Hold state: {self.hold}')
 
