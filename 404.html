@@ -2,10 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Page Not Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404: Datastream Not Found</title>
+    <link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Orbitron');
+
+        body {
+            font-family: 'Play', 'Orbitron', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #000; /* Black background */
+        }
+        .container {
+            color: #fff; /* White text */
+            max-width: 600px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 48px;
+            color: #fff001; /* Yellow color */
+            text-shadow: 0 0 7px #67d6f0, 0 0 10px #67d6f0; /* Blue glow */
+        }
+        p {
+            font-size: 18px;
+            margin-top: 0;
+            color: #fff001; /* Yellow color */
+            text-shadow: 0 0 5px #67d6f0, 0 0 8px #67d6f0; /* Blue glow */
+        }
+        a {
+            color: #67d6f0; /* Blue color */
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>404</h1>
-    <p>Page Not Found</p>
+    <div class="container">
+        <h1>404: Lost in The Net</h1>
+        <p>Choom, looks like this part of The PersonalGPT Project's datastream doesn't exist. Redirecting you back to the safe zone in Night City.</p>
+        <p>If your cyberdeck ain't auto-navigating, <a href="/index.html">jack in here</a> to trace back.</p>
+    </div>
+    <script>
+        setTimeout(function() {
+            window.location.href = '/index.html?notFound=true';
+        }, 3000); // Redirect after 3 seconds
+    </script>
 </body>
 </html>

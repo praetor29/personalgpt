@@ -14,6 +14,7 @@ jobs:
         node-version: '16'
     - uses: bahmutov/npm-install@v1
     - run: yarn build
+    - run: cp 404.html build/
     - run: git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${{github.repository}}.git
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
