@@ -25,6 +25,12 @@ set_api_key(constants.ELEVENLABS)
 async def tts(message) -> bytes:
     """
     Uses ElevenLabs to asynchronously run TTS.
+
+    Args:
+        message (str): The text message to be converted to speech.
+
+    Returns:
+        bytes: The audio data generated from the text-to-speech conversion.
     """
     # Await audio data in a non-blocking thread
     audio = await asyncio.to_thread(
@@ -44,9 +50,4 @@ async def tts(message) -> bytes:
         ),
     )
     
-    # Convert audio to Discord compatible format (uses a non-blocking thread)
-    converted_audio = await asyncio.to_thread(utility.convert_audio, audio=audio)
-
-    # TODO: use discord.FFmpegOpusAudio() instead of converting manually!!
-    
-    return converted_audio
+    return audio

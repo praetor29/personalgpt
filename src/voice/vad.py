@@ -262,7 +262,7 @@ class VADSink(discord.sinks.Sink):
                 ## Create output path
                 cache_dir = 'cache'
                 os.makedirs(cache_dir, exist_ok=True)
-                output_path = os.path.join(cache_dir, f'audio_{self.vc.guild.id}.wav')
+                output_path = os.path.join(cache_dir, f'audio_{self.vc.channel.id}_{self.ctx.author.id}.wav')
 
                 ## Write clip to file
                 with wave.open(output_path, 'wb') as wav_file:
@@ -272,7 +272,7 @@ class VADSink(discord.sinks.Sink):
                     wav_file.writeframes(clip)
                 
                 ## If file exists, transcribe
-                if output_path:
+                if os.path.exists(output_path):
                     with open(output_path, 'rb') as payload:
                         transcription = await cognition.transcribe(audio=payload)
                 os.remove(output_path) # Delete file
@@ -287,7 +287,7 @@ class VADSink(discord.sinks.Sink):
                 await self.speech(content=response)
                 
             except Exception as e:
-                print(f'VADSink transcribe() error: {e}')
+                await self.ctx.respond(f"i think it broke: `{e}`", ephemeral=True)
     
     async def compute(self, transcription: str) -> custom_message.AudioMessage:
             """
@@ -363,29 +363,40 @@ class VADSink(discord.sinks.Sink):
             """
             try:
                 # Synthesize text-to-speech and retrieve bytes
-                audio = await tts.tts(content)
+                audio_raw = await tts.tts(content)
 
-                # Create discord audio source
-                audio_source = discord.PCMAudio(BytesIO(audio))
-                
-                # Create event to play audio
-                play_audio = asyncio.Event()           
-                
-                def after_playing(error):
+                '''
+                File I/O
+                '''
+                ## Create output path
+                cache_dir = 'cache'
+                os.makedirs(cache_dir, exist_ok=True)
+                output_path = os.path.join(cache_dir, f'audio_{self.vc.channel.id}_{self.bot.user.id}.mp3')
+
+                ## Write raw_audio to mp3 file
+                with open(output_path, 'wb') as mp3_file:
+                    mp3_file.write(audio_raw)
+
+                # Create an asyncio.Event to synchronize with audio playback
+                aplay = asyncio.Event()
+
+                def cleanup(error):
+                    """
+                    Cleans up after audio playback.
+                    """
                     if error:
-                        # Schedule the execution of a coroutine function to handle the error
-                        asyncio.create_task(handle_error(error))
-                    # Signals end of audio playing
-                    play_audio.set()
+                        asyncio.create_task(
+                            self.ctx.respond(f"i think it broke: `{error}`", ephemeral=True)
+                            )
+                    
+                    aplay.set() # Signal that audio finished playing
+                    os.remove(output_path)  # Delete the file after playback
                 
-                async def handle_error(error):
-                    await self.ctx.respond(f"i think the audio broke: `{error}`", ephemeral=True)
-                
-                # Plays audio
-                self.vc.play(audio_source, after=after_playing)
-                
-                # Wait for the audio to finish playing
-                await play_audio.wait()  
+                ## If file exists, convert and play <---
+                if os.path.exists(output_path):
+                    audio_source = await discord.FFmpegOpusAudio.from_probe(output_path)
+                    self.vc.play(audio_source, after=cleanup)
+                    await aplay.wait()  # Wait for the audio to finish playing
 
             except Exception as e:
                 await self.ctx.respond(f"i think it broke: `{e}`", ephemeral=True)

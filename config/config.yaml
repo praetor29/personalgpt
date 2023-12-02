@@ -37,9 +37,9 @@ threshold: # normalized scale
 #---------------------------------------+
 voice:
   id        : k2GEvsgcUkWzL3T2Q4F0
-  stability : 0.5
-  style     : 0.2
-  similarity: 0.8
+  stability : 0.75
+  style     : 0.75
+  similarity: 0.75
   boost     : True
   
   # 1. eleven_turbo_v2 (Low Quality, Fast)
