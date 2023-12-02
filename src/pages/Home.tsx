@@ -70,8 +70,8 @@ export const Home = memo(() => {
               "description": "Offers extensive customization options for the bot's front-end. Easily modify all aspects via the [Discord Developer Portal](https://discord.com/developers/applications) complemented by a user-friendly configuration file, ensuring a tailored experience."
             },
             {
-              "title": "Discord Voice Chat (In Dev)",
-              "description": "Integrates OpenAI's `whisper-1` STT model alongside ElevenLab's TTS voice cloning technology, paving the way for a simulated audio conversation experience on Discord. Anticipate a groundbreaking conversational experience."
+              "title": "Discord Voice Chat",
+              "description": "Innovatively combines OpenAI's `whisper-1` STT and ElevenLab's TTS voice cloning for an immersive audio chat on Discord. Enhanced with Google's webrtcvad for smart speech detection."
             }
           ]}
 		/>
