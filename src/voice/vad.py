@@ -18,7 +18,6 @@ import asyncio
 import subprocess
 import wave
 import os
-from io import BytesIO
 from contextlib import contextmanager
 
 # Import modules

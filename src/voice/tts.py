@@ -17,7 +17,6 @@ import asyncio
 
 # Import modules
 from src.core import constants
-from src.core import utility
 
 # Declare API key
 set_api_key(constants.ELEVENLABS)
