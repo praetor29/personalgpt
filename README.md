@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/praetor29/personalgpt/blob/41fb79fd1fea01f3b898f048bab4b535b43dfea0/static/media/dark.b4376b4f184722ea3d28.png" width=50% height=50%>
+    <img src="https://github.com/praetor29/personalgpt/blob/6a1fc71769a8becffb83503a1b63a2364b460828/static/media/dark.c195d63d87dd975ae38d.png" width=50% height=50%>
 </p>
 
 <p align="center">
