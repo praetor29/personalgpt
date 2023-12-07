@@ -308,6 +308,8 @@ class VADSink(discord.sinks.Sink):
             # Receive response from OpenAI API
             response = await cognition.response_audio(message=user_message)
 
+            response += '.' # Add period to end of response
+
             # Cue bot message
             bot_message = await self.wrapper(
                 content = response,
