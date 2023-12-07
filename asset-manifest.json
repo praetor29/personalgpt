@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.js": "/personalgpt/static/js/main.afab01c8.js",
+    "main.js": "/personalgpt/static/js/main.6a22b8f7.js",
     "static/media/pfp.png": "/personalgpt/static/media/pfp.1d846c45e27fbb36c652.png",
-    "static/media/light.png": "/personalgpt/static/media/light.85cabaf93a46f96ead49.png",
-    "static/media/dark.png": "/personalgpt/static/media/dark.b4376b4f184722ea3d28.png",
+    "static/media/light.png": "/personalgpt/static/media/light.97a1224052d1f8e8e33d.png",
+    "static/media/dark.png": "/personalgpt/static/media/dark.c195d63d87dd975ae38d.png",
     "static/media/pycord.png": "/personalgpt/static/media/pycord.c47687c5f30840492434.png",
     "static/media/dark.svg": "/personalgpt/static/media/dark.12cff9f64d3ec1551adc2e030fc27d2f.svg",
     "static/media/light.svg": "/personalgpt/static/media/light.a0e2595c8c0cfe7a214ebdca27b9ab12.svg",
     "index.html": "/personalgpt/index.html",
-    "main.afab01c8.js.map": "/personalgpt/static/js/main.afab01c8.js.map"
+    "main.6a22b8f7.js.map": "/personalgpt/static/js/main.6a22b8f7.js.map"
   },
   "entrypoints": [
-    "static/js/main.afab01c8.js"
+    "static/js/main.6a22b8f7.js"
   ]
 }
