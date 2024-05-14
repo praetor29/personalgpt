@@ -51,9 +51,9 @@ _/ ___\/  _ \ /    \   __\|  |/ ___\
 '''
 
 # API Keys/Tokens
-OPENAI     = getenv('OPENAI')
-DISCORD    = getenv('DISCORD')
-ELEVENLABS = getenv('ELEVENLABS')
+OPENAI            = getenv('OPENAI')
+DISCORD           = getenv('DISCORD')
+ELEVENLABS        = getenv('ELEVENLABS')
 
 # Dynamic IDs
 BOT_ID = str()
@@ -89,16 +89,29 @@ VISION_MODEL  = CONFIG.get('vision').get('model', 'gpt-4-vision-preview')
 VISION_MAX    = CONFIG.get('vision').get('max', 250)
 VISION_DETAIL = CONFIG.get('vision').get('detail', 'auto')
 
+WHISPER_MODEL = CONFIG.get('whisper').get('model', 'whisper-1')
+WHISPER_LANG  = CONFIG.get('whisper').get('lang', None)
+
 # ElevenLabs
-VOICE_ID        = CONFIG.get('voice').get('id')
-VOICE_STABILITY = CONFIG.get('voice').get('stability')
-VOICE_STYLE     = CONFIG.get('voice').get('style')
-VOICE_BOOST     = CONFIG.get('voice').get('boost', True)
+VOICE_ID         = CONFIG.get('voice').get('id')
+VOICE_STABILITY  = CONFIG.get('voice').get('stability')
+VOICE_SIMILARITY = CONFIG.get('voice').get('similarity')
+VOICE_STYLE      = CONFIG.get('voice').get('style')
+VOICE_BOOST      = CONFIG.get('voice').get('boost', True)
+VOICE_MODEL      = CONFIG.get('voice').get('model', 'eleven_turbo_v2')
 
 # Acceptable Media (as of present implementation)
 MEDIA = {
     'image' : {'png', 'gif', 'jpeg', 'webp'},
 }
+
+# Voice Acitvity Detection (VAD)
+VAD_MODE           = CONFIG.get('mode', 3)
+VAD_FRAME_DURATION = CONFIG.get('duration', 30)
+VAD_SMOOTHING      = CONFIG.get('smoothing', 3)
+
+# Voice Channel
+VOICE_IDLE = CONFIG.get('idle', 60)
 
 '''
                                     __          
@@ -110,7 +123,13 @@ _____________  ____   _____ _______/  |_  ______
 '''
 
 # Chat
-CHAT_PROMPT   = PROMPTS.get('chat', 'Ask the user to set a prompt under `config/prompts.yaml`.')
+CHAT_PROMPT    = PROMPTS.get('chat', '')
 
 # Vision
 VISION_PROMPT  = PROMPTS.get('vision', 'Describe the image provided, for somebody who cannot see, but can understand text.')
+
+# Whisper
+WHISPER_PROMPT = PROMPTS.get('whisper', None)
+
+# Voice
+VOICE_PROMPT   = PROMPTS.get('voice', '')

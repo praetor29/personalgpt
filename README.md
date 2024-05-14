@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/praetor29/personalgpt/blob/41fb79fd1fea01f3b898f048bab4b535b43dfea0/static/media/dark.b4376b4f184722ea3d28.png" width=50% height=50%>
+    <img src="https://github.com/praetor29/personalgpt/blob/6a1fc71769a8becffb83503a1b63a2364b460828/static/media/dark.c195d63d87dd975ae38d.png" width=50% height=50%>
 </p>
 
 <p align="center">
@@ -9,7 +9,7 @@
   </p>
   
 <p align="center">
-<img alt="Python" src="https://img.shields.io/badge/Python-3.10-blue?logo=python"> <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-1.3.5-white?logo=openai">
+<img alt="Python" src="https://img.shields.io/badge/Python-3.10-blue?logo=python"> <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-1.3.7-white?logo=openai">
 <img alt="Pycord" src="https://img.shields.io/badge/Pycord-2.4.1-blue"> <img alt="ElevenLabs" src="https://img.shields.io/badge/ElevenLabs-0.2.26-white">
 </p>
 
@@ -26,15 +26,15 @@ PersonalGPT is a groundbreaking project that harnesses state-of-the-art AI to cr
 - **Configurable Memory:** Features a robust `asyncio` queue, applying a **First In, First Out** (FIFO) strategy for consistent and lossless data management.
 - **Fully Asynchronous Processing:** Efficiently handles high volumes of concurrent messages, maintaining seamless performance.
 - **Customizable Parameters:** Provides comprehensive customization through the [Discord Developer Portal](https://discord.com/developers/applications) and an intuitive configuration file.
-- **Discord Voice Chat (In Development):** Integrates OpenAI's `whisper-1` STT and ElevenLab's TTS technologies for a novel audio conversation experience on Discord.
+- **Discord Voice Chat:** Integrates dynamic Voice Activity Detection, OpenAI's `whisper-1` STT, and ElevenLab's TTS technologies for an immersive Discord voice call experience.
 
 > [!NOTE]
-> The `active-dev` branch is focused on upgrading the codebase to align with [OpenAI Python](https://github.com/openai/openai-python) library's new `SDK v1` release.
+> The `active-dev` branch is focused on active feature development.
 
 ## Objectives
 We aim to simulate an **all-round appearance of sentience**. Upcoming features include:
 - [X] Image recognition with GPT-4 Vision
-- [ ] Discord Voice Chat support
+- [X] Discord Voice Chat support
 - [ ] Image generation using DALLE-3
 - [ ] Python code execution
 - [ ] External APIs integration
@@ -57,8 +57,8 @@ git clone https://github.com/praetor29/personalgpt.git
   
 ### Active Beta Testers
 - j1nzou
-- goldiereal
 - yumeshu
+- goldiereal
 - mrinali.
 
 ## 🔗 Useful Links

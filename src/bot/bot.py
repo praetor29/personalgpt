@@ -19,6 +19,7 @@ import discord
 from src.bot import initialize, message_handler, media_handler
 from src.core import constants
 from src.memory import memory
+from src.voice.voice import Voice
 
 # Configuring intents (this is crucial!!)
 intents = discord.Intents.default() # default intents
@@ -29,12 +30,17 @@ bot = discord.Bot(intents=intents)
 
 def start():
     """
-    Starts the bot.
+    Adds any cogs and starts the bot.
     """
     try:
+        # Add cogs
+        bot.add_cog(Voice(bot)) # Voice functionality
+
+        # Start bot proper
         bot.run(constants.DISCORD)
-    except:
-        print('Unable to initialize bot.')
+
+    except Exception as e:
+        print(f'Unable to initialize bot: {e}')
 
 @bot.event
 async def on_ready():
@@ -44,8 +50,11 @@ async def on_ready():
     # Add Bot user ID to constants
     constants.BOT_ID = bot.user.id
 
-    await initialize.print_ascii()
+    # Set discord presence
     await initialize.set_presence(bot=bot)
+
+    # Print ASCII in terminal to signify ready
+    await initialize.print_ascii()
 
 @bot.event
 async def on_message(message):
@@ -70,3 +79,17 @@ async def on_message(message):
                 await message_handler.reply(message=message)
         else:
             await message_handler.reply(message=message)
+
+'''
+/Slash Commands
+'''
+@bot.slash_command(description="Check latency.")
+async def ping(ctx):
+    await ctx.respond(f"`{round(bot.latency, 3)}` ms.", ephemeral=True)
+
+
+# from src.cognition import cognition
+# @bot.slash_command(description="Whisper test.")
+# async def whisper(ctx):
+#     transcription = await cognition.transcribe()
+#     await ctx.respond(transcription, ephemeral=True)

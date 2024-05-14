@@ -9,7 +9,7 @@ from src.memory import memory
 
 class CustomMessage:
     """
-    Fake discord.Message clone
+    Fake discord.Message clone. Allows incorporation of Vision Desciptions.
     """
     def __init__(self, original_message: discord.Message, new_content: str):
         self.content            = new_content
@@ -27,7 +27,15 @@ class CustomMessage:
         # self.embeds           = original_message.embeds  # List of discord.Embed objects
         # self.reactions        = original_message.reactions  # List of discord.Reaction objects
 
-
+class AudioMessage:
+    """
+    Trimmed down version of discord.Message object. Only contains necessary fields.
+    """
+    def __init__(self, content: str, clean_content: str, author: discord.User, channel: discord.VoiceChannel):
+        self.content            = content
+        self.clean_content      = clean_content
+        self.author             = author
+        self.channel            = channel
 
 async def slipstream(message: discord.Message, media_context: list):
     """
