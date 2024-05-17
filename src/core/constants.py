@@ -76,8 +76,7 @@ ACTIVITY_NAME = CONFIG.get("activity").get("name", "Waterparks")
 
 # Memory Management
 MEM_MAX = CONFIG.get("mem_max", 4096)
-MEM_UPPER = CONFIG.get("threshold").get("upper", 0.90)
-MEM_LOWER = CONFIG.get("threshold").get("lower", 0.75)
+MEM_SYNC = CONFIG.get("mem_sync", 0.25)
 
 # OpenAI Models
 CHAT_MODEL = CONFIG.get("chat").get("model", "gpt-4o")

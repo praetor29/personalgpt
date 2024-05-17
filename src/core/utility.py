@@ -16,8 +16,7 @@ A collection of utility functions.
 # Import libraries
 from os import system, name
 import tiktoken
-from pathlib import Path
-
+import discord
 
 def clear():
     """
@@ -45,4 +44,15 @@ async def tokenize_lite(input: str) -> int:
     """
     tokens = len(input) // 4
     return tokens
+
+def get_channel_name(channel):
+    """
+    Helper function to determine the name of the channel.
+    """
+    if isinstance(channel, discord.DMChannel):
+        return channel.recipient.name if channel.recipient else "UnknownDM"
+    elif isinstance(channel, discord.TextChannel):
+        return channel.name
+    else:
+        return "channel"
 

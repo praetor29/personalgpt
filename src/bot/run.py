@@ -15,12 +15,13 @@ core bot loop
 # Import libraries
 import discord
 from discord.ext.commands import Bot
+from datetime import datetime
 import sys
 
 # Internal modules
 from src.core import constants, ascii
-from src.core.utility import clear
-from src.bot.memory import sync_cache, setup_memory, enqueue, cache
+from src.core.utility import clear, get_channel_name
+from src.bot.memory import sync_cache, setup_memory, enqueue
 
 # Bot permissions
 intents = discord.Intents.default()  # default intents
@@ -50,7 +51,12 @@ async def on_ready():
     """
     Run initialization functions.
     """
-    print("Logged into discord.")
+    clear()
+    print(ascii.personalgpt)
+    print(ascii.dash)
+
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print("Authorization successful. ✅")
 
     # Add Bot user ID to constants
     constants.BOT_ID = bot.user.id
@@ -63,17 +69,18 @@ async def on_ready():
             name=constants.ACTIVITY_NAME,
         ),
     )
-    print("Set bot presence.")
+    print("Established construct persona link. ✅")
 
     # Sync commands
-    print("Syncing commands.")
+    print("Engaging cyberdeck commands. ✅")
     await bot.tree.sync()
 
-    print("Syncing memory with discord.")
+    print(ascii.dash)
+    print("SYNCING CONSTRUCT WITH DISCORD. 🔄")
     await setup_memory(bot)
-
-    # clear()
-    print(ascii.personalgpt)
+    print("MEMORY AT 100%. CONSTRUCT ONLINE. 🌐")
+    print(ascii.dash)
+    print("System log:")
 
 
 @bot.event
@@ -81,48 +88,17 @@ async def on_message(message):
     """
     Memory functionality upon receiving a new message.
     """
+
+    # Re-sync cache if doesn't exist
+    if await cache.get(message.channel.id) is None:
+        await sync_cache(message.channel)
+
     # Message handling
     await enqueue(message=message)
 
     # Reply if mentioned
     if bot.user in message.mentions:
-
         await message.reply("Message received.")
-
-        # # Divert message through media handler if it contains attachments
-        # if message.attachments:
-        #     # Verify attachments
-        #     media = await media_handler.verify_media(message=message)
-
-        #     # If list of verified exists, proceed.
-        #     if media:
-        #         await media_handler.reply_media(message=message, media=media)
-        #     else:
-        #         await message_handler.reply(message=message)
-        # else:
-        #     await message_handler.reply(message=message)
-
-
-"""
-Maintenance
-"""
-
-
-@bot.event
-async def on_guild_join(guild):
-    """
-    Handle event when the bot joins a new guild.
-    """
-    for channel in guild.text_channels:
-        await sync_cache(channel)
-
-
-@bot.event
-async def on_guild_channel_create(channel):
-    """
-    Handle event when a new channel is created in a guild.
-    """
-    await sync_cache(channel)
 
 
 """
@@ -137,14 +113,37 @@ async def ping(interaction: discord.Interaction):
     )
 
 
-@bot.tree.command(name="cached", description="Show cached messages.")
+@bot.tree.command(name="re-cache", description="Recache messages in channel.")
+async def reset_cache(interaction: discord.Interaction):
+    channel_name = get_channel_name(interaction.channel)
+    try:
+        await sync_cache(interaction.channel)
+        await interaction.response.send_message(
+            f"`#{channel_name}` messages succesfully re-cached.",
+            ephemeral=True,
+        )
+    except Exception as e:
+        await interaction.response.send_message(
+            f"Error re-caching `#{channel_name}` messages: {e}",
+            ephemeral=True,
+        )
+
+
+# DEBUG-------------------------------------------------------------------------
+
+from src.bot.memory import cache
+
+
+@bot.tree.command(
+    name="debug_cached", description="[DEBUG] Show earliest cached messages."
+)
 async def show_cache(interaction: discord.Interaction):
-    channel_id = str(interaction.channel_id)
+    channel_id = interaction.channel_id
     recent_messages = await cache.get(channel_id) or []
 
     if recent_messages:
         messages_text = "\n".join([msg.clean_content for msg in recent_messages])
-        await interaction.response.send_message(messages_text[:500], ephemeral=True)
+        await interaction.response.send_message(messages_text[:2000], ephemeral=True)
     else:
         await interaction.response.send_message(
             "No messages are cached.", ephemeral=True

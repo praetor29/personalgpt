@@ -27,10 +27,8 @@ activity:
 #           Memory Management           |
 #---------------------------------------+
 mem_max: 8096 # tokens
+mem_sync: 0.25 # 25% of capacity is synced
 
-threshold: # normalized scale
-  upper: 0.95 # Begin trimming
-  lower: 0.75 # End trimming
 
 #---------------------------------------+
 #             OpenAI Models             |

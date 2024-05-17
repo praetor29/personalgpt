@@ -15,11 +15,12 @@ Memory management.
 
 # Import libraries
 import discord
+import asyncio
 from aiocache import SimpleMemoryCache
 
 # Internal modules
-from src.core.utility import tokenize
-from src.core.constants import MEM_MAX
+from src.core.utility import tokenize, get_channel_name
+from src.core.constants import MEM_MAX, MEM_SYNC
 
 r"""
                         .__             
@@ -37,53 +38,42 @@ async def setup_memory(bot):
     """
     Setup memory for all channels in all guilds the bot is in, and all existing DMs.
     """
+    tasks = []
+
     for guild in bot.guilds:
         print(f"Setting up memory for guild {guild.name}")
         for channel in guild.text_channels:
-            print(f"Setting up memory for channel {channel.name}")
-            await sync_cache(channel)
+            tasks.append(sync_cache(channel))
 
-async def fetch_channel_history(channel, limit=100):
-    """
-    Fetch message history of a text-based channel in batches.
-    """
-    messages = []
-    try:
-        if isinstance(channel, (discord.TextChannel, discord.DMChannel)):
-            async for message in channel.history(limit=limit, oldest_first=False):
-                messages.append(message)
-    except Exception as e:
-        print(f"Error fetching history for channel {channel.id}: {e}")
-    return messages
+    await asyncio.gather(*tasks)
 
 
-async def sync_cache(channel, max_iterations=4, batch_size=25):
+async def sync_cache(channel):
     """
-    Populate the cache for a given channel with messages until MEM_MAX tokens are reached.
+    Fetch and tokenize messages from the channel one at a time until MEM_MAX tokens are reached.
+    Store messages in cache in reverse order (chronologically earliest message first).
     """
-    if isinstance(channel, (discord.TextChannel, discord.DMChannel)):
+    if isinstance(channel, (discord.TextChannel, discord.Thread, discord.DMChannel)):
         token_count = 0
         cache_queue = []
-        iterations = 0
 
-        while token_count < MEM_MAX and iterations < max_iterations:
-            messages = await fetch_channel_history(channel, limit=batch_size)
-            if not messages:
-                break  # No more messages to fetch
+        channel_name = get_channel_name(channel)
 
-            for message in messages:
-                tokens = await tokenize(message.clean_content)
-                if token_count + tokens > MEM_MAX:
-                    break
-                cache_queue.append(message)
-                token_count += tokens
+        try:
+            async for message in channel.history(limit=None, oldest_first=False):
+                if message.clean_content and not message.flags.ephemeral:
+                    tokens = await tokenize(message.clean_content)
+                    if token_count + tokens > (MEM_MAX * MEM_SYNC):
+                        break
+                    cache_queue.append(message)
+                    token_count += tokens
+        except Exception as e:
+            print(f"Error fetching history for #{channel_name}: {e}")
 
-            iterations += 1
-
-            if token_count >= MEM_MAX or len(messages) < batch_size:
-                break  # Reached token limit or no more messages to fetch
-
-        await cache.set(str(channel.id), cache_queue)
+        # Reverse the order of messages before caching
+        cache_queue.reverse()
+        await cache.set(channel.id, cache_queue)
+        print(f"Sync: {len(cache_queue)} messages in #{channel_name}.")
 
 
 r"""
@@ -100,14 +90,14 @@ async def enqueue(message: discord.Message):
     """
     Add a new message to the cache, trimming the queue if the token limit is exceeded.
     """
-    channel_id = str(message.channel.id)
+    channel_id = message.channel.id
 
     queue = await cache.get(channel_id) or []
     token_counts = [await tokenize(msg.clean_content) for msg in queue]
     token_count = sum(token_counts)
 
     tokens = await tokenize(message.clean_content)
-    if token_count + tokens <= MEM_MAX:
+    if token_count + tokens <= MEM_MAX and not message.flags.ephemeral:
         queue.append(message)
     else:
         while token_count + tokens > MEM_MAX and queue:
