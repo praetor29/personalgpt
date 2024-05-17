@@ -37,16 +37,11 @@ async def setup_memory(bot):
     """
     Setup memory for all channels in all guilds the bot is in, and all existing DMs.
     """
-    # Fetch and populate cache for all guild channels and threads
-    # for guild in bot.guilds:
-    #     print(f"Setting up memory for guild {guild.name}")
-    #     for channel in guild.text_channels:
-    #         print(f"Setting up memory for channel {channel.name}")
-    #         await sync_cache(channel)
-    
-
-    print([channel.name for channel in bot.private_channels])
-
+    for guild in bot.guilds:
+        print(f"Setting up memory for guild {guild.name}")
+        for channel in guild.text_channels:
+            print(f"Setting up memory for channel {channel.name}")
+            await sync_cache(channel)
 
 async def fetch_channel_history(channel, limit=100):
     """
@@ -66,7 +61,7 @@ async def sync_cache(channel, max_iterations=4, batch_size=25):
     """
     Populate the cache for a given channel with messages until MEM_MAX tokens are reached.
     """
-    if isinstance(channel, (discord.TextChannel, discord.Thread, discord.DMChannel)):
+    if isinstance(channel, (discord.TextChannel, discord.DMChannel)):
         token_count = 0
         cache_queue = []
         iterations = 0

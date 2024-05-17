@@ -67,7 +67,7 @@ async def on_ready():
 
     # Sync commands
     print("Syncing commands.")
-    await bot.tree.sync()  # TODO: re-enable
+    await bot.tree.sync()
 
     print("Syncing memory with discord.")
     await setup_memory(bot)
@@ -144,7 +144,7 @@ async def show_cache(interaction: discord.Interaction):
 
     if recent_messages:
         messages_text = "\n".join([msg.clean_content for msg in recent_messages])
-        await interaction.response.send_message(messages_text[:2000], ephemeral=True)
+        await interaction.response.send_message(messages_text[:500], ephemeral=True)
     else:
         await interaction.response.send_message(
             "No messages are cached.", ephemeral=True
