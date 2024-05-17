@@ -14,28 +14,20 @@ core bot loop
 
 # Import libraries
 import discord
+from discord.ext.commands import Bot
 import sys
 
 # Internal modules
 from src.core import constants, ascii
 from src.core.utility import clear
-from src.bot.memory import (
-    setup_db,
-    sync_db_with_discord,
-    populate_cache,
-    enqueue,
-    cache,  # aiocache object
-    deserialize_message,
-)
+from src.bot.memory import sync_cache, setup_memory, enqueue, cache
 
 # Bot permissions
 intents = discord.Intents.default()  # default intents
 intents.message_content = True  # read messages
 
 # Create bot client instance
-bot = discord.Client(intents=intents)
-# Register slash commands
-tree = discord.app_commands.CommandTree(bot)
+bot = Bot(command_prefix=None, intents=intents)
 
 
 def start():
@@ -75,19 +67,12 @@ async def on_ready():
 
     # Sync commands
     print("Syncing commands.")
-    await tree.sync()
+    await bot.tree.sync()  # TODO: re-enable
 
-    # Load memory
-    print("Setting up database.")
-    await setup_db()
+    print("Syncing memory with discord.")
+    await setup_memory(bot)
 
-    print("Syncing database with discord.")
-    await sync_db_with_discord(bot)
-
-    print("Populating cache.")
-    await populate_cache()
-
-    clear()
+    # clear()
     print(ascii.personalgpt)
 
 
@@ -119,22 +104,48 @@ async def on_message(message):
 
 
 """
+Maintenance
+"""
+
+
+@bot.event
+async def on_guild_join(guild):
+    """
+    Handle event when the bot joins a new guild.
+    """
+    for channel in guild.text_channels:
+        await sync_cache(channel)
+
+
+@bot.event
+async def on_guild_channel_create(channel):
+    """
+    Handle event when a new channel is created in a guild.
+    """
+    await sync_cache(channel)
+
+
+"""
 /Slash Commands
 """
 
 
-@tree.command(name="ping", description="Check latency.")
+@bot.tree.command(name="ping", description="Check latency.")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(
-        f"`{round(bot.latency, 3)}` ms.", ephemeral=True
+        f"`{round(bot.latency * 1000, 3)}` ms.", ephemeral=True
     )
 
 
-@tree.command(name="cached", description="Show cached messages.")
+@bot.tree.command(name="cached", description="Show cached messages.")
 async def show_cache(interaction: discord.Interaction):
     channel_id = str(interaction.channel_id)
     recent_messages = await cache.get(channel_id) or []
-    messages_text = "\n".join(
-        [deserialize_message(msg)["clean_content"] for msg in recent_messages]
-    )
-    await interaction.response.send_message(f"Cached messages:\n{messages_text}")
+
+    if recent_messages:
+        messages_text = "\n".join([msg.clean_content for msg in recent_messages])
+        await interaction.response.send_message(messages_text[:2000], ephemeral=True)
+    else:
+        await interaction.response.send_message(
+            "No messages are cached.", ephemeral=True
+        )

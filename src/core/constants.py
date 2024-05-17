@@ -120,9 +120,9 @@ r"""
      \/      \/             \/
 """
 
-# Construct the path to the database file
-DB_PATH = path.join(path.dirname(__file__), "..", "..", "data", "messages.db")
+# # Construct the path to the database file
+# DB_PATH = path.join(path.dirname(__file__), "..", "..", "data", "messages.db")
 
-# Ensure the data directory exists
-data_dir = path.dirname(DB_PATH)
-makedirs(data_dir, exist_ok=True)
+# # Ensure the data directory exists
+# data_dir = path.dirname(DB_PATH)
+# makedirs(data_dir, exist_ok=True)
