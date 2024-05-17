@@ -18,7 +18,7 @@ import discord
 import aiosqlite
 from aiocache import Cache
 from aiocache.serializers import PickleSerializer
-import jsonpickle
+import json
 
 # Internal modules
 from src.core.utility import tokenize
@@ -35,11 +35,24 @@ r"""
 
 
 def serialize_message(message: discord.Message) -> str:
-    return jsonpickle.encode(message, unpicklable=False)
+    data = {
+        "author": (
+            message.author.nick
+            if hasattr(message.author, "nick")
+            else message.author.name
+        ),
+        "channel_id": message.channel.id,
+        "clean_content": message.clean_content,
+        "content": message.content,
+        "created_at": message.created_at.isoformat(),
+        "id": message.id,
+        "jump_url": message.jump_url,
+    }
+    return json.dumps(data)
 
 
-def deserialize_message(data: str) -> discord.Message:
-    return jsonpickle.decode(data)
+def deserialize_message(data: str) -> dict:
+    return json.loads(data)
 
 
 r"""
@@ -73,26 +86,29 @@ async def sync_db_with_discord(bot):
         cursor = await db.execute("SELECT DISTINCT channel_id FROM messages")
         channels = await cursor.fetchall()
 
+        existing_channel_ids = {channel.id for channel in bot.get_all_channels()}
+
         for channel in channels:
             channel_id = channel[0]
-            last_message = await db.execute(
-                "SELECT message_id FROM messages WHERE channel_id = ? ORDER BY id DESC LIMIT 1",
-                (channel_id,),
-            )
-            last_message_id = await last_message.fetchone()
-
-            if last_message_id:
-                last_message_id = last_message_id[0]
-                discord_channel = bot.get_channel(int(channel_id))
-                if discord_channel:
-                    async for message in discord_channel.history(
-                        after=discord.Object(id=last_message_id)
-                    ):
-                        await add_message_to_db(channel_id, message)
-            else:
+            if int(channel_id) not in existing_channel_ids:
                 await db.execute(
                     "DELETE FROM messages WHERE channel_id = ?", (channel_id,)
                 )
+            else:
+                last_message = await db.execute(
+                    "SELECT message_id FROM messages WHERE channel_id = ? ORDER BY id DESC LIMIT 1",
+                    (channel_id,),
+                )
+                last_message_id = await last_message.fetchone()
+
+                if last_message_id:
+                    last_message_id = last_message_id[0]
+                    discord_channel = bot.get_channel(int(channel_id))
+                    if discord_channel:
+                        async for message in discord_channel.history(
+                            after=discord.Object(id=last_message_id)
+                        ):
+                            await add_message_to_db(channel_id, message)
 
         await db.commit()
 
@@ -141,7 +157,7 @@ async def populate_cache():
             cache_queue = []
 
             for message in messages:
-                tokens = await tokenize(message.clean_content)
+                tokens = await tokenize(message["clean_content"])
                 if token_count + tokens > MEM_MAX:
                     break
                 cache_queue.append(message)
@@ -165,16 +181,20 @@ async def enqueue(message: discord.Message):
     await add_message_to_db(channel_id, message)
 
     queue = await cache.get(channel_id) or []
-    token_counts = [await tokenize(msg.clean_content) for msg in queue]
+    token_counts = [
+        await tokenize(deserialize_message(msg)["clean_content"]) for msg in queue
+    ]
     token_count = sum(token_counts)
 
     tokens = await tokenize(message.clean_content)
     if token_count + tokens <= MEM_MAX:
-        queue.append(message)
+        queue.append(serialize_message(message))
     else:
         while token_count + tokens > MEM_MAX and queue:
             removed_message = queue.pop(0)
-            token_count -= await tokenize(removed_message.clean_content)
-        queue.append(message)
+            token_count -= await tokenize(
+                deserialize_message(removed_message)["clean_content"]
+            )
+        queue.append(serialize_message(message))
 
     await cache.set(channel_id, queue)

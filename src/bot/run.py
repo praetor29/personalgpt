@@ -25,6 +25,7 @@ from src.bot.memory import (
     populate_cache,
     enqueue,
     cache,  # aiocache object
+    deserialize_message,
 )
 
 # Bot permissions
@@ -75,20 +76,16 @@ async def on_ready():
     # Sync commands
     print("Syncing commands.")
     await tree.sync()
-    print()
-    
+
     # Load memory
     print("Setting up database.")
     await setup_db()
-    print()
-    
+
     print("Syncing database with discord.")
     await sync_db_with_discord(bot)
-    print()
 
     print("Populating cache.")
     await populate_cache()
-    print()
 
     clear()
     print(ascii.personalgpt)
@@ -137,5 +134,7 @@ async def ping(interaction: discord.Interaction):
 async def show_cache(interaction: discord.Interaction):
     channel_id = str(interaction.channel_id)
     recent_messages = await cache.get(channel_id) or []
-    messages_text = "\n".join([msg.clean_content for msg in recent_messages])
+    messages_text = "\n".join(
+        [deserialize_message(msg)["clean_content"] for msg in recent_messages]
+    )
     await interaction.response.send_message(f"Cached messages:\n{messages_text}")
