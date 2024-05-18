@@ -48,8 +48,8 @@ To get started with PersonalGPT, follow these steps:
 4. **Install Python**  
     Ensure you have [Python 3.12.3](https://www.python.org/downloads/release/python-3123/) installed on your system.
 
-   > [!TIP]
-   > Using a virtual environment like [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) makes managing dependencies easier and less messy. 
+> [!TIP]
+> Using a virtual environment like [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) makes managing dependencies easier and less messy. 
 
 5. **Install required packages**  
     Run the following command to install the necessary Python packages:
