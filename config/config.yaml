@@ -21,7 +21,7 @@ status: dnd
 activity:
   # playing, watching, listening, streaming
   type: listening
-  name: "Samurai"
+  name: "Chippin' In"
 
 #---------------------------------------+
 #           Memory Management           |
@@ -34,12 +34,9 @@ mem_sync: 0.25 # 25% of capacity is synced
 #             OpenAI Models             |
 #---------------------------------------+
 chat:
-  model : gpt-4o
-  temp  : 0.35
-  tokens: 500
+  model : gpt-4o # (gpt-4o, gpt-4-turbo)
+  temp  : 0.35 # [0, 2]
+  tokens: 500 # Words = 3/4 tokens
 
 vision:
-  model : gpt-4o
-  tokens: 250
-  # low/auto/high
-  detail: auto
+  detail: auto # low/auto/high

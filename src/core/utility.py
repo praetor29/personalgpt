@@ -15,6 +15,7 @@ A collection of utility functions.
 
 # Import libraries
 from os import system, name
+from constants import MEDIA
 import tiktoken
 import discord
 
@@ -51,8 +52,26 @@ def get_channel_name(channel):
     """
     if isinstance(channel, discord.DMChannel):
         return channel.recipient.name if channel.recipient else "UnknownDM"
-    elif isinstance(channel, discord.TextChannel):
+    elif isinstance(channel, (discord.TextChannel, discord.Thread)):
         return channel.name
     else:
-        return "channel"
+        return "UnknownChannel"
+    
+async def verify_media(message: discord.Message) -> list:
+    """
+    Verifies if media is of a valid type. Returns list of verified attachments.
+    """
+    media = []
+
+    for attachment in message.attachments:
+        # Extract MIME info
+        # - after normalizing to lowercase for safety
+        # - splitting along /
+        type, subtype = attachment.content_type.lower().split('/')
+
+        # Check if MIME matches acceptable media and append/ignore
+        if type in MEDIA.keys() and subtype in MEDIA[type]:
+            media.append(attachment)
+
+    return media
 

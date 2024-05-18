@@ -21,7 +21,17 @@ import sys
 # Internal modules
 from src.core import constants, ascii
 from src.core.utility import clear, get_channel_name
-from src.bot.memory import sync_cache, setup_memory, enqueue
+from src.cognition.memory import sync_cache, setup_memory, enqueue
+from src.bot.neuron import reply, send
+
+r"""
+.__         .__   __   .__         .__   .__                 
+|__|  ____  |__|_/  |_ |__|_____   |  |  |__|________  ____  
+|  | /    \ |  |\   __\|  |\__  \  |  |  |  |\___   /_/ __ \ 
+|  ||   |  \|  | |  |  |  | / __ \_|  |__|  | /    / \  ___/ 
+|__||___|  /|__| |__|  |__|(____  /|____/|__|/_____ \ \___  >
+         \/                     \/                 \/     \/ 
+"""
 
 # Bot permissions
 intents = discord.Intents.default()  # default intents
@@ -83,26 +93,46 @@ async def on_ready():
     print("System log:")
 
 
+r"""
+                                                          
+  _____    ____    ______  ___________      ____    ____  
+ /     \ _/ __ \  /  ___/ /  ___/\__  \    / ___\ _/ __ \ 
+|  Y Y  \\  ___/  \___ \  \___ \  / __ \_ / /_/  >\  ___/ 
+|__|_|  / \___  >/____  >/____  >(____  / \___  /  \___  >
+      \/      \/      \/      \/      \/ /_____/       \/ 
+"""
+
+
 @bot.event
 async def on_message(message):
     """
     Memory functionality upon receiving a new message.
     """
+    # Message handling
+    await enqueue(message=message)
+
+    # Ignore bot messages
+    if message.author == bot.user:
+        return
 
     # Re-sync cache if doesn't exist
     if await cache.get(message.channel.id) is None:
         await sync_cache(message.channel)
 
-    # Message handling
-    await enqueue(message=message)
-
-    # Reply if mentioned
+    # Different behavior in DMs and Guilds
     if bot.user in message.mentions:
-        await message.reply("Message received.")
+        await reply(message)
+    elif isinstance(message.channel, discord.DMChannel):
+        await send(message)
 
 
-"""
-/Slash Commands
+r"""
+     /\         .__                   .__     
+    / /   ______|  |  _____     ______|  |__  
+   / /   /  ___/|  |  \__  \   /  ___/|  |  \ 
+  / /    \___ \ |  |__ / __ \_ \___ \ |   Y  \
+ / /    /____  >|____/(____  //____  >|___|  /
+ \/          \/            \/      \/      \/ 
 """
 
 
@@ -131,7 +161,7 @@ async def reset_cache(interaction: discord.Interaction):
 
 # DEBUG-------------------------------------------------------------------------
 
-from src.bot.memory import cache
+from src.cognition.memory import cache
 
 
 @bot.tree.command(
