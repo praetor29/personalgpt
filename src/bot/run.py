@@ -108,16 +108,16 @@ async def on_message(message):
     """
     Memory functionality upon receiving a new message.
     """
+    # Re-sync cache if doesn't exist
+    if await cache.get(message.channel.id) is None:
+        await sync_cache(message.channel)
+
     # Message handling
     await enqueue(message=message)
 
     # Ignore bot messages
     if message.author == bot.user:
         return
-
-    # Re-sync cache if doesn't exist
-    if await cache.get(message.channel.id) is None:
-        await sync_cache(message.channel)
 
     # Different behavior in DMs and Guilds
     if bot.user in message.mentions:

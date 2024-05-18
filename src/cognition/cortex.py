@@ -48,7 +48,7 @@ async def assembler(message: discord.Message) -> list:
 
         author_name = {
             "type": "text",
-            "text": f"{msg.author.display_name}:",
+            "text": f"{msg.author.display_name} said:",
         }
         name_dict = {
             "role": "system",

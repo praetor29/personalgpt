@@ -26,7 +26,7 @@ activity:
 #---------------------------------------+
 #           Memory Management           |
 #---------------------------------------+
-mem_max: 4096 # tokens
+mem_max: 8096 # tokens
 mem_sync: 0.25 # 25% of capacity is synced
 
 
@@ -35,7 +35,7 @@ mem_sync: 0.25 # 25% of capacity is synced
 #---------------------------------------+
 chat:
   model : gpt-4o # (gpt-4o, gpt-4-turbo)
-  temp  : 1 # [0, 2]
+  temp  : 0.5 # [0, 2]
   tokens: 500 # Words = 3/4 tokens
 
 vision:
