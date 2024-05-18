@@ -1,6 +1,4 @@
 '''
 core modules
-~~~~~~~~~~~~
-- constants
-- utility               
+~~~~~~~~~~~~             
 '''

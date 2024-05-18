@@ -21,61 +21,22 @@ status: dnd
 activity:
   # playing, watching, listening, streaming
   type: listening
-  name: "Dance Gavin Dance"
+  name: "Chippin' In"
 
 #---------------------------------------+
 #           Memory Management           |
 #---------------------------------------+
 mem_max: 8096 # tokens
+mem_sync: 0.25 # 25% of capacity is synced
 
-threshold: # normalized scale
-  upper: 0.95 # Begin trimming
-  lower: 0.75 # End trimming
-
-#---------------------------------------+
-#              ElevenLabs               |
-#---------------------------------------+
-voice:
-  id        : k2GEvsgcUkWzL3T2Q4F0
-  stability : 0.75
-  style     : 0.75
-  similarity: 0.75
-  boost     : True
-  
-  # 1. eleven_turbo_v2 (Low Quality, Fast)
-  # 2. eleven_multilingual_v2 (High Quality, Slow) - Not Recommended!
-  model: eleven_turbo_v2
 
 #---------------------------------------+
 #             OpenAI Models             |
 #---------------------------------------+
 chat:
-  model : ft:gpt-3.5-turbo-1106:personal::8Ibhmf2N
-  temp  : 0.55
-  tokens: 512
+  model : gpt-4o # (gpt-4o, gpt-4-turbo)
+  temp  : 0.5 # [0, 2]
+  tokens: 500 # Words = 3/4 tokens
 
 vision:
-  model : gpt-4-vision-preview
-  tokens: 250
-  # low/auto/high
-  detail: auto
-
-whisper:
-  model: whisper-1
-  lang : en
-
-#---------------------------------------+
-#    Voice Activity Detection (VAD)     |
-#---------------------------------------+
-# Agressiveness [1-3]
-mode    : 3
-# Frame duration [10-30] ms
-duration: 30
-# Smoothing
-smoothing: 3
-
-#---------------------------------------+
-#             Voice Channel             |
-#---------------------------------------+
-# How long idle in VC (alone) in seconds
-idle: 60
+  detail: auto # low/auto/high
