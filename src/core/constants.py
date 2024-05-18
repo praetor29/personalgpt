@@ -82,7 +82,7 @@ MEM_SYNC = CONFIG.get("mem_sync", 0.25)
 CHAT_MODEL = CONFIG.get("chat").get("model", "gpt-4o")
 CHAT_TEMP = CONFIG.get("chat").get("temp", 0.5)
 CHAT_MAX = CONFIG.get("chat").get("tokens", 500)  # Discord has a 2000 character limit
-VIS_DETAIL = CONFIG.get("vision").get("detail", "auto")
+VISION_DETAIL = CONFIG.get("vision").get("detail", "auto")
 
 # Acceptable Media (as of present implementation)
 MEDIA = {

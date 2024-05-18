@@ -4,7 +4,7 @@ utility
 A collection of utility functions.
 """
 
-"""
+r"""
 ██╗   ██╗████████╗██╗██╗     ██╗████████╗██╗   ██╗
 ██║   ██║╚══██╔══╝██║██║     ██║╚══██╔══╝╚██╗ ██╔╝
 ██║   ██║   ██║   ██║██║     ██║   ██║    ╚████╔╝ 
@@ -15,7 +15,7 @@ A collection of utility functions.
 
 # Import libraries
 from os import system, name
-from constants import MEDIA
+from src.core.constants import MEDIA
 import tiktoken
 import discord
 

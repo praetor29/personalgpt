@@ -3,7 +3,7 @@ response
 ~~~~~~~~
 """
 
-"""
+r"""
                                                                 
 _______   ____    ____________    ____    ____    ______  ____  
 \_  __ \_/ __ \  /  ___/\____ \  /  _ \  /    \  /  ___/_/ __ \ 
@@ -30,6 +30,11 @@ async def neural(message: discord.Message, client=client) -> str:
     """
     # Construct uplink
     uplink = await constructor(message=message)
+
+    from pprint import pprint
+    from src.core.utility import clear
+    clear()
+    pprint(uplink)
 
     response = await client.chat.completions.create(
         messages=uplink,

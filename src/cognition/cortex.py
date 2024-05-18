@@ -14,10 +14,14 @@ async def constructor(message: discord.Message) -> list:
     Constructs the uplink list.
     """
     # Construct system prompt
+    prompt = {
+        "type": "text",
+        "text": constants.CHAT_PROMPT,
+    }
     uplink = [
         {
             "role": "system",
-            "content": constants.CHAT_PROMPT,
+            "content": [prompt] if prompt["text"] else [],
         },
     ]
 
@@ -39,48 +43,51 @@ async def assembler(message: discord.Message) -> list:
     # Assemble
     collection = []
     for msg in queue:
-        # Check if bot's message or user's
-        if msg.author.id == constants.BOT_ID:
-            role = "assistant"
-        else:
-            role = "user"
+        # Determine the role
+        role = "assistant" if msg.author.id == constants.BOT_ID else "user"
 
+        author_name = {
+            "type": "text",
+            "text": f"{msg.author.display_name}:",
+        }
         name_dict = {
             "role": "system",
-            "content": f"{msg.author.display_name}:",
+            "content": [author_name] if author_name["text"] else [],
         }
 
+        # --------------------------------------------------------------------
+        # Add text to message dictionary
+        body = {
+            "type": "text",
+            "text": msg.clean_content,
+        }
+
+        # Initial message dictionary
         message_dict = {
             "role": role,
-            "content": msg.clean_content,
+            "content": [body] if body["text"] else [],
         }
 
-        # Media handler
+        # --------------------------------------------------------------------
+        # Check for attachments and handle media
+
         if msg.attachments:
-            media = await verify_media(message=msg)
+            media = await verify_media(msg)
             if media:
-                content = []
-
-                # Add text in message
-                body = {
-                    "type": "text",
-                    "text": msg.clean_content,
-                }
-                content.append(body)
-
-                # Add images
+                # Add images as URLs
                 for attachment in media:
-                    # Components of the request
-                    image = {
-                        "url": attachment.url,
-                        "detail": constants.VISION_DETAIL,
-                    }
-                    content.append(image)
+                    if attachment.url:
+                        image_url = {"url": attachment.url}
+                        image_dict = {
+                            "type": "image_url",
+                            "image_url": image_url,
+                        }
+                        message_dict["content"].append(image_dict)
 
-                message_dict["content"] = content
-
+        # --------------------------------------------------------------------
         # Add to construction list
-        collection.append(name_dict)
-        collection.append(message_dict)
+        if message_dict["content"]:
+            collection.append(name_dict)
+            collection.append(message_dict)
 
     return collection
