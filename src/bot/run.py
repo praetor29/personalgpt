@@ -21,7 +21,7 @@ import sys
 # Internal modules
 from src.core import constants, ascii
 from src.core.utility import clear, get_channel_name
-from src.cognition.memory import sync_cache, setup_memory, enqueue
+from src.cognition.memory import sync_cache, setup_memory, enqueue, cache
 from src.bot.neuron import reply, send
 
 r"""
@@ -156,25 +156,4 @@ async def reset_cache(interaction: discord.Interaction):
         await interaction.response.send_message(
             f"Error re-caching `#{channel_name}` messages: {e}",
             ephemeral=True,
-        )
-
-
-# DEBUG-------------------------------------------------------------------------
-
-from src.cognition.memory import cache
-
-
-@bot.tree.command(
-    name="debug_cached", description="[DEBUG] Show earliest cached messages."
-)
-async def show_cache(interaction: discord.Interaction):
-    channel_id = interaction.channel_id
-    recent_messages = await cache.get(channel_id) or []
-
-    if recent_messages:
-        messages_text = "\n".join([msg.clean_content for msg in recent_messages])
-        await interaction.response.send_message(messages_text[:2000], ephemeral=True)
-    else:
-        await interaction.response.send_message(
-            "No messages are cached.", ephemeral=True
         )

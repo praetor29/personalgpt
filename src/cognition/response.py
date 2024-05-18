@@ -31,11 +31,6 @@ async def neural(message: discord.Message, client=client) -> str:
     # Construct uplink
     uplink = await constructor(message=message)
 
-    from pprint import pprint
-    from src.core.utility import clear
-    clear()
-    pprint(uplink)
-
     response = await client.chat.completions.create(
         messages=uplink,
         model=constants.CHAT_MODEL,
