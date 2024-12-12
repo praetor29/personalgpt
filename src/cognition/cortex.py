@@ -71,18 +71,18 @@ async def assembler(message: discord.Message) -> list:
         # --------------------------------------------------------------------
         # Check for attachments and handle media
 
-        if msg.attachments:
-            media = await verify_media(msg)
-            if media:
-                # Add images as URLs
-                for attachment in media:
-                    if attachment.url:
-                        image_url = {"url": attachment.url}
-                        image_dict = {
-                            "type": "image_url",
-                            "image_url": image_url,
-                        }
-                        message_dict["content"].append(image_dict)
+        # if msg.attachments:
+        #     media = await verify_media(msg)
+        #     if media:
+        #         # Add images as URLs
+        #         for attachment in media:
+        #             if attachment.url:
+        #                 image_url = {"url": attachment.url}
+        #                 image_dict = {
+        #                     "type": "image_url",
+        #                     "image_url": image_url,
+        #                 }
+        #                 message_dict["content"].append(image_dict)
 
         # --------------------------------------------------------------------
         # Add to construction list

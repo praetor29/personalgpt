@@ -1,6 +1,8 @@
 # Custom dev ignores
 node_modules
 /config/.env
+/config/prompts.yaml
+/config/config.yaml
 /data/*
 cache
 /src_old
