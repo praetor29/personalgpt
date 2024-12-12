@@ -9,8 +9,8 @@
   </p>
   
 <p align="center">
-<img alt="Python" src="https://img.shields.io/badge/Python-3.12.3-3776ab?logo=python"> <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-1.30.1-white?logo=openai">
-<img alt="Pycord" src="https://img.shields.io/badge/discord.py-2.3.2-5865f2?logo=discord">
+<img alt="Python" src="https://img.shields.io/badge/Python-3.12.3-3776ab?logo=python"> <img alt="OpenAI" src="https://img.shields.io/badge/OpenAI-1.57.2-white?logo=openai">
+<img alt="Pycord" src="https://img.shields.io/badge/discord.py-2.4.0-5865f2?logo=discord">
 </p>
 
 <p align="center">
@@ -40,7 +40,7 @@ To get started with PersonalGPT, follow these steps:
     - Or download the [latest archive.](https://github.com/praetor29/personalgpt/archive/refs/heads/main.zip)
     
 2. **Modify configuration files**  
-    Update `config.yaml` and `prompts.yaml` with your settings.
+    Customize `config.yaml.example` and `prompts.yaml.example` with your settings. Remove the `.example` extension from the file names.
 
 3. **Add API tokens**  
     Add your [OpenAI token](https://platform.openai.com/api-keys) and [Discord App token](https://discord.com/developers/docs/quick-start/getting-started) to `.env.example`, then rename the file to `.env`.
@@ -48,8 +48,8 @@ To get started with PersonalGPT, follow these steps:
 4. **Install Python**  
     Ensure you have [Python 3.12.3](https://www.python.org/downloads/release/python-3123/) installed on your system.
 
-   > [!TIP]
-   > Using a virtual environment like [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) makes managing dependencies easier and less messy. 
+> [!TIP]
+> Using a virtual environment like [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) makes managing dependencies easier and less messy. 
 
 5. **Install required packages**  
     Run the following command to install the necessary Python packages:
@@ -83,6 +83,9 @@ To get started with PersonalGPT, follow these steps:
     nohup <launch script or python command> &
     ```
 
+> [!NOTE]
+> The bots in the dev server are deployed using `docker compose`. However, the Dockerfile is not yet available in the repository. Releasing a docker image may be explored in the future.
+
 ---
 
 ## Contributions
@@ -106,7 +109,7 @@ PersonalGPT utilizes several open-source libraries and technologies:
 - **[aiocache](https://github.com/aio-libs/aiocache)**: Asyncio cache supporting multiple backends (memory, redis and memcached).
 
 > [!NOTE]
-> Support for OpenAI's [fine-tuning](https://platform.openai.com/docs/guides/fine-tuning), ElevenLabs Voice Cloning/Discord [voice support](https://github.com/praetor29/personalgpt/tree/5991d9f0708637a1057bb556e3950d59b657d494/src/voice) were dropped in v3.0. Voice support may be re-implemented in a later release.
+> Support for ElevenLabs Voice Cloning/Discord [voice support](https://github.com/praetor29/personalgpt/tree/5991d9f0708637a1057bb556e3950d59b657d494/src/voice) were dropped in v3.0. Voice support may be re-implemented in a later release.
 
 ## ⚖️ License
 This project is licensed under the [GNU General Public License v3.0](https://github.com/praetor29/personalgpt/blob/main/LICENSE).

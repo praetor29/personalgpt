@@ -30,12 +30,15 @@ async def neural(message: discord.Message, client=client) -> str:
     """
     # Construct uplink
     uplink = await constructor(message=message)
+    
+    try:
+        response = await client.chat.completions.create(
+            messages=uplink,
+            model=constants.CHAT_MODEL,
+            temperature=constants.CHAT_TEMP,
+            max_tokens=constants.CHAT_MAX,
+        )
 
-    response = await client.chat.completions.create(
-        messages=uplink,
-        model=constants.CHAT_MODEL,
-        temperature=constants.CHAT_TEMP,
-        max_tokens=constants.CHAT_MAX,
-    )
-
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {e}"

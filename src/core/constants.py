@@ -13,7 +13,7 @@ constants mgmt
 """
 
 # Import libraries
-from os import path, makedirs, getenv
+from os import path, getenv
 from dotenv import load_dotenv
 import yaml
 import discord
@@ -84,11 +84,5 @@ CHAT_TEMP = CONFIG.get("chat").get("temp", 0.5)
 CHAT_MAX = CONFIG.get("chat").get("tokens", 500)  # Discord has a 2000 character limit
 VISION_DETAIL = CONFIG.get("vision").get("detail", "auto")
 
-# Acceptable Media (as of present implementation)
-MEDIA = {
-    "image": {"png", "gif", "jpeg", "webp"},
-}
-
 # Prompts
 CHAT_PROMPT = PROMPTS.get("chat", "You are a helpful assistant.")
-

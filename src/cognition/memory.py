@@ -68,12 +68,11 @@ async def sync_cache(channel):
                     cache_queue.append(message)
                     token_count += tokens
         except Exception as e:
-            print(f"Error fetching history for #{channel_name}: {e}")
+            print(f"Sync error for #{channel_name}: {e}")
 
         # Reverse the order of messages before caching
         cache_queue.reverse()
         await cache.set(channel.id, cache_queue)
-        print(f"Sync: {len(cache_queue)} messages in #{channel_name}.")
 
 
 r"""
