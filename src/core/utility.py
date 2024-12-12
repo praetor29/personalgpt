@@ -15,9 +15,10 @@ r"""
 
 # Import libraries
 from os import system, name
-from src.core.constants import MEDIA
 import tiktoken
 import discord
+import re
+
 
 def clear():
     """
@@ -46,6 +47,7 @@ async def tokenize_lite(input: str) -> int:
     tokens = len(input) // 4
     return tokens
 
+
 def get_channel_name(channel):
     """
     Helper function to determine the name of the channel.
@@ -56,22 +58,36 @@ def get_channel_name(channel):
         return channel.name
     else:
         return "UnknownChannel"
-    
+
+
 async def verify_media(message: discord.Message) -> list:
     """
-    Verifies if media is of a valid type. Returns list of verified attachments.
+    Verifies if media is a valid image. Returns a list of verified image attachments.
+
+    Args:
+        message: The Discord message to check.
+
+    Returns:
+        A list of verified image attachments.
     """
+
+    # Acceptable Media (as of present implementation)
+    MEDIA = {"image/png", "image/gif", "image/jpeg", "image/webp"}
+
     media = []
 
     for attachment in message.attachments:
-        # Extract MIME info
-        # - after normalizing to lowercase for safety
-        # - splitting along /
-        type, subtype = attachment.content_type.lower().split('/')
+        try:
+            content_type = attachment.content_type.lower()
 
-        # Check if MIME matches acceptable media and append/ignore
-        if type in MEDIA.keys() and subtype in MEDIA[type]:
-            media.append(attachment)
+            # Use regex to match image MIME types
+            if re.match(r"^image/", content_type):
+                # Further check against specific MIME types for more precision
+                if content_type in MEDIA:
+                    media.append(attachment)
+        except AttributeError as e:
+            print(f"Error processing attachment: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
     return media
-

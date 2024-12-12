@@ -70,19 +70,26 @@ async def assembler(message: discord.Message) -> list:
 
         # --------------------------------------------------------------------
         # Check for attachments and handle media
+        if msg.attachments:
+            media = await verify_media(msg)
+            if media:
+                # Add images as URLs
+                for attachment in media:
+                    image_url = {}
+                    if attachment.proxy_url:
+                        image_url["url"] = attachment.proxy_url
+                    elif attachment.url:
+                        image_url["url"] = attachment.url
+                    else:
+                        # If no URL is available, skip this attachment
+                        continue
 
-        # if msg.attachments:
-        #     media = await verify_media(msg)
-        #     if media:
-        #         # Add images as URLs
-        #         for attachment in media:
-        #             if attachment.url:
-        #                 image_url = {"url": attachment.url}
-        #                 image_dict = {
-        #                     "type": "image_url",
-        #                     "image_url": image_url,
-        #                 }
-        #                 message_dict["content"].append(image_dict)
+                    # With successful URL retrieval, add to message
+                    image_dict = {
+                        "type": "image_url",
+                        "image_url": image_url,
+                    }
+                    message_dict["content"].append(image_dict)
 
         # --------------------------------------------------------------------
         # Add to construction list
