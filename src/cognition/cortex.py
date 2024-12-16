@@ -8,6 +8,9 @@ from src.cognition.memory import cache
 from src.core import constants
 from src.core.utility import verify_media
 
+import aiohttp
+import base64
+
 
 async def constructor(message: discord.Message) -> list:
     """
@@ -31,6 +34,27 @@ async def constructor(message: discord.Message) -> list:
     uplink.extend(context)
 
     return uplink
+
+
+async def imgcoder(url: str) -> str:
+    """
+    Fetch an image from a URL and encode it as a Base64 string.
+    Returns the image in the format: "data:image/png;base64,<base64_string>"
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+
+            async with session.get(url) as response:
+                if response.status == 200:
+                    image_data = await response.read()
+                    base64_image = base64.b64encode(image_data).decode("utf-8")
+                    return f"data:image/png;base64,{base64_image}"
+
+                else:
+                    return None
+
+    except Exception as e:
+        return None
 
 
 async def assembler(message: discord.Message) -> list:
@@ -69,6 +93,7 @@ async def assembler(message: discord.Message) -> list:
         }
 
         # --------------------------------------------------------------------
+
         # Check for attachments and handle media
         if msg.attachments:
             media = await verify_media(msg)
@@ -76,15 +101,21 @@ async def assembler(message: discord.Message) -> list:
                 # Add images as URLs
                 for attachment in media:
                     image_url = {}
-                    if attachment.proxy_url:
-                        image_url["url"] = attachment.proxy_url
-                    elif attachment.url:
-                        image_url["url"] = attachment.url
+
+                    # Base64 encode image
+                    if attachment.url:
+                        image_url["url"] = await imgcoder(attachment.url)
+                    elif attachment.proxy_url:
+                        image_url["url"] = await imgcoder(attachment.proxy_url)
                     else:
                         # If no URL is available, skip this attachment
                         continue
 
-                    # With successful URL retrieval, add to message
+                    # Guard clause: image retrieval failed
+                    if not image_url["url"]:
+                        continue  # Skip this attachment
+
+                    # With successful image retrieval, add encoded image to message
                     image_dict = {
                         "type": "image_url",
                         "image_url": image_url,

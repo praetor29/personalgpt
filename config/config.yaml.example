@@ -26,7 +26,7 @@ activity:
 #---------------------------------------+
 #           Memory Management           |
 #---------------------------------------+
-mem_max: 4096 # tokens
+mem_max: 8096 # tokens
 mem_sync: 0.25 # 25% of capacity is synced
 
 
