@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The PersonalGPT Project
-# Version: 3.0
+# Version: 3.2
 # This is the launch script for the PersonalGPT project.
 
 # Clear the terminal
@@ -9,7 +9,7 @@ clear
 
 # Output header information
 echo "The PersonalGPT Project"
-echo "Version: 3.0"
+echo "Version: 3.2"
 echo "This is the launch script for the PersonalGPT project."
 echo
 
